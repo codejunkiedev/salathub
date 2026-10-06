@@ -235,26 +235,6 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
             })}
           </ul>
         </nav>
-
-        {/* Footer */}
-        <div className='mt-auto p-4 border-t border-slate-700/50 overflow-hidden'>
-          <div
-            className={cn(
-              'transition-all duration-300 ease-in-out overflow-hidden',
-              collapsed && !isMobile ? 'opacity-0 h-0 p-0' : 'opacity-100 h-auto'
-            )}
-          >
-            <div className='bg-slate-700/30 rounded-md p-3'>
-              <p className='text-xs text-slate-400 mb-1'>Current Version</p>
-              <p className='text-sm font-medium text-emerald-400'>SalatHub v2.0</p>
-            </div>
-          </div>
-          {collapsed && !isMobile && (
-            <div className='flex justify-center transition-all duration-300'>
-              <span className='text-emerald-400 text-xs'>v2.0</span>
-            </div>
-          )}
-        </div>
       </aside>
     </div>
   );
