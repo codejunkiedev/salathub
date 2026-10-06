@@ -17,7 +17,7 @@ import { FollowQrPoster } from '@/components/settings';
 import { AppRoutes } from '@/constants';
 import type { MasjidProfile } from '@/types';
 
-export default function AlkhairiApp() {
+export default function AlkhairiaApp() {
   const [profile, setProfile] = useState<MasjidProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -40,7 +40,7 @@ export default function AlkhairiApp() {
       setIsSaving(true);
       setProfile(await setMasjidListed(checked));
       toast.success(
-        checked ? 'Masjid listed in the Alkhairi app' : 'Masjid removed from the Alkhairi app'
+        checked ? 'Masjid listed in the Alkhairia app' : 'Masjid removed from the Alkhairia app'
       );
     } catch (error) {
       console.error('Error updating listing:', error);
@@ -61,8 +61,8 @@ export default function AlkhairiApp() {
         </Link>
       </div>
       <PageHeader
-        title='Alkhairi App'
-        description='Let people find and follow the masjid in the Alkhairi mobile app'
+        title='Alkhairia App'
+        description='Let people find and follow the masjid in the Alkhairia mobile app'
       />
 
       {isLoading ? (
@@ -77,7 +77,7 @@ export default function AlkhairiApp() {
               <div className='relative flex items-start justify-between gap-4'>
                 <div className='space-y-1.5'>
                   <CardTitle>
-                    <label htmlFor='listed'>List this masjid in the Alkhairi app</label>
+                    <label htmlFor='listed'>List this masjid in the Alkhairia app</label>
                   </CardTitle>
                   <CardDescription>
                     People nearby can find the masjid and follow it for prayer times. Doing so

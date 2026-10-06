@@ -65,20 +65,20 @@ export function FollowQrPoster({ masjidId, masjidName }: FollowQrPosterProps) {
     y += 24;
     context.fillStyle = '#111827';
     context.font = '48px sans-serif';
-    context.fillText('Follow us in the Alkhairi app', centre, y);
+    context.fillText('Follow us in the Alkhairia app', centre, y);
     y += 110;
 
     context.drawImage(qr, (POSTER_WIDTH - QR_SIZE) / 2, y, QR_SIZE, QR_SIZE);
     y += QR_SIZE + 70;
 
     context.font = '40px sans-serif';
-    context.fillText('Scan with your phone camera or the Alkhairi app', centre, y);
+    context.fillText('Scan with your phone camera or the Alkhairia app', centre, y);
     y += 64;
     context.fillStyle = '#6b7280';
     context.font = '34px sans-serif';
     context.fillText('for our prayer times and alerts when they change', centre, y);
 
-    context.fillText('Alkhairi is available on Google Play', centre, POSTER_HEIGHT - 130);
+    context.fillText('Alkhairia is available on Google Play', centre, POSTER_HEIGHT - 130);
 
     const link = document.createElement('a');
     link.href = poster.toDataURL('image/png');
