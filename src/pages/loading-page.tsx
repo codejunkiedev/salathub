@@ -25,11 +25,7 @@ export default function Loading() {
           <div className='relative'>
             <div className='absolute -inset-8 rounded-full bg-gradient-to-r from-blue-400/20 via-emerald-500/20 to-purple-400/20 blur-xl animate-pulse'></div>
 
-            <div className='relative w-24 h-24 rounded-xl bg-gradient-to-b from-slate-800 to-slate-900 flex items-center justify-center shadow-lg border border-slate-700/50'>
-              <div className='w-16 h-16 rounded-lg bg-emerald-500 flex items-center justify-center transition-transform duration-200'>
-                <span className='font-bold text-white text-4xl'>P</span>
-              </div>
-            </div>
+            <img src='/icons/icon-192.png' alt='' className='relative w-24 h-24 drop-shadow-lg' />
           </div>
 
           <h1 className='text-3xl font-semibold bg-gradient-to-r from-emerald-500 via-emerald-400 to-blue-500 bg-clip-text text-transparent dark:from-emerald-400 dark:to-blue-400'>

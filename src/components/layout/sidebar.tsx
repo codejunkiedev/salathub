@@ -150,14 +150,14 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
             onClick={collapsed && !isMobile ? toggleSidebar : undefined}
             title={collapsed && !isMobile ? 'Expand Sidebar' : undefined}
           >
-            <div
+            <img
+              src='/icons/icon-192.png'
+              alt=''
               className={cn(
-                'w-8 h-8 min-w-[32px] rounded-md bg-emerald-500 flex items-center justify-center transition-transform duration-200',
+                'w-8 h-8 min-w-[32px] transition-transform duration-200',
                 collapsed && !isMobile ? 'hover:scale-110 mx-auto' : ''
               )}
-            >
-              <span className='font-bold text-white'>P</span>
-            </div>
+            />
             <div
               className={cn(
                 'ml-3 overflow-hidden transition-all duration-300 ease-in-out',
