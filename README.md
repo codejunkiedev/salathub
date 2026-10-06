@@ -19,7 +19,7 @@ Requires **Node.js 20.18+** (CI builds on Node 20; `react-router` 7 needs `>=20.
 
 ```bash
 git clone <repository-url>
-cd prayerbox-v2
+cd salathub
 npm ci --legacy-peer-deps   # the dependency tree has unresolved peer conflicts; CI uses this flag
 npm run dev
 ```
