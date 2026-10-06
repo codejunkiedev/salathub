@@ -125,7 +125,7 @@ There is **no analytics of any kind** and no global `unhandledrejection` handler
 
 ## Display hardware
 
-PrayerBox runs fullscreen in a browser on a TV box. The Android version matters more than anything else, because it determines the Chrome/WebView version and therefore CSS support.
+SalatHub runs fullscreen in a browser on a TV box. The Android version matters more than anything else, because it determines the Chrome/WebView version and therefore CSS support.
 
 **Recommended when buying:** Android 12+, 2 GB RAM (4 GB recommended), an Ethernet port, HDMI 1080p.
 

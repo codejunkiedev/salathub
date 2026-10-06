@@ -164,7 +164,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                 collapsed && !isMobile ? 'w-0 opacity-0 ml-0' : 'w-auto opacity-100'
               )}
             >
-              <h1 className='text-xl font-semibold whitespace-nowrap'>PrayerBox</h1>
+              <h1 className='text-xl font-semibold whitespace-nowrap'>SalatHub</h1>
             </div>
           </div>
 
@@ -246,7 +246,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
           >
             <div className='bg-slate-700/30 rounded-md p-3'>
               <p className='text-xs text-slate-400 mb-1'>Current Version</p>
-              <p className='text-sm font-medium text-emerald-400'>PrayerBox v2.0</p>
+              <p className='text-sm font-medium text-emerald-400'>SalatHub v2.0</p>
             </div>
           </div>
           {collapsed && !isMobile && (

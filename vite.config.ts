@@ -112,8 +112,8 @@ export default defineConfig(({ mode }) => {
           ],
         },
         manifest: {
-          name: 'Prayer Box',
-          short_name: 'Prayer Box',
+          name: 'SalatHub',
+          short_name: 'SalatHub',
           description: 'Mosque display screens for prayer times, announcements, and content.',
           theme_color: '#000000',
           background_color: '#000000',

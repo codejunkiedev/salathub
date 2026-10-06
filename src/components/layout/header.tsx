@@ -47,7 +47,7 @@ export default function Header({ onMenuClick, isScrolled = false }: HeaderProps)
         <Menu size={20} />
       </Button>
 
-      <h1 className='text-xl font-semibold md:ml-1 text-foreground'>PrayerBox</h1>
+      <h1 className='text-xl font-semibold md:ml-1 text-foreground'>SalatHub</h1>
 
       <div className='ml-auto flex items-center space-x-2'>
         <ThemeToggle />

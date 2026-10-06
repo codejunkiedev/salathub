@@ -20,7 +20,7 @@ export default function Loading() {
   return (
     <div className='flex h-screen w-screen flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-background to-purple-50 dark:from-blue-950/30 dark:via-background dark:to-purple-950/30'>
       <div className='flex flex-col items-center gap-8 px-4 text-center'>
-        {/* PrayerBox logo (matching sidebar style) */}
+        {/* SalatHub logo (matching sidebar style) */}
         <div className='flex flex-col items-center gap-4'>
           <div className='relative'>
             <div className='absolute -inset-8 rounded-full bg-gradient-to-r from-blue-400/20 via-emerald-500/20 to-purple-400/20 blur-xl animate-pulse'></div>
@@ -33,7 +33,7 @@ export default function Loading() {
           </div>
 
           <h1 className='text-3xl font-semibold bg-gradient-to-r from-emerald-500 via-emerald-400 to-blue-500 bg-clip-text text-transparent dark:from-emerald-400 dark:to-blue-400'>
-            PrayerBox
+            SalatHub
           </h1>
         </div>
 
