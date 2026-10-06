@@ -4,8 +4,8 @@ export default function TermsConditions() {
   return (
     <LegalLayout title='Terms & Conditions' lastUpdated='25 November 2025'>
       <p>
-        Welcome to <strong>PrayerBox</strong> ("we", "us", "our"). These Terms &amp; Conditions
-        ("Terms") govern your access to and use of the PrayerBox application and related services
+        Welcome to <strong>SalatHub</strong> ("we", "us", "our"). These Terms &amp; Conditions
+        ("Terms") govern your access to and use of the SalatHub application and related services
         (the "Services").
       </p>
       <p>
@@ -16,7 +16,7 @@ export default function TermsConditions() {
       <h2>1. Definitions</h2>
       <ul>
         <li>
-          <strong>"Services"</strong> — the PrayerBox web application, display screens, APIs, and
+          <strong>"Services"</strong> — the SalatHub web application, display screens, APIs, and
           related features.
         </li>
         <li>
@@ -25,7 +25,7 @@ export default function TermsConditions() {
         </li>
         <li>
           <strong>"Account"</strong> — the credentials and configuration associated with a masjid on
-          PrayerBox.
+          SalatHub.
         </li>
         <li>
           <strong>"Content"</strong> — text, images, audio, video, links, designs, and other
@@ -196,7 +196,7 @@ export default function TermsConditions() {
 
       <h2>15. Indemnity</h2>
       <p>
-        You agree to indemnify, defend, and hold harmless PrayerBox, our affiliates, and our
+        You agree to indemnify, defend, and hold harmless SalatHub, our affiliates, and our
         respective officers, employees, and agents from and against any claims, liabilities,
         damages, losses, and expenses (including reasonable legal fees) arising out of or in any way
         connected with:

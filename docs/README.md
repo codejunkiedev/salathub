@@ -1,4 +1,4 @@
-# PrayerBox v2 — Documentation
+# SalatHub — Documentation
 
 How each subsystem behaves, aimed at someone changing the code. The [root README](../README.md) covers what the product is and how to get it running. Paths are relative to `src/` unless stated.
 

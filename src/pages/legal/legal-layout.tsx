@@ -35,10 +35,8 @@ export function LegalLayout({ title, lastUpdated, children }: LegalLayoutProps) 
             <ArrowLeft size={18} />
           </Button>
           <Link to={AuthRoutes.Login} className='flex items-center gap-2'>
-            <div className='flex h-7 w-7 items-center justify-center rounded-md bg-emerald-500 text-white'>
-              <span className='text-sm font-bold'>P</span>
-            </div>
-            <span className='text-base font-semibold'>PrayerBox</span>
+            <img src='/icons/icon-192.png' alt='' className='h-7 w-7' />
+            <span className='text-base font-semibold'>SalatHub</span>
           </Link>
         </div>
       </header>
@@ -77,7 +75,7 @@ export function LegalLayout({ title, lastUpdated, children }: LegalLayoutProps) 
               Terms &amp; Conditions
             </Link>
           </div>
-          <span>&copy; {new Date().getFullYear()} PrayerBox</span>
+          <span>&copy; {new Date().getFullYear()} SalatHub</span>
         </footer>
       </main>
     </div>

@@ -150,21 +150,21 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
             onClick={collapsed && !isMobile ? toggleSidebar : undefined}
             title={collapsed && !isMobile ? 'Expand Sidebar' : undefined}
           >
-            <div
+            <img
+              src='/icons/icon-192.png'
+              alt=''
               className={cn(
-                'w-8 h-8 min-w-[32px] rounded-md bg-emerald-500 flex items-center justify-center transition-transform duration-200',
+                'w-8 h-8 min-w-[32px] transition-transform duration-200',
                 collapsed && !isMobile ? 'hover:scale-110 mx-auto' : ''
               )}
-            >
-              <span className='font-bold text-white'>P</span>
-            </div>
+            />
             <div
               className={cn(
                 'ml-3 overflow-hidden transition-all duration-300 ease-in-out',
                 collapsed && !isMobile ? 'w-0 opacity-0 ml-0' : 'w-auto opacity-100'
               )}
             >
-              <h1 className='text-xl font-semibold whitespace-nowrap'>PrayerBox</h1>
+              <h1 className='text-xl font-semibold whitespace-nowrap'>SalatHub</h1>
             </div>
           </div>
 
@@ -235,26 +235,6 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
             })}
           </ul>
         </nav>
-
-        {/* Footer */}
-        <div className='mt-auto p-4 border-t border-slate-700/50 overflow-hidden'>
-          <div
-            className={cn(
-              'transition-all duration-300 ease-in-out overflow-hidden',
-              collapsed && !isMobile ? 'opacity-0 h-0 p-0' : 'opacity-100 h-auto'
-            )}
-          >
-            <div className='bg-slate-700/30 rounded-md p-3'>
-              <p className='text-xs text-slate-400 mb-1'>Current Version</p>
-              <p className='text-sm font-medium text-emerald-400'>PrayerBox v2.0</p>
-            </div>
-          </div>
-          {collapsed && !isMobile && (
-            <div className='flex justify-center transition-all duration-300'>
-              <span className='text-emerald-400 text-xs'>v2.0</span>
-            </div>
-          )}
-        </div>
       </aside>
     </div>
   );

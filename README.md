@@ -1,4 +1,4 @@
-# PrayerBox v2
+# SalatHub
 
 A mosque management and digital-signage platform. Admins and moderators manage prayer times and content from a web console; display screens around the masjid — TVs, tablets, phones — sign in with a per-screen code and render a full-screen, auto-rotating slideshow.
 

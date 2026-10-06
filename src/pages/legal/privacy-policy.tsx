@@ -4,22 +4,22 @@ export default function PrivacyPolicy() {
   return (
     <LegalLayout title='Privacy Policy' lastUpdated='30 September 2026'>
       <p>
-        This Privacy Policy explains how <strong>PrayerBox</strong> ("we", "us", "our") collects,
+        This Privacy Policy explains how <strong>SalatHub</strong> ("we", "us", "our") collects,
         uses, and protects information about administrators, moderators, display operators,
-        visitors, and people who use the Alkhairia mobile app ("you") when you use the PrayerBox
+        visitors, and people who use the Alkhairia mobile app ("you") when you use the SalatHub
         application, the Alkhairia app and related services (the "Services").
       </p>
       <p>By using the Services, you consent to the practices described in this Privacy Policy.</p>
 
       <h2>1. Who We Are</h2>
       <p>
-        PrayerBox is a software-as-a-service platform that helps masjids manage prayer timings,
+        SalatHub is a software-as-a-service platform that helps masjids manage prayer timings,
         announcements, posts, events, Quranic ayat and hadith content, and the digital displays
         shown inside their facilities.
       </p>
       <p>
         We also publish the <strong>Alkhairia</strong> mobile app, which lets anyone find masjids
-        that use PrayerBox and have chosen to be listed, follow them, and see their prayer times.
+        that use SalatHub and have chosen to be listed, follow them, and see their prayer times.
         Section 7 explains what the app collects.
       </p>
       <p>
@@ -156,7 +156,7 @@ export default function PrivacyPolicy() {
 
       <h2>6. Content You Publish</h2>
       <p>
-        Content you publish through PrayerBox (announcements, posts, events, ayat/hadith designs) is
+        Content you publish through SalatHub (announcements, posts, events, ayat/hadith designs) is
         displayed inside your masjid's facilities through your registered screens. You are
         responsible for the accuracy, legality, and appropriateness of that content. Where the
         Services allow you to add moderators, the masjid administrator remains responsible for
@@ -307,7 +307,7 @@ export default function PrivacyPolicy() {
 
       <h2>13. Children's Privacy</h2>
       <p>
-        The PrayerBox console is intended for use by masjid administrators and the moderators they
+        The SalatHub console is intended for use by masjid administrators and the moderators they
         appoint. The Alkhairia app is available to the general public but does not ask for any
         information that identifies a person. We do not knowingly collect personal information from
         children. If you believe a child has provided us with personal data, please contact us and
@@ -340,7 +340,7 @@ export default function PrivacyPolicy() {
           <a href='mailto:admin@shaykhrahmatalamjan.com'>admin@shaykhrahmatalamjan.com</a>
         </li>
         <li>
-          <strong>Support:</strong> Through the Support page in your PrayerBox account.
+          <strong>Support:</strong> Through the Support page in your SalatHub account.
         </li>
       </ul>
     </LegalLayout>
