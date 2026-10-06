@@ -126,7 +126,7 @@ export async function upsertMasjidProfile(
   }
 }
 
-/** Lists the masjid in the Alkhairi app's directory, or withdraws it. */
+/** Lists the masjid in the Alkhairia app's directory, or withdraws it. */
 export async function setMasjidListed(listed: boolean): Promise<MasjidProfile> {
   const { masjid_id } = await getMasjidMembership();
   return await updateRecord<MasjidProfile>(SupabaseTables.MasjidProfiles, masjid_id, {
@@ -138,7 +138,7 @@ export async function setMasjidListed(listed: boolean): Promise<MasjidProfile> {
 export type PublicMasjid = Pick<MasjidProfile, 'id' | 'name' | 'area' | 'logo_url'>;
 
 /**
- * A listed masjid as the Alkhairi app sees it, for the signed-out follow page.
+ * A listed masjid as the Alkhairia app sees it, for the signed-out follow page.
  * Resolves to null when the masjid is gone or no longer listed.
  */
 export async function getPublicMasjid(id: string): Promise<PublicMasjid | null> {

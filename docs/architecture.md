@@ -55,9 +55,9 @@ Inside `get_display_payload` every content branch re-checks `masjid_id` against 
 
 ## How the mobile app reads data
 
-The Alkhairi mobile app follows masjids and shows their times. It holds no session and gets nothing through PostgREST: everything arrives through the `masjid-directory` Edge Function, which runs as `service_role` and is the only door a public request comes through — one place for the rate limit and the column whitelist, and no new grant for `anon`.
+The Alkhairia mobile app follows masjids and shows their times. It holds no session and gets nothing through PostgREST: everything arrives through the `masjid-directory` Edge Function, which runs as `service_role` and is the only door a public request comes through — one place for the rate limit and the column whitelist, and no new grant for `anon`.
 
-A masjid appears only once an admin sets `masjid_profiles.listed`, which the Alkhairi App settings page gates on coordinates being present and a `CHECK` enforces.
+A masjid appears only once an admin sets `masjid_profiles.listed`, which the Alkhairia App settings page gates on coordinates being present and a `CHECK` enforces.
 
 | Route                             | Returns                                                                                                  |
 | --------------------------------- | -------------------------------------------------------------------------------------------------------- |

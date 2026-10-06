@@ -15,10 +15,10 @@ const settingsModules = [
     requiresMasjid: false,
   },
   {
-    title: 'Alkhairi App',
+    title: 'Alkhairia App',
     description: 'List the masjid in the mobile app and get its follow QR',
     icon: Smartphone,
-    route: AppRoutes.SettingsAlkhairiApp,
+    route: AppRoutes.SettingsAlkhairiaApp,
     color: 'text-emerald-600',
     requiresMasjid: true,
   },

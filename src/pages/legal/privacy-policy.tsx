@@ -6,8 +6,8 @@ export default function PrivacyPolicy() {
       <p>
         This Privacy Policy explains how <strong>PrayerBox</strong> ("we", "us", "our") collects,
         uses, and protects information about administrators, moderators, display operators,
-        visitors, and people who use the Alkhairi mobile app ("you") when you use the PrayerBox
-        application, the Alkhairi app and related services (the "Services").
+        visitors, and people who use the Alkhairia mobile app ("you") when you use the PrayerBox
+        application, the Alkhairia app and related services (the "Services").
       </p>
       <p>By using the Services, you consent to the practices described in this Privacy Policy.</p>
 
@@ -18,7 +18,7 @@ export default function PrivacyPolicy() {
         shown inside their facilities.
       </p>
       <p>
-        We also publish the <strong>Alkhairi</strong> mobile app, which lets anyone find masjids
+        We also publish the <strong>Alkhairia</strong> mobile app, which lets anyone find masjids
         that use PrayerBox and have chosen to be listed, follow them, and see their prayer times.
         Section 7 explains what the app collects.
       </p>
@@ -140,7 +140,7 @@ export default function PrivacyPolicy() {
           These services have their own privacy policies governing the data they receive.
         </li>
         <li>
-          <strong>Notification delivery services</strong> for the Alkhairi app: Expo, Google
+          <strong>Notification delivery services</strong> for the Alkhairia app: Expo, Google
           Firebase Cloud Messaging on Android, and the Apple Push Notification service on iOS. They
           receive the notification and the device token it is addressed to.
         </li>
@@ -163,9 +163,9 @@ export default function PrivacyPolicy() {
         oversight of moderator activity.
       </p>
 
-      <h2>7. The Alkhairi Mobile App</h2>
+      <h2>7. The Alkhairia Mobile App</h2>
       <p>
-        The Alkhairi app has no accounts. It does not ask for your name, email address or phone
+        The Alkhairia app has no accounts. It does not ask for your name, email address or phone
         number.
       </p>
 
@@ -253,7 +253,7 @@ export default function PrivacyPolicy() {
         anonymise the associated personal data, except where retention is required by law.
       </p>
       <p>
-        For the Alkhairi app, the information described in Section 7.3 is kept only while Timing
+        For the Alkhairia app, the information described in Section 7.3 is kept only while Timing
         changes is turned on, as described there.
       </p>
 
@@ -308,7 +308,7 @@ export default function PrivacyPolicy() {
       <h2>13. Children's Privacy</h2>
       <p>
         The PrayerBox console is intended for use by masjid administrators and the moderators they
-        appoint. The Alkhairi app is available to the general public but does not ask for any
+        appoint. The Alkhairia app is available to the general public but does not ask for any
         information that identifies a person. We do not knowingly collect personal information from
         children. If you believe a child has provided us with personal data, please contact us and
         we will take appropriate action.

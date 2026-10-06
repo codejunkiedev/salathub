@@ -2,14 +2,14 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { buttonVariants } from '@/components/ui';
 import { getPublicMasjid, type PublicMasjid } from '@/lib/supabase';
-import { ALKHAIRI_PLAY_STORE_URL, masjidAppUrl } from '@/helpers';
+import { ALKHAIRIA_PLAY_STORE_URL, masjidAppUrl } from '@/helpers';
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 type Status = 'loading' | 'ready' | 'unavailable';
 
 /**
- * Where a follow QR lands when the Alkhairi app did not take the link itself:
+ * Where a follow QR lands when the Alkhairia app did not take the link itself:
  * the app is missing, or is a build from before it claimed these links.
  */
 export default function MasjidFollow() {
@@ -50,7 +50,7 @@ export default function MasjidFollow() {
           <div className='space-y-2'>
             <h1 className='text-xl font-semibold'>This masjid is not available</h1>
             <p className='text-sm text-muted-foreground'>
-              It may have stopped sharing its prayer times in the Alkhairi app.
+              It may have stopped sharing its prayer times in the Alkhairia app.
             </p>
           </div>
         )}
@@ -70,7 +70,7 @@ export default function MasjidFollow() {
             </div>
 
             <p className='text-sm text-muted-foreground'>
-              Follow this masjid in the Alkhairi app to see its prayer times and hear when they
+              Follow this masjid in the Alkhairia app to see its prayer times and hear when they
               change.
             </p>
 
@@ -80,21 +80,21 @@ export default function MasjidFollow() {
                   href={masjidAppUrl(masjid.id)}
                   className={buttonVariants({ className: 'w-full' })}
                 >
-                  Open in Alkhairi
+                  Open in Alkhairia
                 </a>
               )}
               <a
-                href={ALKHAIRI_PLAY_STORE_URL}
+                href={ALKHAIRIA_PLAY_STORE_URL}
                 className={buttonVariants({
                   variant: isAndroid ? 'outline' : 'default',
                   className: 'w-full',
                 })}
               >
-                Get Alkhairi on Google Play
+                Get Alkhairia on Google Play
               </a>
               {!isAndroid && (
                 <p className='text-xs text-muted-foreground'>
-                  Alkhairi is available on Android for now.
+                  Alkhairia is available on Android for now.
                 </p>
               )}
             </div>

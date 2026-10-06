@@ -11,7 +11,7 @@ interface FollowQrDisplayProps {
 }
 
 /**
- * Invites the congregation to follow the masjid in the Alkhairi app. The code is
+ * Invites the congregation to follow the masjid in the Alkhairia app. The code is
  * drawn here from the masjid's id, so the slide needs no network once loaded.
  */
 export function FollowQrDisplay({

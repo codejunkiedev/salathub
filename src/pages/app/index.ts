@@ -10,7 +10,7 @@ export const PrayerTimings = lazy(() => import('./prayer-timings'));
 export const Settings = lazy(() => import('./settings'));
 
 export const SettingsProfile = lazy(() => import('./settings/profile'));
-export const SettingsAlkhairiApp = lazy(() => import('./settings/alkhairi-app'));
+export const SettingsAlkhairiaApp = lazy(() => import('./settings/alkhairia-app'));
 export const Screens = lazy(() => import('./screens'));
 export const ScreenDetail = lazy(() => import('./screen-detail'));
 export const Display = lazy(() => import('./display'));

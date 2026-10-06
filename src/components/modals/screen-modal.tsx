@@ -291,15 +291,15 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
             </div>
             <p className='text-xs text-muted-foreground'>
               {isListed ? (
-                'Adds a slide people can scan to follow the masjid in the Alkhairi app.'
+                'Adds a slide people can scan to follow the masjid in the Alkhairia app.'
               ) : (
                 <>
-                  Appears only while the masjid is listed in the Alkhairi app. Turn listing on in{' '}
+                  Appears only while the masjid is listed in the Alkhairia app. Turn listing on in{' '}
                   <Link
-                    to={AppRoutes.SettingsAlkhairiApp}
+                    to={AppRoutes.SettingsAlkhairiaApp}
                     className='text-foreground underline underline-offset-2'
                   >
-                    Alkhairi App settings
+                    Alkhairia App settings
                   </Link>
                   .
                 </>

@@ -26,7 +26,7 @@ export enum AppRoutes {
   ScreenCustomTheme = '/admin/screens/:id/customize-theme',
   Settings = '/admin/settings',
   SettingsProfile = '/admin/settings/profile',
-  SettingsAlkhairiApp = '/admin/settings/alkhairi-app',
+  SettingsAlkhairiaApp = '/admin/settings/alkhairia-app',
 
   SettingsAccount = '/admin/settings/account',
   Moderators = '/admin/moderators',
