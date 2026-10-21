@@ -49,10 +49,11 @@ const CATEGORY_LABELS: Record<EngineAdjustmentCategory, string> = {
 };
 
 const CATEGORIES: EngineAdjustmentCategory[] = ['starts', 'athan', 'iqamah'];
+const BODY_ORDER: EngineAdjustmentCategory[] = ['iqamah', 'athan', 'starts'];
 const DAILY_PRAYERS: EngineDailyPrayerName[] = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const LISTED_IN_BODY = 2;
+const NAMED_IN_TITLE = 3;
 
 const prayersOf = (
   times: ResolvedDayTimes
@@ -91,13 +92,16 @@ export const diffPrayerDays = (before: DayTimes[], after: DayTimes[]): PrayerCha
   return changes;
 };
 
-const formatClock = (value: string): string => {
+const formatClock = (value: string, dropSuffix = false): string => {
   const match = /^(\d{1,2}):(\d{2})$/.exec(value);
   if (!match) return value;
   const hours = Number(match[1]);
-  const suffix = hours < 12 ? 'AM' : 'PM';
-  return `${hours % 12 === 0 ? 12 : hours % 12}:${match[2]} ${suffix}`;
+  const clock = `${hours % 12 === 0 ? 12 : hours % 12}:${match[2]}`;
+  return dropSuffix ? clock : `${clock} ${hours < 12 ? 'AM' : 'PM'}`;
 };
+
+const sameHalfOfDay = (a: string, b: string) =>
+  Number(a.split(':')[0]) < 12 === Number(b.split(':')[0]) < 12;
 
 const formatDay = (day: string, today: string): string => {
   if (day <= today) return 'today';
@@ -115,10 +119,13 @@ export interface ChangeMessage {
   body: string;
 }
 
+const joinNames = (names: string[]): string =>
+  names.length === 1 ? names[0] : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
+
 /**
- * One notification per masjid. Each prayer and time is named once, at the
- * first day it changes, so a new jamaat time reads as one change rather than
- * fourteen.
+ * One notification per masjid, one line per prayer. Each prayer and time is
+ * named once, at the first day it changes, so a new jamaat time reads as one
+ * change rather than fourteen.
  */
 export const describeChanges = (
   masjidName: string,
@@ -130,35 +137,52 @@ export const describeChanges = (
     const key = `${change.prayer}:${change.category}`;
     if (!first.has(key)) first.set(key, change);
   }
+  if (first.size === 0) return null;
 
-  const summary = [...first.values()].sort(
-    (a, b) =>
-      PRAYER_ORDER.indexOf(a.prayer) - PRAYER_ORDER.indexOf(b.prayer) ||
-      CATEGORIES.indexOf(a.category) - CATEGORIES.indexOf(b.category)
-  );
-  if (summary.length === 0) return null;
-
-  const from = formatDay(summary[0].day, today);
-  const sameDay = summary.every(change => change.day === summary[0].day);
-  const label = (change: PrayerChange) =>
-    `${PRAYER_LABELS[change.prayer]} ${CATEGORY_LABELS[change.category]}`;
-
-  if (summary.length === 1) {
-    const [change] = summary;
-    return {
-      title: `${masjidName} changed a prayer time`,
-      body: `${label(change)} moves to ${formatClock(change.to)} (was ${formatClock(change.from)}) from ${from}.`,
-    };
+  const byPrayer = new Map<PrayerName, PrayerChange[]>();
+  for (const change of first.values()) {
+    byPrayer.set(change.prayer, [...(byPrayer.get(change.prayer) ?? []), change]);
   }
 
-  const listed = summary
-    .slice(0, LISTED_IN_BODY)
-    .map(change => `${label(change)} ${formatClock(change.to)}`)
-    .join(', ');
-  const rest = summary.length - LISTED_IN_BODY;
+  const rank = (group: PrayerChange[]) =>
+    Math.min(...group.map(change => BODY_ORDER.indexOf(change.category)));
+  const groups = [...byPrayer.values()]
+    .map(group =>
+      group.sort((a, b) => BODY_ORDER.indexOf(a.category) - BODY_ORDER.indexOf(b.category))
+    )
+    .sort(
+      (a, b) =>
+        rank(a) - rank(b) || PRAYER_ORDER.indexOf(a[0].prayer) - PRAYER_ORDER.indexOf(b[0].prayer)
+    );
 
-  return {
-    title: `${masjidName} changed its prayer times`,
-    body: `${listed}${rest > 0 ? ` and ${rest} more` : ''}${sameDay ? ` from ${from}` : ''}. Tap to see the new times.`,
+  const days = new Set([...first.values()].map(change => change.day));
+  const sharedDay = days.size === 1 ? [...days][0] : null;
+
+  const part = (change: PrayerChange, withDay: boolean) => {
+    const was =
+      change.category === 'starts'
+        ? ''
+        : ` (was ${formatClock(change.from, sameHalfOfDay(change.from, change.to))})`;
+    const day = withDay ? ` from ${formatDay(change.day, today)}` : '';
+    return `${CATEGORY_LABELS[change.category]} ${formatClock(change.to)}${was}${day}`;
   };
+
+  const lines = groups.map(group => {
+    const lineDay = new Set(group.map(change => change.day)).size === 1 ? group[0].day : null;
+    const parts = group.map(change => part(change, !sharedDay && !lineDay)).join(', ');
+    const suffix = !sharedDay && lineDay ? ` from ${formatDay(lineDay, today)}` : '';
+    return `${PRAYER_LABELS[group[0].prayer]} ${parts}${suffix}`;
+  });
+  if (sharedDay) {
+    const from = formatDay(sharedDay, today);
+    lines.push(`From ${from}`);
+  }
+
+  const names = groups.map(group => PRAYER_LABELS[group[0].prayer]);
+  const subject =
+    names.length > NAMED_IN_TITLE
+      ? 'new prayer times'
+      : `new ${joinNames(names)} ${names.length === 1 ? 'time' : 'times'}`;
+
+  return { title: `${masjidName}: ${subject}`, body: lines.join('\n') };
 };
