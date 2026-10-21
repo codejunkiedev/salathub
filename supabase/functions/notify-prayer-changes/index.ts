@@ -5,7 +5,7 @@
  *   header: x-notify-secret: $PRAYER_CHANGES_SECRET
  *
  * Run every few minutes by pg_cron. Each run claims masjids whose last edit is
- * ten minutes old, resolves their next two weeks under the settings saved before
+ * two minutes old, resolves their next two weeks under the settings saved before
  * the first edit and under the current ones, and pushes one message per masjid.
  */
 import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -28,7 +28,7 @@ import {
 import { describeChanges, diffPrayerDays, type DayTimes } from '../_shared/prayer-changes.ts';
 import { sendPushMessages } from '../_shared/expo-push.ts';
 
-const QUIET_SECONDS = 600;
+const QUIET_SECONDS = 120;
 const CLAIM_LIMIT = 20;
 const WINDOW_DAYS = 13;
 const SOFT_DEADLINE_MS = 50_000;
