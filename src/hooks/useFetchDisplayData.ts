@@ -66,10 +66,13 @@ const buildOrderedContent = (
  * does. The counter is only ever a signal to refetch — its value is unused.
  */
 export function useFetchDisplayData(): ReturnType {
-  const [fetching, setFetching] = useState<boolean>(false);
+  const [fetched, setFetched] = useState<{
+    screenId: string;
+    userSettings: Settings | null;
+    orderedContent: DisplayContentItem[];
+  } | null>(null);
+  const [settledScreenId, setSettledScreenId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<ErrorMessage | null>(null);
-  const [orderedContent, setOrderedContent] = useState<DisplayContentItem[]>([]);
-  const [userSettings, setUserSettings] = useState<Settings | null>(null);
 
   const { masjidProfile, displayScreen, setDisplayScreen, setMasjidProfile, signOut } =
     useDisplayStore();
@@ -87,29 +90,28 @@ export function useFetchDisplayData(): ReturnType {
     subscriptions
   );
 
+  const cached = useMemo(() => (screenId ? readDisplayCache(screenId) : null), [screenId]);
+  const cachedContent = useMemo(
+    () => (cached ? buildOrderedContent(cached.screenContent, cached.contentItems) : []),
+    [cached]
+  );
+
+  const current = fetched?.screenId === screenId ? fetched : null;
+  const userSettings = current ? current.userSettings : (cached?.settings ?? null);
+  const orderedContent = current ? current.orderedContent : cachedContent;
+  const isLoading = Boolean(screenId && code) && !cached && settledScreenId !== screenId;
+
   useEffect(() => {
     if (!screenId || !code) return;
 
     let cancelled = false;
     const isInitialFetch = refreshKey === 0;
-    let hasCachedData = false;
+    const hasCachedData = cached !== null;
 
-    if (isInitialFetch) {
-      const cached = readDisplayCache(screenId);
-      if (cached) {
-        hasCachedData = true;
-        setUserSettings(cached.settings);
-        setOrderedContent(buildOrderedContent(cached.screenContent, cached.contentItems));
-        setDisplayScreen(cached.screen);
-      }
-    }
+    if (isInitialFetch && cached) setDisplayScreen(cached.screen);
 
-    const req = async () => {
-      if (isInitialFetch && !hasCachedData) setFetching(true);
-      setErrorMessage(null);
-
-      try {
-        const payload = await getDisplayPayload(code);
+    getDisplayPayload(code)
+      .then(payload => {
         if (cancelled) return;
 
         // No payload means the screen was deleted out from under the display.
@@ -130,8 +132,12 @@ export function useFetchDisplayData(): ReturnType {
           return;
         }
 
-        setUserSettings(payload.settings);
-        setOrderedContent(buildOrderedContent(payload.screen_content, payload.content));
+        setErrorMessage(null);
+        setFetched({
+          screenId,
+          userSettings: payload.settings,
+          orderedContent: buildOrderedContent(payload.screen_content, payload.content),
+        });
 
         writeDisplayCache(screenId, {
           settings: payload.settings,
@@ -139,29 +145,31 @@ export function useFetchDisplayData(): ReturnType {
           screenContent: payload.screen_content,
           contentItems: payload.content,
         });
-      } catch (error) {
+      })
+      .catch(error => {
         if (cancelled) return;
         console.error('Error fetching data:', error);
-        if (isInitialFetch && !hasCachedData) {
-          setErrorMessage({
-            title: 'Unable to load display content',
-            description:
-              'No cached content is available and we could not reach the server. Check the internet connection and refresh.',
-          });
-        }
-      } finally {
-        if (!cancelled) setFetching(false);
-      }
-    };
-    req();
+        setErrorMessage(
+          isInitialFetch && !hasCachedData
+            ? {
+                title: 'Unable to load display content',
+                description:
+                  'No cached content is available and we could not reach the server. Check the internet connection and refresh.',
+              }
+            : null
+        );
+      })
+      .finally(() => {
+        if (!cancelled) setSettledScreenId(screenId);
+      });
 
     return () => {
       cancelled = true;
     };
-  }, [screenId, code, refreshKey]);
+  }, [screenId, code, refreshKey, cached, setDisplayScreen, setMasjidProfile, signOut]);
 
   return {
-    isLoading: fetching,
+    isLoading,
     errorMessage,
     orderedContent,
     userSettings,

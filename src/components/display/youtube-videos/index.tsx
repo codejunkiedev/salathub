@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useEffectEvent, useRef, useCallback } from 'react';
 import type { YouTubeVideo } from '@/types';
 
 interface YouTubeVideoDisplayProps {
@@ -56,8 +56,7 @@ function loadYTApi(): Promise<void> {
 export function YouTubeVideoDisplay({ video, isActive, onSlideNext }: YouTubeVideoDisplayProps) {
   const playerRef = useRef<YT.Player | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const onSlideNextRef = useRef(onSlideNext);
-  onSlideNextRef.current = onSlideNext;
+  const handleVideoEnded = useEffectEvent(() => onSlideNext?.());
 
   const videoId = extractVideoId(video.youtube_url);
 
@@ -125,9 +124,7 @@ export function YouTubeVideoDisplay({ video, isActive, onSlideNext }: YouTubeVid
           onStateChange: (event: YT.OnStateChangeEvent) => {
             if (event.data === 0) {
               // 0 = ENDED
-              if (!video.loop_video && onSlideNextRef.current) {
-                onSlideNextRef.current();
-              }
+              if (!video.loop_video) handleVideoEnded();
             }
           },
         },

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useEffectEvent, useMemo } from 'react';
 import type {
   AlAdhanPrayerTimes,
   PrayerAdjustments,
@@ -91,15 +91,18 @@ export function usePrayerAlert({
     return [...times];
   }, [active, triggers, prayerTimes, prayerTimeSettings]);
 
-  // Read the schedule through a ref so refreshed prayer times never restart the
-  // ticker below. Restarting would reset its cursor to "now", and a time that
-  // fell between the restart and the next tick would be skipped silently.
-  const watchedTimesRef = useRef(watchedTimes);
-  watchedTimesRef.current = watchedTimes;
-
-  // Same reasoning: a zone arriving after mount must not restart the ticker.
-  const timeZoneRef = useRef(timeZone);
-  timeZoneRef.current = timeZone;
+  // An effect event, so refreshed prayer times never restart the ticker below.
+  // Restarting would reset its cursor to "now", and a time that fell between
+  // the restart and the next tick would be skipped silently.
+  const isAlertDue = useEffectEvent((since: number, now: number) => {
+    // Resolve against the current day on every tick so the alert keeps
+    // working across midnight without waiting for new prayer-time data.
+    const reference = nowInTimeZone(timeZone);
+    return watchedTimes.some(time => {
+      const at = resolveOnDay(time, reference, timeZone);
+      return at !== null && at > since && at <= now;
+    });
+  });
 
   useEffect(() => {
     if (!active) return;
@@ -120,16 +123,7 @@ export function usePrayerAlert({
 
       if (now - since > MAX_CATCH_UP_MS) return;
 
-      // Resolve against the current day on every tick so the alert keeps
-      // working across midnight without waiting for new prayer-time data.
-      const zone = timeZoneRef.current;
-      const reference = nowInTimeZone(zone);
-      const due = watchedTimesRef.current.some(time => {
-        const at = resolveOnDay(time, reference, zone);
-        return at !== null && at > since && at <= now;
-      });
-
-      if (due) void playAlertBeep();
+      if (isAlertDue(since, now)) void playAlertBeep();
     }, TICK_MS);
 
     return () => clearInterval(interval);
