@@ -309,7 +309,7 @@ export function Map({ onCoordinatesChange, coordinates }: MapProps) {
   const [prevCoordinates, setPrevCoordinates] = useState(coordinates);
   if (prevCoordinates !== coordinates) {
     setPrevCoordinates(coordinates);
-    if (coordinates) setCurrentPosition(L.latLng(coordinates.latitude, coordinates.longitude));
+    setCurrentPosition(coordinates ? L.latLng(coordinates.latitude, coordinates.longitude) : null);
   }
 
   useEffect(() => {
