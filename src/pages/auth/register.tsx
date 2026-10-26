@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Input, Label, ErrorBox, PasswordStrengthMeter } from '@/components/ui';
 import { AuthLegalLinks } from '@/components/common';
@@ -21,13 +21,13 @@ export default function Register() {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
+    control,
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: { email: '', password: '', confirmPassword: '' },
   });
 
-  const watchedPassword = watch('password');
+  const watchedPassword = useWatch({ control, name: 'password' });
 
   if (watchedPassword !== password) {
     setPassword(watchedPassword);

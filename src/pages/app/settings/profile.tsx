@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router';
 import {
@@ -45,7 +45,7 @@ export default function Profile() {
     formState: { errors },
     reset,
     setValue,
-    watch,
+    control,
   } = useForm<MasjidProfileData>({
     resolver: zodResolver(masjidProfileSchema),
     defaultValues: {
@@ -64,9 +64,9 @@ export default function Profile() {
     },
   });
 
-  const latitude = watch('latitude');
-  const longitude = watch('longitude');
-  const timezone = watch('timezone');
+  const latitude = useWatch({ control, name: 'latitude' });
+  const longitude = useWatch({ control, name: 'longitude' });
+  const timezone = useWatch({ control, name: 'timezone' });
   const coordinates = latitude && longitude ? { latitude, longitude } : null;
 
   const deriveTimezone = useCallback(

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router';
 import {
@@ -54,14 +54,14 @@ export default function Account() {
     register: registerPassword,
     handleSubmit: handlePasswordSubmit,
     formState: { errors: passwordErrors },
-    watch,
+    control,
     reset: resetPassword,
   } = useForm<UpdatePasswordData>({
     resolver: zodResolver(updatePasswordSchema),
     defaultValues: { oldPassword: '', password: '', confirmPassword: '' },
   });
 
-  const password = watch('password');
+  const password = useWatch({ control, name: 'password' });
 
   useEffect(() => {
     async function fetchUser() {

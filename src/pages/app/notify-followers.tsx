@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, formatDistanceToNow } from 'date-fns';
 import { Send, Smartphone } from 'lucide-react';
@@ -99,15 +99,15 @@ export default function NotifyFollowers() {
     register,
     handleSubmit,
     reset,
-    watch,
+    control,
     formState: { errors },
   } = useForm<FollowerNotificationData>({
     resolver: zodResolver(followerNotificationSchema),
     defaultValues: { title: '', body: '' },
   });
 
-  const title = watch('title');
-  const body = watch('body');
+  const title = useWatch({ control, name: 'title' });
+  const body = useWatch({ control, name: 'body' });
 
   useEffect(() => {
     const fetchData = async () => {

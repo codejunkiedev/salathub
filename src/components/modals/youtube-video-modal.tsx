@@ -16,7 +16,7 @@ import {
 import { youtubeVideoSchema, type YouTubeVideoData } from '@/lib/zod';
 import { upsertYouTubeVideo } from '@/lib/supabase';
 import type { YouTubeVideo } from '@/types';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 
@@ -56,14 +56,13 @@ export function YouTubeVideoModal({
     handleSubmit,
     reset,
     control,
-    watch,
     formState: { errors },
   } = useForm<YouTubeVideoData>({
     resolver: zodResolver(youtubeVideoSchema),
     defaultValues: initialData || { title: '', youtube_url: '', loop_video: false },
   });
 
-  const youtubeUrl = watch('youtube_url');
+  const youtubeUrl = useWatch({ control, name: 'youtube_url' });
   const thumbnailVideoId = useMemo(() => extractVideoId(youtubeUrl || ''), [youtubeUrl]);
 
   useEffect(() => {
