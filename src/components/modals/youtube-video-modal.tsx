@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Youtube } from 'lucide-react';
+import { SquarePlay } from 'lucide-react';
 import {
   Button,
   Input,
@@ -163,7 +163,7 @@ export function YouTubeVideoModal({
                 />
               ) : (
                 <div className='relative w-full aspect-video rounded-lg overflow-hidden border bg-muted flex flex-col items-center justify-center gap-2 text-muted-foreground'>
-                  <Youtube className='h-10 w-10' />
+                  <SquarePlay className='h-10 w-10' />
                   <p className='text-xs text-center px-4'>Paste a YouTube URL to see the preview</p>
                 </div>
               )}

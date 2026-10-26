@@ -24,6 +24,19 @@ export function initSentry(): void {
     tracePropagationTargets: [/^\/(?!\/)/, /^https:\/\/[^/]+\.supabase\.co\//],
     replaysSessionSampleRate: 0,
     replaysOnErrorSampleRate: 1.0,
+    // Sentry 11 collects everything when this is unset. Keep v10's defaults so
+    // request bodies (passwords, auth tokens), cookies and IPs aren't sent.
+    dataCollection: {
+      userInfo: false,
+      cookies: false,
+      httpHeaders: {
+        request: { deny: ['forwarded', '-ip', 'remote-', 'via', '-user'] },
+        response: { deny: ['forwarded', '-ip', 'remote-', 'via', '-user'] },
+      },
+      httpBodies: [],
+      urlQueryParams: { deny: ['forwarded', '-ip', 'remote-', 'via', '-user'] },
+      databaseQueryData: false,
+    },
   });
 }
 
