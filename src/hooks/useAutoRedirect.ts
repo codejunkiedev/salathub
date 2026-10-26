@@ -17,7 +17,7 @@ interface UseAutoRedirectOptions {
 export function useAutoRedirect({ to, delaySeconds = 5, onRedirect }: UseAutoRedirectOptions) {
   const navigate = useNavigate();
   const [secondsLeft, setSecondsLeft] = useState(delaySeconds);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const redirectedRef = useRef(false);
 
   // Function to immediately trigger the redirect
