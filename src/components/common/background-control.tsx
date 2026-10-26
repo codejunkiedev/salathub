@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useId, useState } from 'react';
 import { toast } from 'sonner';
 import { ColorInput, Label, Slider, Switch, Tabs, TabsList, TabsTrigger } from '@/components/ui';
 import {
@@ -276,16 +276,14 @@ function UploadableImagePicker({
   orientation,
 }: UploadableImagePickerProps) {
   const { images: userImages, loading, error, refetch } = useUserBackgrounds();
-  const [source, setSource] = useState<'library' | 'upload'>('library');
   // Open on the Upload tab if the saved image is one of the masjid's uploads.
-  // Runs once, until uploads load or the user picks a tab.
-  const resolved = useRef(false);
-
-  useEffect(() => {
-    if (resolved.current || loading) return;
-    resolved.current = true;
-    if (selectedUrl && userImages.some(img => img.url === selectedUrl)) setSource('upload');
-  }, [loading, userImages, selectedUrl]);
+  const [pickedSource, setPickedSource] = useState<'library' | 'upload' | null>(null);
+  if (pickedSource === null && !loading) {
+    setPickedSource(
+      selectedUrl && userImages.some(img => img.url === selectedUrl) ? 'upload' : 'library'
+    );
+  }
+  const source = pickedSource ?? 'library';
 
   const handleDelete = async (image: BackgroundImage) => {
     try {
@@ -302,7 +300,7 @@ function UploadableImagePicker({
 
   return (
     <div className='space-y-3'>
-      <Tabs value={source} onValueChange={v => setSource(v as 'library' | 'upload')}>
+      <Tabs value={source} onValueChange={v => setPickedSource(v as 'library' | 'upload')}>
         <TabsList className='grid w-full grid-cols-2'>
           <TabsTrigger value='library'>Library</TabsTrigger>
           <TabsTrigger value='upload'>Upload</TabsTrigger>

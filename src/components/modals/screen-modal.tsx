@@ -19,7 +19,7 @@ import {
 import { screenSchema, type ScreenData } from '@/lib/zod';
 import { createScreen, getMasjidProfile, updateScreen } from '@/lib/supabase';
 import type { DisplayScreen, PrayerAlertTrigger } from '@/types';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { Copy } from 'lucide-react';
@@ -65,7 +65,7 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
     register,
     handleSubmit,
     reset,
-    watch,
+    control,
     setValue,
     formState: { errors },
   } = useForm<ScreenData>({
@@ -73,12 +73,12 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
     defaultValues: toFormValues(initialData),
   });
 
-  const showPrayerTimes = watch('show_prayer_times');
-  const showWeather = watch('show_weather');
-  const showFollowQr = watch('show_follow_qr');
-  const orientation = watch('orientation');
-  const language = watch('language');
-  const alertTriggers = watch('prayer_alert_triggers');
+  const showPrayerTimes = useWatch({ control, name: 'show_prayer_times' });
+  const showWeather = useWatch({ control, name: 'show_weather' });
+  const showFollowQr = useWatch({ control, name: 'show_follow_qr' });
+  const orientation = useWatch({ control, name: 'orientation' });
+  const language = useWatch({ control, name: 'language' });
+  const alertTriggers = useWatch({ control, name: 'prayer_alert_triggers' });
 
   const toggleAlertTrigger = (trigger: PrayerAlertTrigger, checked: boolean) => {
     // Keep the stored order stable so a saved screen doesn't churn its column
@@ -90,11 +90,14 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
   };
 
   useEffect(() => {
-    if (isOpen) {
-      reset(toFormValues(initialData));
-      setIsCopied(false);
-    }
+    if (isOpen) reset(toFormValues(initialData));
   }, [isOpen, initialData, reset]);
+
+  const [prevSync, setPrevSync] = useState({ isOpen, initialData });
+  if (prevSync.isOpen !== isOpen || prevSync.initialData !== initialData) {
+    setPrevSync({ isOpen, initialData });
+    if (isOpen) setIsCopied(false);
+  }
 
   useEffect(() => {
     if (!isOpen) return;

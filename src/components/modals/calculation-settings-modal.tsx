@@ -77,21 +77,24 @@ export function CalculationSettingsModal({
     timeZone,
   });
 
-  useEffect(() => {
-    if (!isOpen) return;
-    if (!isNullOrUndefined(settings?.calculation_method)) {
-      setCalculationMethod(settings.calculation_method);
+  const [prevSync, setPrevSync] = useState({ isOpen, settings });
+  if (prevSync.isOpen !== isOpen || prevSync.settings !== settings) {
+    setPrevSync({ isOpen, settings });
+    if (isOpen) {
+      if (!isNullOrUndefined(settings?.calculation_method)) {
+        setCalculationMethod(settings.calculation_method);
+      }
+      if (!isNullOrUndefined(settings?.juristic_school)) {
+        setJuristicSchool(settings.juristic_school);
+      }
+      if (settings?.hijri_calculation_method) {
+        setHijriMethod(settings.hijri_calculation_method);
+      }
+      if (settings?.hijri_offset !== undefined) {
+        setHijriOffset(settings.hijri_offset);
+      }
     }
-    if (!isNullOrUndefined(settings?.juristic_school)) {
-      setJuristicSchool(settings.juristic_school);
-    }
-    if (settings?.hijri_calculation_method) {
-      setHijriMethod(settings.hijri_calculation_method);
-    }
-    if (settings?.hijri_offset !== undefined) {
-      setHijriOffset(settings.hijri_offset);
-    }
-  }, [isOpen, settings]);
+  }
 
   useEffect(() => {
     if (!isOpen) return;

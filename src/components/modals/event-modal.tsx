@@ -88,23 +88,27 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData, timeZone }
   });
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (isOpen) reset(initialData || EMPTY_EVENT);
+  }, [initialData, isOpen, reset]);
 
-    reset(initialData || EMPTY_EVENT);
-    if (!initialData) {
+  // Kept out of the form reset above: the zone is fetched and can land after the
+  // modal opens, and resetting the form there would wipe what is being typed.
+  const [prevSync, setPrevSync] = useState({ isOpen, initialData, timeZone });
+  if (
+    prevSync.isOpen !== isOpen ||
+    prevSync.initialData !== initialData ||
+    prevSync.timeZone !== timeZone
+  ) {
+    const openedOrSwapped = prevSync.isOpen !== isOpen || prevSync.initialData !== initialData;
+    setPrevSync({ isOpen, initialData, timeZone });
+    if (isOpen && initialData) {
+      setDateTime(toWallClock(initialData.date_time, timeZone));
+      setEndTime(toWallClock(initialData.end_time, timeZone));
+    } else if (isOpen && openedOrSwapped) {
       setDateTime(undefined);
       setEndTime(undefined);
     }
-  }, [initialData, isOpen, reset]);
-
-  // Kept out of the reset above: the zone is fetched and can land after the
-  // modal opens, and resetting the form there would wipe what is being typed.
-  useEffect(() => {
-    if (!isOpen || !initialData) return;
-
-    setDateTime(toWallClock(initialData.date_time, timeZone));
-    setEndTime(toWallClock(initialData.end_time, timeZone));
-  }, [initialData, isOpen, timeZone]);
+  }
 
   useEffect(() => {
     if (dateTime) {

@@ -71,7 +71,7 @@ export default function CustomThemeEditor() {
 
   const [screen, setScreen] = useState<DisplayScreen | null>(null);
   const [profile, setProfile] = useState<MasjidProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loadedScreenId, setLoadedScreenId] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [config, setConfig] = useState<CustomThemeConfig>(() =>
     structuredClone(DEFAULT_CUSTOM_THEME)
@@ -86,13 +86,8 @@ export default function CustomThemeEditor() {
 
   // Load the screen and seed the config from its saved custom theme.
   useEffect(() => {
-    if (!screenId) {
-      setNotFound(true);
-      setLoading(false);
-      return;
-    }
+    if (!screenId) return;
     let cancelled = false;
-    setLoading(true);
     Promise.all([getScreenById(screenId), getMasjidProfile().catch(() => null)])
       .then(([result, masjidProfile]) => {
         if (cancelled) return;
@@ -111,7 +106,7 @@ export default function CustomThemeEditor() {
         if (!cancelled) setNotFound(true);
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setLoadedScreenId(screenId);
       });
     return () => {
       cancelled = true;
@@ -178,7 +173,7 @@ export default function CustomThemeEditor() {
     }
   };
 
-  if (loading) {
+  if (screenId && loadedScreenId !== screenId) {
     return (
       <div className='flex h-screen items-center justify-center bg-background'>
         <Loader2 className='h-6 w-6 animate-spin text-muted-foreground' />

@@ -81,9 +81,15 @@ export function PostModal({
     setSelectedPredesignedImage(null);
   }, [resetValidation, presetOrientation]);
 
-  useEffect(() => {
+  const [prevSync, setPrevSync] = useState({ isOpen, initialData, presetOrientation });
+  if (
+    prevSync.isOpen !== isOpen ||
+    prevSync.initialData !== initialData ||
+    prevSync.presetOrientation !== presetOrientation
+  ) {
+    setPrevSync({ isOpen, initialData, presetOrientation });
     if (!isOpen || !initialData) resetSteps();
-  }, [isOpen, initialData, resetSteps]);
+  }
 
   const handleClose = useCallback(() => {
     reset();

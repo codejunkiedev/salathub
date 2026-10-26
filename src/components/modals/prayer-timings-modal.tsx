@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { Plus, Minus } from 'lucide-react';
@@ -110,7 +110,7 @@ export function PrayerTimingsModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [solar, setSolar] = useState<SolarAdjustments>(() => solarFromSettings(settings));
 
-  const { handleSubmit, setValue, watch } = useForm<PrayerAdjustmentsFormData>({
+  const { handleSubmit, setValue, control } = useForm<PrayerAdjustmentsFormData>({
     resolver: zodResolver(prayerAdjustmentsFormSchema),
     defaultValues: {
       prayer_adjustments: initialValues?.prayer_adjustments ?? DEFAULT_ADJUSTMENT,
@@ -123,10 +123,11 @@ export function PrayerTimingsModal({
     }
   }, [initialValues, setValue]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    setSolar(solarFromSettings(settings));
-  }, [isOpen, settings]);
+  const [prevSync, setPrevSync] = useState({ isOpen, settings });
+  if (prevSync.isOpen !== isOpen || prevSync.settings !== settings) {
+    setPrevSync({ isOpen, settings });
+    if (isOpen) setSolar(solarFromSettings(settings));
+  }
 
   const onFormSubmit = async (data: PrayerAdjustmentsFormData) => {
     try {
@@ -145,7 +146,7 @@ export function PrayerTimingsModal({
     }
   };
 
-  const prayerAdjustments = watch('prayer_adjustments');
+  const prayerAdjustments = useWatch({ control, name: 'prayer_adjustments' });
 
   const handleTypeChange = (
     prayer: PrayerName,

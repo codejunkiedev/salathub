@@ -306,14 +306,17 @@ export function Map({ onCoordinatesChange, coordinates }: MapProps) {
     );
   };
 
-  useEffect(() => {
-    if (coordinates) {
-      const newPosition = L.latLng(coordinates.latitude, coordinates.longitude);
-      setCurrentPosition(newPosition);
+  const [prevCoordinates, setPrevCoordinates] = useState(coordinates);
+  if (prevCoordinates !== coordinates) {
+    setPrevCoordinates(coordinates);
+    if (coordinates) setCurrentPosition(L.latLng(coordinates.latitude, coordinates.longitude));
+  }
 
-      if (mapRef.current && isNearMapEdge(newPosition)) {
-        mapRef.current.setView(newPosition, mapRef.current.getZoom());
-      }
+  useEffect(() => {
+    if (!coordinates) return;
+    const newPosition = L.latLng(coordinates.latitude, coordinates.longitude);
+    if (mapRef.current && isNearMapEdge(newPosition)) {
+      mapRef.current.setView(newPosition, mapRef.current.getZoom());
     }
   }, [coordinates]);
 

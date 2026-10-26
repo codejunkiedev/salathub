@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import clsx from 'clsx';
 import { toast } from 'sonner';
@@ -40,9 +40,11 @@ export function ThemeSection({ screen, onScreenChange }: ThemeSectionProps) {
 
   const themeOptions = Object.values(Theme);
 
-  useEffect(() => {
+  const [prevTheme, setPrevTheme] = useState(screen.theme);
+  if (prevTheme !== screen.theme) {
+    setPrevTheme(screen.theme);
     setSelectedTheme(screen.theme);
-  }, [screen.theme]);
+  }
 
   const handleThemeSelect = async (theme: Theme) => {
     if (theme === selectedTheme) return;

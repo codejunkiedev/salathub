@@ -84,7 +84,8 @@ export default function AyatHadithDesigner() {
     queryOrientation === 'landscape' || queryOrientation === 'portrait' ? queryOrientation : null;
 
   const [initialData, setInitialData] = useState<AyatAndHadith | null>(null);
-  const [loadingInitial, setLoadingInitial] = useState(isEdit);
+  const [loadedId, setLoadedId] = useState<string | null>(null);
+  const loadingInitial = isEdit && loadedId !== params.id;
   const [notFound, setNotFound] = useState(false);
 
   const [orientation, setOrientation] = useState<ScreenOrientation>(
@@ -103,9 +104,10 @@ export default function AyatHadithDesigner() {
 
   // When the user clicks a layer on the canvas, jump to the Design tab so the
   // matching controls become visible immediately.
-  useEffect(() => {
-    if (selectedLayer) setActiveTab('design');
-  }, [selectedLayer]);
+  const selectLayer = (layer: AyatHadithLayerKey | null) => {
+    setSelectedLayer(layer);
+    if (layer) setActiveTab('design');
+  };
 
   // Redirect to listing if create mode is missing the orientation query param
   useEffect(() => {
@@ -116,10 +118,10 @@ export default function AyatHadithDesigner() {
 
   // Load existing slide in edit mode
   useEffect(() => {
-    if (!isEdit || !params.id) return;
+    const id = params.id;
+    if (!isEdit || !id) return;
     let cancelled = false;
-    setLoadingInitial(true);
-    getAyatAndHadithById(params.id)
+    getAyatAndHadithById(id)
       .then(slide => {
         if (cancelled) return;
         if (!slide) {
@@ -145,7 +147,7 @@ export default function AyatHadithDesigner() {
         toast.error('Failed to load slide');
       })
       .finally(() => {
-        if (!cancelled) setLoadingInitial(false);
+        if (!cancelled) setLoadedId(id);
       });
     return () => {
       cancelled = true;
@@ -263,7 +265,7 @@ export default function AyatHadithDesigner() {
             showEnglish={content.showEnglish}
             showReference={content.showReference}
             selected={selectedLayer}
-            onSelectedChange={setSelectedLayer}
+            onSelectedChange={selectLayer}
             onPositionsChange={positions => setStyle(prev => ({ ...prev, positions }))}
             snapshotMode={snapshotMode}
           />
@@ -290,7 +292,7 @@ export default function AyatHadithDesigner() {
                 showEnglish={content.showEnglish}
                 showReference={content.showReference}
                 selected={selectedLayer}
-                onSelectedChange={setSelectedLayer}
+                onSelectedChange={selectLayer}
                 orientation={orientation}
               />
             </TabsContent>
