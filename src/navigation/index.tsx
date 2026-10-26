@@ -104,7 +104,7 @@ export default function Navigation() {
     return () => {
       if (subscription) subscription.unsubscribe();
     };
-  }, []);
+  }, [setAuth, clearAuth]);
 
   if (isLoading) {
     return <Loading />;
