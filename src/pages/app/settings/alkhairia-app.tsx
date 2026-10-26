@@ -13,7 +13,7 @@ import {
 } from '@/components/ui';
 import { getMasjidProfile, setMasjidListed } from '@/lib/supabase';
 import { PageHeader } from '@/components/common';
-import { FollowQrPoster } from '@/components/settings';
+import { FollowQrPreview } from '@/components/settings';
 import { AppRoutes } from '@/constants';
 import type { MasjidProfile } from '@/types';
 
@@ -112,28 +112,26 @@ export default function AlkhairiaApp() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Follow QR</CardTitle>
-              <CardDescription>
-                People scan the code with their phone to follow the masjid. Print the poster for the
-                entrance, or show the code on a display from the screen's settings.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {profile && listed ? (
-                <div className='flex flex-wrap items-center gap-3'>
-                  <FollowQrPoster masjidId={profile.id} masjidName={profile.name} />
-                  <Link to={AppRoutes.Screens}>
-                    <Button type='button' variant='ghost' size='sm'>
-                      Go to screens
-                    </Button>
-                  </Link>
+              <div className='flex items-start justify-between gap-4'>
+                <div className='space-y-1.5'>
+                  <CardTitle>Follow QR</CardTitle>
+                  <CardDescription>
+                    People scan the code with their phone to follow the masjid. Print the poster for
+                    the entrance, or show the code on a display from the screen's settings.
+                  </CardDescription>
                 </div>
-              ) : (
+                {profile && listed && (
+                  <FollowQrPreview masjidId={profile.id} masjidName={profile.name} />
+                )}
+              </div>
+            </CardHeader>
+            {!listed && (
+              <CardContent>
                 <p className='text-sm text-muted-foreground'>
                   Available once the masjid is listed.
                 </p>
-              )}
-            </CardContent>
+              </CardContent>
+            )}
           </Card>
         </>
       )}
