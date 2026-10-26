@@ -20,9 +20,6 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      // New in react-hooks 7. Existing code trips these; warn until it's refactored.
-      'react-hooks/set-state-in-effect': 'warn',
-      'react-hooks/refs': 'warn',
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
   },
