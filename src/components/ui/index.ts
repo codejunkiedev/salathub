@@ -1,4 +1,5 @@
 export * from './button';
+export * from './button-variants';
 export * from './input';
 export * from './label';
 export * from './dialog';
@@ -9,6 +10,7 @@ export * from './skeleton';
 export * from './textarea';
 export * from './card';
 export * from './badge';
+export * from './badge-variants';
 export * from './dropdown-menu';
 export * from './popover';
 export * from './calendar';
