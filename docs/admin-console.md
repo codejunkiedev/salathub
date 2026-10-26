@@ -14,7 +14,7 @@ HTTP 400/422/429 auth errors are ordinary user mistakes — wrong password, alre
 
 ## Roles
 
-Admins do everything. Moderators manage content only — announcements, events, posts, YouTube videos, ayat & hadith — enforced client-side by `RequireAdmin` and a role-aware sidebar, and server-side by RLS granting content CRUD to any member while restricting admin tables to `get_user_role() = 'admin'`.
+Admins do everything. Moderators manage content only — announcements, events, posts, YouTube videos, ayat & hadith, and follower notifications — enforced client-side by `RequireAdmin` and a role-aware sidebar, and server-side by RLS granting content CRUD to any member while restricting admin tables to `get_user_role() = 'admin'`.
 
 **Bootstrap.** Creating a masjid profile fires `on_masjid_profile_insert` → `handle_new_masjid_profile()`, which inserts an `admin` membership for the creator; the client mirrors it. A signed-up user with no membership gets a transient admin with `masjidId: null` so onboarding is reachable — during which the sidebar shows only Home, plus Settings for admins.
 
@@ -31,6 +31,10 @@ Admins do everything. Moderators manage content only — announcements, events, 
 | `revoke-moderator`         | Deletes membership then the auth user, invalidating sessions                                              |
 
 Moderators sign in through the same `/login` page; the role only restricts what they see and can do.
+
+## Notify followers
+
+`/admin/notify-followers`, admins and moderators. A title (50 chars) and message (150 chars) go out as an Expo push to every device subscribed to the masjid, on the `masjid-updates` Android channel with `data.type = 'masjid_message'`, which the Alkhairia app opens as the masjid's page. Nothing reaches a display screen. The `notify-followers` Edge Function refuses an unlisted masjid and a fourth send within a rolling 24 hours (429 with `retry_at`); a send that fails before reaching Expo is deleted so it doesn't use up the limit.
 
 ## Masjid profile
 

@@ -30,6 +30,7 @@ export enum AppRoutes {
 
   SettingsAccount = '/admin/settings/account',
   Moderators = '/admin/moderators',
+  NotifyFollowers = '/admin/notify-followers',
   Support = '/admin/support',
   AyatAndHadith = '/admin/ayat-and-hadith',
   AyatAndHadithNew = '/admin/ayat-and-hadith/new',

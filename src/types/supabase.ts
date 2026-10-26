@@ -15,6 +15,7 @@ export enum SupabaseTables {
   DisplayRevisions = 'display_revisions',
   MasjidMembers = 'masjid_members',
   AyatAndHadith = 'ayat_and_hadith',
+  MasjidNotifications = 'masjid_notifications',
 }
 
 export enum SupabaseBuckets {
@@ -41,6 +42,17 @@ export interface MasjidMember {
   last_active_at: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface MasjidNotification {
+  id: string;
+  masjid_id: string;
+  title: string;
+  body: string;
+  sent_by: string | null;
+  sent_by_name: string;
+  devices_reached: number | null;
+  created_at: string;
 }
 
 interface Base {

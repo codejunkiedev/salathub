@@ -1,6 +1,6 @@
 # Database
 
-Fourteen tables in `public`. [`supabase/migrations/`](../supabase/migrations/) is authoritative — 54 files, applied in order, with several columns added and later dropped, so read the latest migration touching a table rather than the one that created it.
+Fifteen tables in `public`. [`supabase/migrations/`](../supabase/migrations/) is authoritative — 61 files, applied in order, with several columns added and later dropped, so read the latest migration touching a table rather than the one that created it.
 
 ## Tables
 
@@ -19,6 +19,7 @@ Fourteen tables in `public`. [`supabase/migrations/`](../supabase/migrations/) i
 | `masjid_prayer_days`                                          | Resolved times, one row per masjid per masjid-local day. A cache the `masjid-directory` function owns; no client role can reach it                                     |
 | `push_devices`, `push_subscriptions`                          | Phones that opted into timing-change alerts, keyed by a random install id, and the masjids each follows. Written through `masjid-directory` only                       |
 | `masjid_prayer_changes`                                       | The queue of masjids due a comparison, each with its settings from before the first save. Owned by `notify-prayer-changes`                                             |
+| `masjid_notifications`                                        | Messages a masjid pushed to its followers, with sender and devices reached. Written by `notify-followers` only; members read their own masjid's                        |
 
 On `prayer_times` and `settings`, `user_id` is nullable and `ON DELETE SET NULL` — it records who last saved the row, not who owns it, so deleting an account does not delete a masjid's prayer configuration. Both are keyed `UNIQUE(masjid_id)`; the earlier per-user keying is gone.
 
@@ -35,6 +36,7 @@ Beyond the two RLS helpers and the display read functions covered in [Architectu
 - `is_valid_timezone()` / `validate_masjid_timezone()` — a `BEFORE` trigger rejecting a `timezone` that is not in `pg_timezone_names`.
 - `invalidate_masjid_prayer_days()` — drops a masjid's cached days whenever `settings`, `prayer_times` or its coordinates/timezone change. For a masjid with followers it first queues the masjid with its settings as they were before the save.
 - `register_push_device()` / `claim_prayer_changes()` — the push registry write and the worker's queue claim, granted to `service_role` alone.
+- `claim_masjid_notification()` — records a follower message under the 3-in-24-hours limit, locking the masjid row so concurrent sends can't both pass. `service_role` only. `count_masjid_followers()` gives members their masjid's subscribed device count.
 - `search_masjids_nearby()` / `search_masjids_by_name()` / `get_masjids_public()` — the directory reads, granted to `service_role` alone. See [Architecture](./architecture.md#how-the-mobile-app-reads-data).
 
 Every `SECURITY DEFINER` function now pins `search_path`.

@@ -13,6 +13,7 @@ import {
   Video,
   LifeBuoy,
   Users,
+  Send,
 } from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { Button } from '@/components/ui';
@@ -78,6 +79,11 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
           label: 'Ayat & Hadith',
           path: AppRoutes.AyatAndHadith,
           icon: <BookOpen size={20} />,
+        },
+        {
+          label: 'Notify Followers',
+          path: AppRoutes.NotifyFollowers,
+          icon: <Send size={20} />,
         },
       ];
 

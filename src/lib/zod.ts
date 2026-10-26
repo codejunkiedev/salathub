@@ -237,3 +237,21 @@ export const resetModeratorPasswordSchema = z
   });
 
 export type ResetModeratorPasswordData = z.infer<typeof resetModeratorPasswordSchema>;
+
+export const NOTIFICATION_TITLE_MAX = 50;
+export const NOTIFICATION_BODY_MAX = 150;
+
+export const followerNotificationSchema = z.object({
+  title: z
+    .string()
+    .trim()
+    .min(1, 'Title is required')
+    .max(NOTIFICATION_TITLE_MAX, `Title must be at most ${NOTIFICATION_TITLE_MAX} characters`),
+  body: z
+    .string()
+    .trim()
+    .min(1, 'Message is required')
+    .max(NOTIFICATION_BODY_MAX, `Message must be at most ${NOTIFICATION_BODY_MAX} characters`),
+});
+
+export type FollowerNotificationData = z.infer<typeof followerNotificationSchema>;

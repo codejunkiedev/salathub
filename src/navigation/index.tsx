@@ -16,6 +16,7 @@ import {
   Loading,
   Login,
   Moderators,
+  NotifyFollowers,
   Posts,
   Register,
   ResetPassword,
@@ -154,6 +155,7 @@ export default function Navigation() {
             <Route path={AppRoutes.Posts} element={<Posts />} />
             <Route path={AppRoutes.YouTubeVideos} element={<YouTubeVideos />} />
             <Route path={AppRoutes.AyatAndHadith} element={<AyatAndHadith />} />
+            <Route path={AppRoutes.NotifyFollowers} element={<NotifyFollowers />} />
             <Route
               path={AppRoutes.Screens}
               element={
