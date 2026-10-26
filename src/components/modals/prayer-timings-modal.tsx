@@ -110,7 +110,7 @@ export function PrayerTimingsModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [solar, setSolar] = useState<SolarAdjustments>(() => solarFromSettings(settings));
 
-  const { handleSubmit, setValue, control } = useForm<PrayerAdjustmentsFormData>({
+  const { handleSubmit, setValue, reset, control } = useForm<PrayerAdjustmentsFormData>({
     resolver: zodResolver(prayerAdjustmentsFormSchema),
     defaultValues: {
       prayer_adjustments: initialValues?.prayer_adjustments ?? DEFAULT_ADJUSTMENT,
@@ -118,10 +118,10 @@ export function PrayerTimingsModal({
   });
 
   useEffect(() => {
-    if (initialValues?.prayer_adjustments) {
-      setValue('prayer_adjustments', initialValues.prayer_adjustments);
+    if (isOpen) {
+      reset({ prayer_adjustments: initialValues?.prayer_adjustments ?? DEFAULT_ADJUSTMENT });
     }
-  }, [initialValues, setValue]);
+  }, [isOpen, initialValues, reset]);
 
   const [prevSync, setPrevSync] = useState({ isOpen, settings });
   if (prevSync.isOpen !== isOpen || prevSync.settings !== settings) {
