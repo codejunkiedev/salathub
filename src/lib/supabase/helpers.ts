@@ -470,7 +470,11 @@ export async function recordExists(
  * @returns The inserted record
  */
 export async function insertRecord<T>(table: string, record: Partial<T>): Promise<T> {
-  const { data, error } = await supabase.from(table).insert(record).select().single();
+  const { data, error } = await supabase
+    .from(table)
+    .insert(record as Record<string, unknown>)
+    .select()
+    .single();
 
   if (error) {
     throw handleSupabaseError(error, `Error inserting record into ${table}`);
@@ -487,7 +491,12 @@ export async function insertRecord<T>(table: string, record: Partial<T>): Promis
  * @returns The updated record
  */
 export async function updateRecord<T>(table: string, id: string, updates: Partial<T>): Promise<T> {
-  const { data, error } = await supabase.from(table).update(updates).eq('id', id).select().single();
+  const { data, error } = await supabase
+    .from(table)
+    .update(updates as Record<string, unknown>)
+    .eq('id', id)
+    .select()
+    .single();
 
   if (error) {
     throw handleSupabaseError(error, `Error updating record in ${table}`);
