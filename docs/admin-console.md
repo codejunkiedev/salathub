@@ -34,7 +34,7 @@ Moderators sign in through the same `/login` page; the role only restricts what 
 
 ## Notify followers
 
-`/admin/notify-followers`, admins and moderators. A title (50 chars) and message (150 chars) go out as an Expo push to every device subscribed to the masjid, on the `masjid-updates` Android channel with `data.type = 'masjid_message'`, which the Alkhairia app opens as the masjid's page. Nothing reaches a display screen. The `notify-followers` Edge Function refuses an unlisted masjid and a fourth send within a rolling 24 hours (429 with `retry_at`); a send that fails before reaching Expo is deleted so it doesn't use up the limit.
+`/admin/notify-followers`, admins and moderators. A title (50 chars, sent as `Masjid Name: title` like timing-change alerts) and message (150 chars) go out as an Expo push to every device subscribed to the masjid, on the `masjid-updates` Android channel with `data.type = 'masjid_message'`, which the Alkhairia app opens as the masjid's page. Nothing reaches a display screen. The `notify-followers` Edge Function refuses an unlisted masjid and a fourth send within a rolling 24 hours (429 with `retry_at`); a send that fails before reaching Expo is deleted so it doesn't use up the limit.
 
 ## Masjid profile
 

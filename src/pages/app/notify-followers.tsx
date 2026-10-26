@@ -45,19 +45,29 @@ import type { MasjidNotification } from '@/types';
 const DAILY_LIMIT = 3;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-function PhonePreview({ title, body }: { title: string; body: string }) {
+function PhonePreview({
+  masjidName,
+  title,
+  body,
+}: {
+  masjidName: string;
+  title: string;
+  body: string;
+}) {
   return (
     <div className='rounded-[2rem] bg-gradient-to-b from-slate-700 to-slate-900 p-4 pt-10 pb-16'>
       <div className='rounded-2xl bg-white/90 dark:bg-slate-100/90 p-3 shadow-lg text-slate-900'>
-        <div className='flex items-center gap-2 text-xs text-slate-500'>
+        <div className='flex items-center gap-2 text-[11px] text-slate-500'>
           <span className='flex h-5 w-5 items-center justify-center rounded-md bg-teal-600 text-white'>
             <Smartphone className='h-3 w-3' />
           </span>
           <span className='font-medium'>Alkhairia</span>
           <span className='ml-auto'>now</span>
         </div>
-        <p className='mt-2 text-sm font-semibold break-words'>{title || 'Title'}</p>
-        <p className='text-sm break-words'>{body || 'Your message to followers'}</p>
+        <p className='mt-2 text-[13px] font-semibold break-words'>
+          {[masjidName, title || 'Title'].filter(Boolean).join(': ')}
+        </p>
+        <p className='text-[13px] break-words'>{body || 'Your message to followers'}</p>
       </div>
     </div>
   );
@@ -77,6 +87,7 @@ export default function NotifyFollowers() {
   const [history, setHistory] = useState<MasjidNotification[]>([]);
   const [followers, setFollowers] = useState<number | null>(null);
   const [listed, setListed] = useState<boolean | null>(null);
+  const [masjidName, setMasjidName] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState<FollowerNotificationData | null>(null);
@@ -110,6 +121,7 @@ export default function NotifyFollowers() {
         setHistory(notifications);
         setFollowers(count);
         setListed(profile?.listed ?? false);
+        setMasjidName(profile?.name ?? '');
         setNow(Date.now());
       } catch (err) {
         console.error(err);
@@ -232,7 +244,7 @@ export default function NotifyFollowers() {
         </Card>
       )}
 
-      <div className='grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]'>
+      <div className='grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px]'>
         <Card>
           <CardHeader>
             <CardTitle>New notification</CardTitle>
@@ -299,7 +311,7 @@ export default function NotifyFollowers() {
             <CardDescription>Roughly how it appears on Android and iPhone</CardDescription>
           </CardHeader>
           <CardContent>
-            <PhonePreview title={title.trim()} body={body.trim()} />
+            <PhonePreview masjidName={masjidName} title={title.trim()} body={body.trim()} />
           </CardContent>
         </Card>
       </div>
@@ -333,7 +345,9 @@ export default function NotifyFollowers() {
             </DialogDescription>
           </DialogHeader>
 
-          {pending && <PhonePreview title={pending.title} body={pending.body} />}
+          {pending && (
+            <PhonePreview masjidName={masjidName} title={pending.title} body={pending.body} />
+          )}
 
           <DialogFooter>
             <Button variant='outline' onClick={() => setPending(null)} disabled={isSending}>

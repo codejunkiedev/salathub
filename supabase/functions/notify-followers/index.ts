@@ -70,7 +70,7 @@ Deno.serve(async req => {
 
   const { data: profile, error: profileError } = await admin
     .from('masjid_profiles')
-    .select('listed')
+    .select('listed, name')
     .eq('id', masjidId)
     .single();
   if (profileError) {
@@ -118,7 +118,7 @@ Deno.serve(async req => {
     result = await sendPushMessages(
       (rows ?? []).map(row => ({
         to: row.expo_push_token as string,
-        title,
+        title: profile.name ? `${profile.name}: ${title}` : title,
         body,
         channelId: ANDROID_CHANNEL_ID,
         data: { type: 'masjid_message', masjidId },
