@@ -1,4 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+
+function readStoredState(storageKey: string, defaultValue: boolean): boolean {
+  const savedState = localStorage.getItem(storageKey);
+  return savedState === null ? defaultValue : savedState === 'true';
+}
 
 /**
  * Custom hook to manage sidebar collapsed state with localStorage persistence
@@ -7,15 +12,7 @@ import { useState, useEffect } from 'react';
  * @returns [collapsed, toggleCollapsed, setCollapsed]
  */
 export function useSidebarState(defaultValue = false, storageKey = 'sidebarCollapsed') {
-  const [collapsed, setCollapsed] = useState(defaultValue);
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    const savedState = localStorage.getItem(storageKey);
-    if (savedState !== null) {
-      setCollapsed(savedState === 'true');
-    }
-  }, [storageKey]);
+  const [collapsed, setCollapsed] = useState(() => readStoredState(storageKey, defaultValue));
 
   // Toggle collapsed state and save to localStorage
   const toggleCollapsed = () => {

@@ -20,6 +20,12 @@ export function useAutoRedirect({ to, delaySeconds = 5, onRedirect }: UseAutoRed
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const redirectedRef = useRef(false);
 
+  const [prevTarget, setPrevTarget] = useState({ to, delaySeconds });
+  if (prevTarget.to !== to || prevTarget.delaySeconds !== delaySeconds) {
+    setPrevTarget({ to, delaySeconds });
+    setSecondsLeft(delaySeconds);
+  }
+
   // Function to immediately trigger the redirect
   const redirectNow = useCallback(() => {
     if (!redirectedRef.current) {
@@ -30,8 +36,6 @@ export function useAutoRedirect({ to, delaySeconds = 5, onRedirect }: UseAutoRed
   }, [navigate, to, onRedirect]);
 
   useEffect(() => {
-    // Reset timer state when dependencies change
-    setSecondsLeft(delaySeconds);
     redirectedRef.current = false;
 
     // Clear any existing timer

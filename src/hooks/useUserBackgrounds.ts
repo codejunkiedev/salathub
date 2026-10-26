@@ -12,23 +12,39 @@ export function useUserBackgrounds() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const applyResult = useCallback(
+    (result: Promise<BackgroundImage[]>, isActive: () => boolean = () => true) => {
+      return result
+        .then(files => {
+          if (!isActive()) return;
+          setImages(files);
+          setError(null);
+        })
+        .catch(err => {
+          if (!isActive()) return;
+          console.error('Failed to load uploaded backgrounds:', err);
+          setError('Failed to load uploaded images');
+        })
+        .finally(() => {
+          if (isActive()) setLoading(false);
+        });
+    },
+    []
+  );
+
   const refetch = useCallback(async () => {
     setLoading(true);
     setError(null);
-    try {
-      const files = await listUserBackgrounds();
-      setImages(files);
-    } catch (err) {
-      console.error('Failed to load uploaded backgrounds:', err);
-      setError('Failed to load uploaded images');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    await applyResult(listUserBackgrounds());
+  }, [applyResult]);
 
   useEffect(() => {
-    void refetch();
-  }, [refetch]);
+    let active = true;
+    void applyResult(listUserBackgrounds(), () => active);
+    return () => {
+      active = false;
+    };
+  }, [applyResult]);
 
   return { images, loading, error, refetch };
 }

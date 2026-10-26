@@ -12,10 +12,14 @@ type ReturnType = {
  */
 export const useCurrentTime = (timeZone: string | null | undefined = null): ReturnType => {
   const [currentTime, setCurrentTime] = useState<Date>(() => nowInTimeZone(timeZone));
+  const [prevTimeZone, setPrevTimeZone] = useState(timeZone);
+
+  if (prevTimeZone !== timeZone) {
+    setPrevTimeZone(timeZone);
+    setCurrentTime(nowInTimeZone(timeZone));
+  }
 
   useEffect(() => {
-    setCurrentTime(nowInTimeZone(timeZone));
-
     const interval = setInterval(() => {
       setCurrentTime(nowInTimeZone(timeZone));
     }, 1000);
