@@ -247,6 +247,17 @@ export async function getScreensForContent(
   return data as ScreenContent[];
 }
 
+/** IDs of the items of a content type that are on at least one screen. */
+export async function getContentIdsOnScreens(contentType: ScreenContentType): Promise<Set<string>> {
+  const { data, error } = await supabase
+    .from(SupabaseTables.ScreenContent)
+    .select('content_id')
+    .eq('content_type', contentType);
+
+  if (error) throw error;
+  return new Set((data ?? []).map(r => r.content_id as string));
+}
+
 export async function bulkUpdateScreenAssignments(
   contentId: string,
   contentType: ScreenContentType,

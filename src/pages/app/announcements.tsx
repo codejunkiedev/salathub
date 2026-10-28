@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getAnnouncements, deleteAnnouncement } from '@/lib/supabase';
+import { getAnnouncements, deleteAnnouncement, getContentIdsOnScreens } from '@/lib/supabase';
 import type { Announcement } from '@/types';
 import { TableSkeleton } from '@/components/skeletons';
 import {
@@ -22,6 +22,7 @@ import { toast } from 'sonner';
 
 export default function Announcements() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [onScreenIds, setOnScreenIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,8 +40,12 @@ export default function Announcements() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await getAnnouncements();
+        const [data, screenIds] = await Promise.all([
+          getAnnouncements(),
+          getContentIdsOnScreens('announcements'),
+        ]);
         setAnnouncements(data);
+        setOnScreenIds(screenIds);
       } catch (err) {
         setError('Failed to fetch announcements');
         toast.error('Failed to fetch announcements');
@@ -117,7 +122,11 @@ export default function Announcements() {
       name: 'Status',
       width: 'w-[90px]',
       render: (value, item) => (
-        <ContentStatus published={value !== null} showInApp={item.show_in_app} />
+        <ContentStatus
+          published={value !== null}
+          showInApp={item.show_in_app}
+          onScreens={onScreenIds.has(item.id)}
+        />
       ),
     },
   ];

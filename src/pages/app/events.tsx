@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getEvents, deleteEvent, type EventScope } from '@/lib/supabase';
+import { getEvents, deleteEvent, type EventScope, getContentIdsOnScreens } from '@/lib/supabase';
 import type { Event } from '@/types';
 import { TableSkeleton } from '@/components/skeletons';
 import { EventModal, DeleteConfirmationModal, ScreenAssignmentModal } from '@/components/modals';
@@ -26,6 +26,7 @@ const SCOPES: { value: EventScope; label: string }[] = [
 
 export default function Events() {
   const [events, setEvents] = useState<Event[]>([]);
+  const [onScreenIds, setOnScreenIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -45,8 +46,12 @@ export default function Events() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await getEvents(undefined, scope);
+        const [data, screenIds] = await Promise.all([
+          getEvents(undefined, scope),
+          getContentIdsOnScreens('events'),
+        ]);
         setEvents(data);
+        setOnScreenIds(screenIds);
       } catch (err) {
         setError('Failed to fetch events');
         toast.error('Failed to fetch events');
@@ -147,7 +152,11 @@ export default function Events() {
       name: 'Status',
       width: 'w-[90px]',
       render: (value, item) => (
-        <ContentStatus published={value !== null} showInApp={item.show_in_app} />
+        <ContentStatus
+          published={value !== null}
+          showInApp={item.show_in_app}
+          onScreens={onScreenIds.has(item.id)}
+        />
       ),
     },
   ];

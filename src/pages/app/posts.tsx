@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getPosts, deletePost } from '@/lib/supabase';
+import { getPosts, deletePost, getContentIdsOnScreens } from '@/lib/supabase';
 import type { Post, PostOrientation } from '@/types';
 import { TableSkeleton } from '@/components/skeletons';
 import {
@@ -27,6 +27,7 @@ const POST_ORIENTATIONS = ['landscape', 'portrait'] as const;
 
 export default function Posts() {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [onScreenIds, setOnScreenIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -46,8 +47,9 @@ export default function Posts() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await getPosts();
+        const [data, screenIds] = await Promise.all([getPosts(), getContentIdsOnScreens('posts')]);
         setPosts(data);
+        setOnScreenIds(screenIds);
       } catch (err) {
         setError('Failed to fetch posts');
         toast.error('Failed to fetch posts');
@@ -169,7 +171,11 @@ export default function Posts() {
       name: 'Status',
       width: 'w-[90px]',
       render: (value, item) => (
-        <ContentStatus published={value !== null} showInApp={item.show_in_app} />
+        <ContentStatus
+          published={value !== null}
+          showInApp={item.show_in_app}
+          onScreens={onScreenIds.has(item.id)}
+        />
       ),
     },
   ];
