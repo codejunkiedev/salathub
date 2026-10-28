@@ -84,11 +84,7 @@ export interface MasjidProfile extends Base {
 
 export type ScreenOrientation = 'landscape' | 'portrait';
 export type ScreenContentType =
-  | 'announcements'
-  | 'events'
-  | 'posts'
-  | 'youtube_videos'
-  | 'ayat_and_hadith';
+  'announcements' | 'events' | 'posts' | 'youtube_videos' | 'ayat_and_hadith';
 export type PostOrientation = 'landscape' | 'portrait';
 
 export type AyatHadithType = 'ayat' | 'hadith';
@@ -186,13 +182,7 @@ export type PrayerAlertTrigger = 'athan' | 'iqamah';
  * Theme 3's typographic roles.
  */
 export type CustomThemeTextGroup =
-  | 'header'
-  | 'names'
-  | 'times'
-  | 'countdown'
-  | 'date'
-  | 'masjidName'
-  | 'banner';
+  'header' | 'names' | 'times' | 'countdown' | 'date' | 'masjidName' | 'banner';
 
 /**
  * Arrangement of the custom theme's elements. Every layout renders the same
@@ -325,6 +315,7 @@ export interface ScreenContent {
 }
 
 export interface Announcement extends Base {
+  title: string | null;
   description: string;
   archived: boolean;
 }

@@ -169,7 +169,7 @@ export async function getScreenContentWithDetails(
     if (error) throw error;
     for (const item of data || []) {
       contentMap.set(item.id, {
-        title: item[titleKey] || '',
+        title: item[titleKey] || item[descKey] || '',
         description: item[descKey] || '',
       });
     }
@@ -193,7 +193,7 @@ export async function getScreenContentWithDetails(
   };
 
   await Promise.all([
-    fetchFromTable('announcements', idsByType['announcements'] || [], 'description', 'description'),
+    fetchFromTable('announcements', idsByType['announcements'] || [], 'title', 'description'),
     fetchFromTable('events', idsByType['events'] || [], 'title', 'description'),
     fetchFromTable('posts', idsByType['posts'] || [], 'title', 'title'),
     fetchFromTable('youtube_videos', idsByType['youtube_videos'] || [], 'title', 'youtube_url'),

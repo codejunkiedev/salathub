@@ -97,9 +97,15 @@ export default function Announcements() {
 
   const columns: Column<Announcement>[] = [
     {
+      key: 'title',
+      name: 'Title',
+      width: 'w-[30%]',
+      render: value => <div className='line-clamp-1'>{(value as string | null) || '—'}</div>,
+    },
+    {
       key: 'description',
       name: 'Description',
-      width: 'w-[90%]',
+      width: 'w-[60%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden'>{value as string}</div>
       ),
@@ -163,7 +169,7 @@ export default function Announcements() {
         onConfirm={handleDeleteConfirm}
         isDeleting={isDeleting}
         itemType='announcement'
-        itemTitle={itemToDelete?.description}
+        itemTitle={itemToDelete?.title || itemToDelete?.description}
       />
 
       {screenAssignItem && (
@@ -178,7 +184,7 @@ export default function Announcements() {
           }}
           contentId={screenAssignItem.id}
           contentType='announcements'
-          contentLabel={screenAssignItem.description}
+          contentLabel={screenAssignItem.title || screenAssignItem.description}
           dismissLabel={assignedFromCreate ? 'Skip' : 'Cancel'}
         />
       )}

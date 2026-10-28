@@ -104,6 +104,7 @@ export const VALID_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
 export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export const announcementSchema = z.object({
+  title: z.string().trim().min(1, 'Title is required'),
   description: z.string().min(1, 'Description is required'),
 });
 

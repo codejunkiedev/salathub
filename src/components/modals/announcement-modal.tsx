@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   Button,
+  Input,
   Textarea,
   Dialog,
   DialogHeader,
@@ -17,6 +18,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Label } from '@/components/ui';
 import { toast } from 'sonner';
 
+const toFormValues = (announcement?: Announcement): AnnouncementData => ({
+  title: announcement?.title ?? '',
+  description: announcement?.description ?? '',
+});
+
 type AnnouncementModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -25,7 +31,7 @@ type AnnouncementModalProps = {
 };
 
 /**
- * Modal component for creating and editing announcement descriptions with form validation
+ * Modal component for creating and editing announcements with form validation
  */
 export function AnnouncementModal({
   isOpen,
@@ -44,12 +50,12 @@ export function AnnouncementModal({
     formState: { errors },
   } = useForm<AnnouncementData>({
     resolver: zodResolver(announcementSchema),
-    defaultValues: initialData || { description: '' },
+    defaultValues: toFormValues(initialData),
   });
 
   useEffect(() => {
     if (isOpen) {
-      reset(initialData || { description: '' });
+      reset(toFormValues(initialData));
     }
   }, [isOpen, initialData, reset]);
 
@@ -88,6 +94,17 @@ export function AnnouncementModal({
               {error}
             </div>
           )}
+
+          <div className='space-y-2'>
+            <Label htmlFor='title'>Title</Label>
+            <Input
+              id='title'
+              placeholder='Enter announcement title'
+              className={errors.title ? 'border-destructive' : ''}
+              {...register('title')}
+            />
+            {errors.title && <p className='text-destructive text-sm'>{errors.title.message}</p>}
+          </div>
 
           <div className='space-y-2'>
             <Label htmlFor='description'>Description</Label>

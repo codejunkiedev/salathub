@@ -10,7 +10,7 @@ Content items therefore carry no `visible` or `display_order` of their own — t
 
 ## Announcements
 
-One required `description`. Simplest type; one announcement per slide.
+A required `title` and `description`. The title is the slide heading; announcements created before titles existed have none and fall back to "اعلان". Simplest type; one announcement per slide.
 
 ## Events
 

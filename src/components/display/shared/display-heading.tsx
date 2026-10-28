@@ -2,12 +2,19 @@ interface DisplayHeadingProps {
   title: string;
   underlineWidth?: 'sm' | 'md' | 'lg';
   size?: 'sm' | 'md' | 'lg';
+  /** Overrides the preset `size` classes, for headings whose length varies. */
+  sizeClassName?: string;
 }
 
 /**
  * Animated heading component with customizable size and underline width for display screens
  */
-export function DisplayHeading({ title, underlineWidth = 'md', size = 'md' }: DisplayHeadingProps) {
+export function DisplayHeading({
+  title,
+  underlineWidth = 'md',
+  size = 'md',
+  sizeClassName,
+}: DisplayHeadingProps) {
   // Underline width classes
   const underlineWidthClasses = {
     sm: 'max-w-[60%]',
@@ -24,7 +31,11 @@ export function DisplayHeading({ title, underlineWidth = 'md', size = 'md' }: Di
 
   return (
     <div className='text-center mb-6 2xl:mb-8 [@media(min-width:3000px)]:mb-12 [@media(min-width:4000px)]:mb-16 stagger-item animate-fade-in-up'>
-      <h2 className={`${headingSizeClasses[size]} font-bold text-white text-center`}>{title}</h2>
+      <h2
+        className={`${sizeClassName ?? headingSizeClasses[size]} font-bold text-white text-center break-words`}
+      >
+        {title}
+      </h2>
       <div
         className={`h-1 [@media(min-width:3000px)]:h-1.5 [@media(min-width:4000px)]:h-2 ${underlineWidthClasses[underlineWidth]} bg-white/30 mx-auto rounded-full mt-2 lg:mt-4 xl:mt-6 2xl:mt-8 [@media(min-width:3000px)]:mt-12 [@media(min-width:4000px)]:mt-16 animate-scale-x-in origin-left`}
       ></div>

@@ -19,9 +19,28 @@ export function AnnouncementsDisplay({
   const announcement = announcements[0];
   const isPortrait = orientation === 'portrait';
 
-  const getDynamicWidth = (length: number): 'md' | 'lg' => {
-    if (length < 50) return 'md'; // Short text: medium width
-    return 'lg'; // Long text: large width
+  const title = announcement.title || 'اعلان';
+
+  // A long title needs the wide card even when the description is short.
+  const cardWidth: 'md' | 'lg' =
+    title.length < 20 && announcement.description.length < 50 ? 'md' : 'lg';
+
+  // One step larger than the description at each length, so the title leads
+  // without outgrowing the card.
+  const getTitleSizeClass = (length: number) => {
+    if (isPortrait) {
+      if (length < 20) return 'text-[9vw] leading-tight';
+      if (length <= 50) return 'text-[7vw] leading-tight';
+      return 'text-[5.5vw] leading-tight';
+    }
+
+    if (length < 20) {
+      return 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl [@media(min-width:3000px)]:text-[9rem] [@media(min-width:4000px)]:text-[11rem] leading-tight';
+    } else if (length <= 50) {
+      return 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl [@media(min-width:3000px)]:text-[7.5rem] [@media(min-width:4000px)]:text-[9.5rem] leading-tight';
+    } else {
+      return 'text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl [@media(min-width:3000px)]:text-[6.3rem] [@media(min-width:4000px)]:text-[8rem] leading-tight';
+    }
   };
 
   const getDynamicFontClass = (length: number) => {
@@ -49,13 +68,13 @@ export function AnnouncementsDisplay({
 
   return (
     <DisplayContainer backgroundImage={bgImage}>
-      <DisplayCard width={getDynamicWidth(announcement.description.length)}>
+      <DisplayCard width={cardWidth}>
         <AnimationProvider>
-          <DisplayHeading title='اعلان' />
+          <DisplayHeading title={title} sizeClassName={getTitleSizeClass(title.length)} />
 
           <div className='min-h-[150px] 2xl:min-h-[200px] [@media(min-width:3000px)]:min-h-[184px] [@media(min-width:4000px)]:min-h-[204px] flex items-center justify-center stagger-item animate-fade-in-up'>
             <p
-              className={`text-white ${getDynamicFontClass(announcement.description.length)} text-center leading-relaxed`}
+              className={`text-white ${getDynamicFontClass(announcement.description.length)} text-center leading-relaxed break-words`}
             >
               {announcement.description}
             </p>
