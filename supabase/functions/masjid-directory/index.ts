@@ -6,6 +6,7 @@
  *   GET /search?q=&lat=&lng=&limit=
  *   GET /masjids?ids=<uuid>,<uuid>
  *   GET /timings?masjid_id=<uuid>&from=YYYY-MM-DD&to=YYYY-MM-DD
+ *   GET /feed?ids=<uuid>,<uuid>&limit=&offset=
  *   POST /devices    { device_id, token, platform, masjid_ids }
  *   DELETE /devices  { device_id }
  *
@@ -75,6 +76,13 @@ const numberParam = (params: URLSearchParams, key: string): number | null => {
   const value = Number(raw);
   return Number.isFinite(value) ? value : null;
 };
+
+const idsParam = (params: URLSearchParams): string[] =>
+  (params.get('ids') ?? '')
+    .split(',')
+    .map(id => id.trim())
+    .filter(id => UUID_PATTERN.test(id))
+    .slice(0, MAX_FOLLOWED_IDS);
 
 Deno.serve(async req => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
@@ -169,18 +177,27 @@ Deno.serve(async req => {
     }
 
     if (route === 'masjids') {
-      const ids = (params.get('ids') ?? '')
-        .split(',')
-        .map(id => id.trim())
-        .filter(id => UUID_PATTERN.test(id))
-        .slice(0, MAX_FOLLOWED_IDS);
-
+      const ids = idsParam(params);
       if (ids.length === 0) return json({ masjids: [] }, 200, 300);
 
       const { data, error } = await admin.rpc('get_masjids_public', { p_ids: ids });
       if (error) throw error;
 
       return json({ masjids: data ?? [] }, 200, 300);
+    }
+
+    if (route === 'feed') {
+      const ids = idsParam(params);
+      if (ids.length === 0) return json({ items: [] }, 200, 60);
+
+      const { data, error } = await admin.rpc('get_masjid_feed', {
+        p_ids: ids,
+        p_limit: numberParam(params, 'limit'),
+        p_offset: numberParam(params, 'offset'),
+      });
+      if (error) throw error;
+
+      return json({ items: data ?? [] }, 200, 60);
     }
 
     if (route === 'timings') {
