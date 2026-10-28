@@ -44,6 +44,8 @@ export interface UpsertAyatAndHadithInput {
   style: AyatHadithStyle;
   imageBlob: Blob;
   previousImagePath?: string;
+  /** Applies only when creating; edits keep the item's publish state. Defaults to true. */
+  publish?: boolean;
 }
 
 export async function upsertAyatAndHadith(input: UpsertAyatAndHadithInput): Promise<AyatAndHadith> {
@@ -86,6 +88,7 @@ export async function upsertAyatAndHadith(input: UpsertAyatAndHadithInput): Prom
     record = await updateRecord<AyatAndHadith>(SupabaseTables.AyatAndHadith, input.id, toUpsert);
   } else {
     toUpsert.created_at = new Date().toISOString();
+    toUpsert.published_at = input.publish === false ? null : toUpsert.created_at;
     record = await insertRecord<AyatAndHadith>(SupabaseTables.AyatAndHadith, toUpsert);
   }
 

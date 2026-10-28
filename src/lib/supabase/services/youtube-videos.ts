@@ -20,7 +20,11 @@ export async function getYouTubeVideos(masjidId?: string): Promise<YouTubeVideo[
   return await fetchByMultipleConditions<YouTubeVideo>(SupabaseTables.YouTubeVideos, conditions);
 }
 
-export async function upsertYouTubeVideo(video: YouTubeVideoData & { id?: string }) {
+/** `publish` applies only when creating; edits keep the item's publish state. */
+export async function upsertYouTubeVideo(
+  video: YouTubeVideoData & { id?: string },
+  publish = true
+) {
   const user = await getCurrentUser();
   if (!user) throw new Error('User not authenticated');
   const { masjid_id } = await getMasjidMembership();
@@ -37,6 +41,7 @@ export async function upsertYouTubeVideo(video: YouTubeVideoData & { id?: string
     return await updateRecord<YouTubeVideo>(SupabaseTables.YouTubeVideos, video.id, record);
   } else {
     record.created_at = new Date().toISOString();
+    record.published_at = publish ? record.created_at : null;
     return await insertRecord<YouTubeVideo>(SupabaseTables.YouTubeVideos, record);
   }
 }

@@ -15,10 +15,11 @@ import {
   ActionButtons,
   DataTable,
   OrientationBadge,
+  PublishStatusBadge,
   type Column,
 } from '@/components/common';
 import { FileImage } from 'lucide-react';
-import { useTrigger } from '@/hooks';
+import { useTrigger, usePublishToggle } from '@/hooks';
 import { Popover, PopoverContent, PopoverTrigger, RemoteImage } from '@/components/ui';
 import { toast } from 'sonner';
 
@@ -39,6 +40,7 @@ export default function Posts() {
   const [pendingOrientation, setPendingOrientation] = useState<PostOrientation | null>(null);
 
   const [trigger, forceUpdate] = useTrigger();
+  const togglePublish = usePublishToggle('posts', forceUpdate);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -149,7 +151,7 @@ export default function Posts() {
     {
       key: 'title',
       name: 'Title',
-      width: 'w-[60%]',
+      width: 'w-[50%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden font-medium'>
           {value as string}
@@ -161,6 +163,12 @@ export default function Posts() {
       name: 'Orientation',
       width: 'w-[120px]',
       render: (_value, item) => <OrientationBadge orientation={(item as Post).orientation} />,
+    },
+    {
+      key: 'published_at',
+      name: 'Status',
+      width: 'w-[110px]',
+      render: value => <PublishStatusBadge published={value !== null} />,
     },
   ];
 
@@ -186,12 +194,14 @@ export default function Posts() {
           data={posts}
           keyField='id'
           showRowNumbers={true}
-          actionsWidth='w-[10%]'
+          actionsWidth='w-[14%]'
           renderActions={item => (
             <ActionButtons
               onEdit={() => handleEdit(item)}
               onDelete={() => handleDeleteClick(item)}
               onScreens={() => setScreenAssignItem(item)}
+              onTogglePublish={() => togglePublish(item)}
+              published={item.published_at !== null}
             />
           )}
         />

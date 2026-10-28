@@ -55,7 +55,7 @@ export async function getDisplaySession(code: string): Promise<DisplaySession | 
 
 /**
  * Everything the display renders: screen, masjid, prayer settings, the screen's
- * visible playlist and the content rows it points at, in one round trip.
+ * playlist and the published content rows it points at, in one round trip.
  * Resolves to null when the screen no longer exists — the caller signs out.
  */
 export async function getDisplayPayload(code: string): Promise<DisplayPayload | null> {

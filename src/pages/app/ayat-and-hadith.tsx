@@ -16,11 +16,12 @@ import {
   ActionButtons,
   DataTable,
   OrientationBadge,
+  PublishStatusBadge,
   type Column,
 } from '@/components/common';
 import { Badge, Popover, PopoverContent, PopoverTrigger, RemoteImage } from '@/components/ui';
 import { BookOpen } from 'lucide-react';
-import { useTrigger } from '@/hooks';
+import { useTrigger, usePublishToggle } from '@/hooks';
 import { toast } from 'sonner';
 import { formatSlideReference } from '@/utils';
 
@@ -38,6 +39,7 @@ export default function AyatAndHadithPage() {
   const [orientationPickerOpen, setOrientationPickerOpen] = useState(false);
 
   const [trigger, forceUpdate] = useTrigger();
+  const togglePublish = usePublishToggle('ayat_and_hadith', forceUpdate);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -158,6 +160,12 @@ export default function AyatAndHadithPage() {
         );
       },
     },
+    {
+      key: 'published_at',
+      name: 'Status',
+      width: 'w-[110px]',
+      render: value => <PublishStatusBadge published={value !== null} />,
+    },
   ];
 
   return (
@@ -186,12 +194,14 @@ export default function AyatAndHadithPage() {
           data={items}
           keyField='id'
           showRowNumbers={true}
-          actionsWidth='w-[10%]'
+          actionsWidth='w-[14%]'
           renderActions={item => (
             <ActionButtons
               onEdit={() => handleEdit(item)}
               onDelete={() => handleDeleteClick(item)}
               onScreens={() => setScreenAssignItem(item)}
+              onTogglePublish={() => togglePublish(item)}
+              published={item.published_at !== null}
             />
           )}
         />

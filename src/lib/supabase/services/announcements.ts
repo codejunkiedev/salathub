@@ -20,7 +20,11 @@ export async function getAnnouncements(masjidId?: string): Promise<Announcement[
   return await fetchByMultipleConditions<Announcement>(SupabaseTables.Announcements, conditions);
 }
 
-export async function upsertAnnouncement(announcement: AnnouncementData & { id?: string }) {
+/** `publish` applies only when creating; edits keep the item's publish state. */
+export async function upsertAnnouncement(
+  announcement: AnnouncementData & { id?: string },
+  publish = true
+) {
   const user = await getCurrentUser();
   if (!user) throw new Error('User not authenticated');
   const { masjid_id } = await getMasjidMembership();
@@ -41,6 +45,7 @@ export async function upsertAnnouncement(announcement: AnnouncementData & { id?:
     );
   } else {
     announcementToUpsert.created_at = new Date().toISOString();
+    announcementToUpsert.published_at = publish ? announcementToUpsert.created_at : null;
 
     return await insertRecord<Announcement>(SupabaseTables.Announcements, announcementToUpsert);
   }

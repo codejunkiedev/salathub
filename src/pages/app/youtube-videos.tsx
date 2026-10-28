@@ -13,10 +13,11 @@ import {
   EmptyState,
   ActionButtons,
   DataTable,
+  PublishStatusBadge,
   type Column,
 } from '@/components/common';
 import { Video, Repeat } from 'lucide-react';
-import { useTrigger } from '@/hooks';
+import { useTrigger, usePublishToggle } from '@/hooks';
 import { Badge } from '@/components/ui';
 import { toast } from 'sonner';
 
@@ -33,6 +34,7 @@ export default function YouTubeVideos() {
   const [assignedFromCreate, setAssignedFromCreate] = useState(false);
 
   const [trigger, forceUpdate] = useTrigger();
+  const togglePublish = usePublishToggle('youtube_videos', forceUpdate);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -100,7 +102,7 @@ export default function YouTubeVideos() {
     {
       key: 'title',
       name: 'Title',
-      width: 'w-[30%]',
+      width: 'w-[25%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden font-medium'>
           {value as string}
@@ -110,7 +112,7 @@ export default function YouTubeVideos() {
     {
       key: 'youtube_url',
       name: 'URL',
-      width: 'w-[50%]',
+      width: 'w-[37%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden text-muted-foreground text-sm'>
           {value as string}
@@ -127,6 +129,12 @@ export default function YouTubeVideos() {
           {value ? 'On' : 'Off'}
         </Badge>
       ),
+    },
+    {
+      key: 'published_at',
+      name: 'Status',
+      width: 'w-[12%]',
+      render: value => <PublishStatusBadge published={value !== null} />,
     },
   ];
 
@@ -156,12 +164,14 @@ export default function YouTubeVideos() {
           data={videos}
           keyField='id'
           showRowNumbers={true}
-          actionsWidth='w-[10%]'
+          actionsWidth='w-[16%]'
           renderActions={item => (
             <ActionButtons
               onEdit={() => handleEdit(item)}
               onDelete={() => handleDeleteClick(item)}
               onScreens={() => setScreenAssignItem(item)}
+              onTogglePublish={() => togglePublish(item)}
+              published={item.published_at !== null}
             />
           )}
         />

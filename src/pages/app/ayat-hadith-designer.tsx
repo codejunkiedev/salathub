@@ -7,6 +7,7 @@ import {
   DesignPanel,
   type ContentState,
 } from '@/components/ayat-hadith-designer';
+import { SaveContentButtons } from '@/components/common';
 import { useCanvasSnapshot } from '@/hooks';
 import { ScreenAssignmentModal } from '@/components/modals';
 import { AppRoutes, DEFAULT_STYLE, QURAN_TRANSLATIONS } from '@/constants';
@@ -169,7 +170,7 @@ export default function AyatHadithDesigner() {
 
   const handleCancel = () => navigate(AppRoutes.AyatAndHadith);
 
-  const onSubmit = async () => {
+  const onSubmit = async (publish = true) => {
     if (!canvasRef.current) {
       setError('Canvas not ready');
       return;
@@ -194,8 +195,9 @@ export default function AyatHadithDesigner() {
         style,
         imageBlob: blob,
         previousImagePath: initialData?.image_path,
+        publish,
       });
-      toast.success(`Slide ${isEdit ? 'updated' : 'created'} successfully`);
+      toast.success(`Slide ${isEdit ? 'updated' : publish ? 'published' : 'saved as draft'}`);
       if (isEdit) {
         navigate(AppRoutes.AyatAndHadith);
       } else {
@@ -248,9 +250,13 @@ export default function AyatHadithDesigner() {
           <Button variant='outline' onClick={handleCancel} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button onClick={onSubmit} disabled={isSubmitting || isFetching || !canSave}>
-            {isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Create'}
-          </Button>
+          <SaveContentButtons
+            isEdit={isEdit}
+            isSubmitting={isSubmitting}
+            disabled={isFetching || !canSave}
+            onSaveDraft={() => onSubmit(false)}
+            onSubmit={() => onSubmit()}
+          />
         </div>
       </header>
 

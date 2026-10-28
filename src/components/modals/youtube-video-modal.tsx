@@ -15,6 +15,7 @@ import {
 } from '@/components/ui';
 import { youtubeVideoSchema, type YouTubeVideoData } from '@/lib/zod';
 import { upsertYouTubeVideo } from '@/lib/supabase';
+import { SaveContentButtons } from '@/components/common';
 import type { YouTubeVideo } from '@/types';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -71,15 +72,20 @@ export function YouTubeVideoModal({
     }
   }, [isOpen, initialData, reset]);
 
-  const onSubmit = async (data: YouTubeVideoData) => {
+  const onSubmit = async (data: YouTubeVideoData, publish = true) => {
     try {
       setIsSubmitting(true);
       setError(null);
-      const saved = await upsertYouTubeVideo({
-        ...data,
-        ...(initialData?.id && { id: initialData.id }),
-      });
-      toast.success(`YouTube video ${isEdit ? 'updated' : 'created'} successfully`);
+      const saved = await upsertYouTubeVideo(
+        {
+          ...data,
+          ...(initialData?.id && { id: initialData.id }),
+        },
+        publish
+      );
+      toast.success(
+        `YouTube video ${isEdit ? 'updated' : publish ? 'published' : 'saved as draft'}`
+      );
 
       reset();
       onSuccess(isEdit ? undefined : saved);
@@ -100,7 +106,7 @@ export function YouTubeVideoModal({
           <DialogTitle>{isEdit ? 'Edit YouTube Video' : 'Add YouTube Video'}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className='pt-4'>
+        <form onSubmit={handleSubmit(data => onSubmit(data))} className='pt-4'>
           {error && (
             <div className='bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded mb-4'>
               {error}
@@ -175,9 +181,11 @@ export function YouTubeVideoModal({
                 Cancel
               </Button>
             </DialogClose>
-            <Button type='submit' disabled={isSubmitting}>
-              {isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Add'}
-            </Button>
+            <SaveContentButtons
+              isEdit={isEdit}
+              isSubmitting={isSubmitting}
+              onSaveDraft={handleSubmit(data => onSubmit(data, false))}
+            />
           </DialogFooter>
         </form>
       </DialogContent>

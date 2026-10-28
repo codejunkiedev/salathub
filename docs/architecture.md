@@ -11,7 +11,7 @@ How the app is composed, how it is secured, and how the two runtime surfaces get
 
 Tracked independently, so one device can hold both. A user belongs to exactly one masjid — `masjid_members` is `UNIQUE(user_id)` — with role `admin` or `moderator`.
 
-A masjid owns any number of screens, each with its own code, orientation, theme, language, slide interval, and independently ordered set of assigned content, so the same announcement can sit in a different position, or be hidden, on each screen.
+A masjid owns any number of screens, each with its own code, orientation, theme, language, slide interval, and independently ordered set of assigned content, so the same announcement can sit in a different position on each screen.
 
 ## Routes and guards
 

@@ -35,7 +35,8 @@ export async function getEvents(masjidId?: string, scope: EventScope = 'all'): P
   return (data ?? []) as Event[];
 }
 
-export async function upsertEvent(event: EventData & { id?: string }) {
+/** `publish` applies only when creating; edits keep the item's publish state. */
+export async function upsertEvent(event: EventData & { id?: string }, publish = true) {
   const user = await getCurrentUser();
   if (!user) throw new Error('User not authenticated');
   const { masjid_id } = await getMasjidMembership();
@@ -53,6 +54,7 @@ export async function upsertEvent(event: EventData & { id?: string }) {
     return await updateRecord<Event>(SupabaseTables.Events, event.id, eventToUpsert);
   } else {
     eventToUpsert.created_at = new Date().toISOString();
+    eventToUpsert.published_at = publish ? eventToUpsert.created_at : null;
 
     return await insertRecord<Event>(SupabaseTables.Events, eventToUpsert);
   }

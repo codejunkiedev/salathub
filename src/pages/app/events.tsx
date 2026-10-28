@@ -9,10 +9,11 @@ import {
   EmptyState,
   ActionButtons,
   DataTable,
+  PublishStatusBadge,
   type Column,
 } from '@/components/common';
 import { Calendar } from 'lucide-react';
-import { useTrigger, useMasjidTimezone } from '@/hooks';
+import { useTrigger, useMasjidTimezone, usePublishToggle } from '@/hooks';
 import { describeTimeZone, formatZonedDateTime } from '@/utils';
 import { Button } from '@/components/ui';
 import { toast } from 'sonner';
@@ -38,6 +39,7 @@ export default function Events() {
 
   const { timeZone, isLoading: isTimezoneLoading } = useMasjidTimezone();
   const [trigger, forceUpdate] = useTrigger();
+  const togglePublish = usePublishToggle('events', forceUpdate);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -105,7 +107,7 @@ export default function Events() {
     {
       key: 'title',
       name: 'Title',
-      width: 'w-[25%]',
+      width: 'w-[20%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden font-medium'>
           {value as string}
@@ -115,7 +117,7 @@ export default function Events() {
     {
       key: 'description',
       name: 'Description',
-      width: 'w-[35%]',
+      width: 'w-[26%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden'>{value as string}</div>
       ),
@@ -123,7 +125,7 @@ export default function Events() {
     {
       key: 'date_time',
       name: 'Date & Time',
-      width: 'w-[20%]',
+      width: 'w-[18%]',
       render: (value, item) => (
         <div>
           <div>{formatZonedDateTime(value as string, timeZone)}</div>
@@ -138,7 +140,13 @@ export default function Events() {
     {
       key: 'location',
       name: 'Location',
-      width: 'w-[20%]',
+      width: 'w-[14%]',
+    },
+    {
+      key: 'published_at',
+      name: 'Status',
+      width: 'w-[10%]',
+      render: value => <PublishStatusBadge published={value !== null} />,
     },
   ];
 
@@ -190,12 +198,14 @@ export default function Events() {
           data={events}
           keyField='id'
           showRowNumbers={true}
-          actionsWidth='w-[10%]'
+          actionsWidth='w-[12%]'
           renderActions={item => (
             <ActionButtons
               onEdit={() => handleEdit(item)}
               onDelete={() => handleDeleteClick(item)}
               onScreens={() => setScreenAssignItem(item)}
+              onTogglePublish={() => togglePublish(item)}
+              published={item.published_at !== null}
             />
           )}
         />

@@ -16,6 +16,7 @@ import {
 } from '@/components/ui';
 import { eventSchema, type EventData } from '@/lib/zod';
 import { upsertEvent } from '@/lib/supabase';
+import { SaveContentButtons } from '@/components/common';
 import type { Event } from '@/types';
 import {
   describeTimeZone,
@@ -136,15 +137,18 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData, timeZone }
     ? `Times are in ${describeTimeZone(timeZone)}, the masjid's timezone, wherever you are entering them from.`
     : `This masjid has no timezone set, so times use this device's (${describeTimeZone(getDeviceTimeZone())}). Set one under Settings, Masjid Profile.`;
 
-  const onSubmit = async (data: EventData) => {
+  const onSubmit = async (data: EventData, publish = true) => {
     try {
       setIsSubmitting(true);
       setError(null);
-      const saved = await upsertEvent({
-        ...data,
-        ...(initialData?.id && { id: initialData.id }),
-      });
-      toast.success(`Event ${isEdit ? 'updated' : 'created'} successfully`);
+      const saved = await upsertEvent(
+        {
+          ...data,
+          ...(initialData?.id && { id: initialData.id }),
+        },
+        publish
+      );
+      toast.success(`Event ${isEdit ? 'updated' : publish ? 'published' : 'saved as draft'}`);
 
       reset();
       setDateTime(undefined);
@@ -167,7 +171,7 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData, timeZone }
           <DialogTitle>{isEdit ? 'Edit Event' : 'Add New Event'}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className='space-y-6 pt-4'>
+        <form onSubmit={handleSubmit(data => onSubmit(data))} className='space-y-6 pt-4'>
           {error && (
             <div className='bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded'>
               {error}
@@ -332,9 +336,11 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData, timeZone }
                 Cancel
               </Button>
             </DialogClose>
-            <Button type='submit' disabled={isSubmitting}>
-              {isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Add'}
-            </Button>
+            <SaveContentButtons
+              isEdit={isEdit}
+              isSubmitting={isSubmitting}
+              onSaveDraft={handleSubmit(data => onSubmit(data, false))}
+            />
           </DialogFooter>
         </form>
       </DialogContent>

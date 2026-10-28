@@ -4,23 +4,24 @@ import {
   getScreenById,
   getScreenContentWithDetails,
   updateScreenContentOrder,
-  toggleScreenContentVisibility,
+  unassignScreenContent,
   deleteScreen,
   type ScreenContentWithDetails,
 } from '@/lib/supabase';
 import type { DisplayScreen } from '@/types';
-import { Badge, Button, Switch, Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
+import { Badge, Button, Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
 import {
   PageHeader,
   ErrorAlert,
   EmptyState,
   DataTable,
   OrientationBadge,
+  PublishStatusBadge,
   type Column,
 } from '@/components/common';
 import { ThemeSection } from '@/components/settings';
 import { ScreenModal, DeleteConfirmationModal } from '@/components/modals';
-import { ArrowLeft, Monitor, Copy, Check, Pencil, Trash2 } from 'lucide-react';
+import { ArrowLeft, Monitor, Copy, Check, Pencil, Trash2, Unlink } from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { useTrigger } from '@/hooks';
 import { toast } from 'sonner';
@@ -45,6 +46,8 @@ export default function ScreenDetail() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [itemToUnassign, setItemToUnassign] = useState<ScreenContentWithDetails | null>(null);
+  const [isUnassigning, setIsUnassigning] = useState(false);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -93,18 +96,20 @@ export default function ScreenDetail() {
     }
   };
 
-  const handleVisibilityToggle = async (item: ScreenContentWithDetails) => {
-    const newVisible = !item.visible;
-
-    setContent(prev => prev.map(c => (c.id === item.id ? { ...c, visible: newVisible } : c)));
+  const handleUnassignConfirm = async () => {
+    if (!itemToUnassign) return;
 
     try {
-      await toggleScreenContentVisibility(item.id, newVisible);
-      toast.success(`Content ${newVisible ? 'shown' : 'hidden'}`);
+      setIsUnassigning(true);
+      await unassignScreenContent(itemToUnassign.id);
+      setContent(prev => prev.filter(c => c.id !== itemToUnassign.id));
+      setItemToUnassign(null);
+      toast.success('Removed from this screen');
     } catch (err) {
-      setContent(prev => prev.map(c => (c.id === item.id ? { ...c, visible: item.visible } : c)));
-      console.error('Error toggling visibility:', err);
-      toast.error('Failed to update visibility');
+      console.error('Error unassigning content:', err);
+      toast.error('Failed to remove from this screen, please try again.');
+    } finally {
+      setIsUnassigning(false);
     }
   };
 
@@ -147,8 +152,11 @@ export default function ScreenDetail() {
         const showDescription = item.title !== item.description && item.description;
         return (
           <div>
-            <div className='font-medium whitespace-pre-wrap line-clamp-1 overflow-hidden'>
-              {item.title}
+            <div className='flex items-center gap-2'>
+              <div className='font-medium whitespace-pre-wrap line-clamp-1 overflow-hidden'>
+                {item.title}
+              </div>
+              {!item.published && <PublishStatusBadge published={false} />}
             </div>
             {showDescription && (
               <div className='text-muted-foreground text-xs whitespace-pre-wrap line-clamp-1 overflow-hidden mt-0.5'>
@@ -167,18 +175,6 @@ export default function ScreenDetail() {
         const config = CONTENT_TYPE_CONFIG[value as string];
         return <Badge className={config?.color || ''}>{config?.label || (value as string)}</Badge>;
       },
-    },
-    {
-      key: 'visible',
-      name: 'Visible',
-      width: 'w-[10%]',
-      render: (value, item) => (
-        <Switch
-          checked={!!value}
-          onCheckedChange={() => handleVisibilityToggle(item)}
-          aria-label='Toggle visibility'
-        />
-      ),
     },
   ];
 
@@ -213,7 +209,7 @@ export default function ScreenDetail() {
 
       <PageHeader
         title={screen.name}
-        description='Manage content assigned to this screen. Drag to reorder, toggle to show/hide.'
+        description='Manage content assigned to this screen. Drag to reorder. Drafts stay off the screen until published.'
         showAddButton={false}
       />
 
@@ -301,7 +297,21 @@ export default function ScreenDetail() {
           showRowNumbers={true}
           isDraggable={true}
           onOrderChange={handleOrderChange}
-          rowClassName={item => (item.visible ? '' : 'opacity-40')}
+          rowClassName={item => (item.published ? '' : 'opacity-60')}
+          actionsWidth='w-[15%]'
+          renderActions={item => (
+            <div className='flex justify-center'>
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={() => setItemToUnassign(item)}
+                className='text-destructive hover:bg-destructive/10 hover:text-destructive'
+              >
+                <Unlink className='h-4 w-4 mr-2' />
+                Unassign
+              </Button>
+            </div>
+          )}
         />
       )}
 
@@ -320,6 +330,20 @@ export default function ScreenDetail() {
         itemType='screen'
         itemTitle={screen.name}
         itemSubtitle={screen.code}
+      />
+
+      <DeleteConfirmationModal
+        isOpen={!!itemToUnassign}
+        onClose={() => setItemToUnassign(null)}
+        onConfirm={handleUnassignConfirm}
+        isDeleting={isUnassigning}
+        title='Unassign from screen'
+        description={`Remove this item from ${screen.name}? It stays in your content and can be assigned again.`}
+        confirmLabel='Unassign'
+        itemTitle={itemToUnassign?.title}
+        itemSubtitle={
+          itemToUnassign ? CONTENT_TYPE_CONFIG[itemToUnassign.content_type]?.label : undefined
+        }
       />
     </div>
   );

@@ -12,6 +12,7 @@ import {
 } from '@/components/ui';
 import { announcementSchema, type AnnouncementData } from '@/lib/zod';
 import { upsertAnnouncement } from '@/lib/supabase';
+import { SaveContentButtons } from '@/components/common';
 import type { Announcement } from '@/types';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -59,15 +60,20 @@ export function AnnouncementModal({
     }
   }, [isOpen, initialData, reset]);
 
-  const onSubmit = async (data: AnnouncementData) => {
+  const onSubmit = async (data: AnnouncementData, publish = true) => {
     try {
       setIsSubmitting(true);
       setError(null);
-      const saved = await upsertAnnouncement({
-        ...data,
-        ...(initialData?.id && { id: initialData.id }),
-      });
-      toast.success(`Announcement ${isEdit ? 'updated' : 'created'} successfully`);
+      const saved = await upsertAnnouncement(
+        {
+          ...data,
+          ...(initialData?.id && { id: initialData.id }),
+        },
+        publish
+      );
+      toast.success(
+        `Announcement ${isEdit ? 'updated' : publish ? 'published' : 'saved as draft'}`
+      );
 
       reset();
       onSuccess(isEdit ? undefined : saved);
@@ -88,7 +94,7 @@ export function AnnouncementModal({
           <DialogTitle>{isEdit ? 'Edit Announcement' : 'Add New Announcement'}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className='space-y-4 pt-4'>
+        <form onSubmit={handleSubmit(data => onSubmit(data))} className='space-y-4 pt-4'>
           {error && (
             <div className='bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded mb-4'>
               {error}
@@ -125,9 +131,11 @@ export function AnnouncementModal({
                 Cancel
               </Button>
             </DialogClose>
-            <Button type='submit' disabled={isSubmitting}>
-              {isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Add'}
-            </Button>
+            <SaveContentButtons
+              isEdit={isEdit}
+              isSubmitting={isSubmitting}
+              onSaveDraft={handleSubmit(data => onSubmit(data, false))}
+            />
           </DialogFooter>
         </form>
       </DialogContent>

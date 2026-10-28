@@ -13,10 +13,11 @@ import {
   EmptyState,
   ActionButtons,
   DataTable,
+  PublishStatusBadge,
   type Column,
 } from '@/components/common';
 import { Bell } from 'lucide-react';
-import { useTrigger } from '@/hooks';
+import { useTrigger, usePublishToggle } from '@/hooks';
 import { toast } from 'sonner';
 
 export default function Announcements() {
@@ -32,6 +33,7 @@ export default function Announcements() {
   const [assignedFromCreate, setAssignedFromCreate] = useState(false);
 
   const [trigger, forceUpdate] = useTrigger();
+  const togglePublish = usePublishToggle('announcements', forceUpdate);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -99,16 +101,22 @@ export default function Announcements() {
     {
       key: 'title',
       name: 'Title',
-      width: 'w-[30%]',
+      width: 'w-[28%]',
       render: value => <div className='line-clamp-1'>{(value as string | null) || '—'}</div>,
     },
     {
       key: 'description',
       name: 'Description',
-      width: 'w-[60%]',
+      width: 'w-[46%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden'>{value as string}</div>
       ),
+    },
+    {
+      key: 'published_at',
+      name: 'Status',
+      width: 'w-[12%]',
+      render: value => <PublishStatusBadge published={value !== null} />,
     },
   ];
 
@@ -138,12 +146,14 @@ export default function Announcements() {
           data={announcements}
           keyField='id'
           showRowNumbers={true}
-          actionsWidth='w-[10%]'
+          actionsWidth='w-[14%]'
           renderActions={item => (
             <ActionButtons
               onEdit={() => handleEdit(item)}
               onDelete={() => handleDeleteClick(item)}
               onScreens={() => setScreenAssignItem(item)}
+              onTogglePublish={() => togglePublish(item)}
+              published={item.published_at !== null}
             />
           )}
         />

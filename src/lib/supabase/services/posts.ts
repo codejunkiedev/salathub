@@ -21,7 +21,12 @@ export async function getPosts(masjidId?: string): Promise<Post[]> {
   return await fetchByMultipleConditions<Post>(SupabaseTables.Posts, conditions);
 }
 
-export async function upsertPost(post: PostData & { id?: string }, imageFile: File | null) {
+/** `publish` applies only when creating; edits keep the item's publish state. */
+export async function upsertPost(
+  post: PostData & { id?: string },
+  imageFile: File | null,
+  publish = true
+) {
   const user = await getCurrentUser();
   if (!user) throw new Error('User not authenticated');
   const { masjid_id } = await getMasjidMembership();
@@ -50,6 +55,7 @@ export async function upsertPost(post: PostData & { id?: string }, imageFile: Fi
     return await updateRecord<Post>(SupabaseTables.Posts, post.id, postToUpsert);
   } else {
     postToUpsert.created_at = new Date().toISOString();
+    postToUpsert.published_at = publish ? postToUpsert.created_at : null;
 
     return await insertRecord<Post>(SupabaseTables.Posts, postToUpsert);
   }

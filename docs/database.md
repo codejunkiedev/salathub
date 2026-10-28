@@ -1,6 +1,6 @@
 # Database
 
-Fifteen tables in `public`. [`supabase/migrations/`](../supabase/migrations/) is authoritative — 61 files, applied in order, with several columns added and later dropped, so read the latest migration touching a table rather than the one that created it.
+Fifteen tables in `public`. [`supabase/migrations/`](../supabase/migrations/) is authoritative — 63 files, applied in order, with several columns added and later dropped, so read the latest migration touching a table rather than the one that created it.
 
 ## Tables
 
@@ -9,8 +9,8 @@ Fifteen tables in `public`. [`supabase/migrations/`](../supabase/migrations/) is
 | `masjid_profiles`                                             | Tenant root. Name (+ `name_ur`/`name_ar`), area (+ `area_ur`/`area_ar`), logo, coordinates, contact number/email/website, a **required** IANA `timezone`, and `listed` |
 | `masjid_members`                                              | Membership + `role`. `UNIQUE(user_id)` — a user belongs to one masjid                                                                                                  |
 | `display_screens`                                             | Per-screen code, orientation, theme, `custom_theme` JSON, language, slide interval, prayer/weather toggles, prayer-alert triggers and sound                            |
-| `screen_content`                                              | Polymorphic playlist join with per-screen `display_order` + `visible`. `content_id` has no FK by design; `get_display_payload` re-checks tenancy                       |
-| `announcements`, `posts`, `youtube_videos`, `ayat_and_hadith` | Content items, soft-deleted via `archived`                                                                                                                             |
+| `screen_content`                                              | Polymorphic playlist join with per-screen `display_order`. `content_id` has no FK by design; `get_display_payload` re-checks tenancy and drops drafts                  |
+| `announcements`, `posts`, `youtube_videos`, `ayat_and_hadith` | Content items, soft-deleted via `archived`. Null `published_at` is a draft                                                                                             |
 | `events`                                                      | As above, plus `date_time`/`end_time` as `timestamptz` and `ends_at`, a stored generated column backing the upcoming/past split                                        |
 | `prayer_times`                                                | Per-prayer `starts`/`athan`/`iqamah` adjustments as JSONB. One row per masjid (`UNIQUE(masjid_id)`)                                                                    |
 | `settings`                                                    | Calculation method, juristic school, Hijri method + offset, and four solar adjustments (sunrise, ishraq, chasht, sunset). One row per masjid                           |

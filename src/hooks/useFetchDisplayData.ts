@@ -48,7 +48,7 @@ const buildOrderedContent = (
 
 /**
  * Custom hook to fetch display data filtered by screen content assignments.
- * Only fetches visible content, ordered by display_order.
+ * Only published content is returned, ordered by display_order.
  *
  * The display runs as `anon`, which has no read access to the content tables.
  * Everything arrives in one call to `get_display_payload`, a SECURITY DEFINER

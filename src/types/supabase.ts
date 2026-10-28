@@ -63,6 +63,11 @@ interface Base {
   updated_at: string;
 }
 
+/** Content that moderators draft and publish. Null `published_at` is a draft. */
+export interface Publishable {
+  published_at: string | null;
+}
+
 export interface MasjidProfile extends Base {
   logo_url: string;
   name: string;
@@ -160,7 +165,7 @@ export interface AyatHadithStyle {
   positions: AyatHadithPositions;
 }
 
-export interface AyatAndHadith extends Base {
+export interface AyatAndHadith extends Base, Publishable {
   type: AyatHadithType;
   orientation: ScreenOrientation;
   source: AyatSource | HadithSource;
@@ -310,17 +315,16 @@ export interface ScreenContent {
   content_id: string;
   content_type: ScreenContentType;
   display_order: number;
-  visible: boolean;
   created_at: string;
 }
 
-export interface Announcement extends Base {
+export interface Announcement extends Base, Publishable {
   title: string | null;
   description: string;
   archived: boolean;
 }
 
-export interface Event extends Base {
+export interface Event extends Base, Publishable {
   title: string;
   description: string;
   date_time: string;
@@ -337,14 +341,14 @@ export interface Event extends Base {
   archived: boolean;
 }
 
-export interface Post extends Base {
+export interface Post extends Base, Publishable {
   title: string;
   image_url: string;
   archived: boolean;
   orientation: PostOrientation;
 }
 
-export interface YouTubeVideo extends Base {
+export interface YouTubeVideo extends Base, Publishable {
   title: string;
   youtube_url: string;
   loop_video: boolean;

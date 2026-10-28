@@ -120,7 +120,7 @@ export function PostModal({
 
   const isUploadStep = isEdit || imageSource === 'upload';
 
-  const onSubmit = async (data: PostData) => {
+  const onSubmit = async (data: PostData, publish = true) => {
     if (!imageFile && !selectedPredesignedImage && !initialData?.image_url) {
       setError('Image is required');
       return;
@@ -154,9 +154,10 @@ export function PostModal({
 
       const saved = await upsertPost(
         { ...data, ...(initialData?.id && { id: initialData.id }) },
-        imageToUse
+        imageToUse,
+        publish
       );
-      toast.success(`Post ${isEdit ? 'updated' : 'created'} successfully`);
+      toast.success(`Post ${isEdit ? 'updated' : publish ? 'published' : 'saved as draft'}`);
 
       reset();
       resetSteps();
@@ -193,7 +194,8 @@ export function PostModal({
             register={register}
             errors={errors}
             onBack={handleBackToSource}
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleSubmit(data => onSubmit(data))}
+            onSaveDraft={handleSubmit(data => onSubmit(data, false))}
             isSubmitting={isSubmitting}
             error={error}
           />
@@ -218,7 +220,8 @@ export function PostModal({
                   ? handleBackToOrientation
                   : handleBackToSource
             }
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleSubmit(data => onSubmit(data))}
+            onSaveDraft={handleSubmit(data => onSubmit(data, false))}
             error={error}
           />
         )}

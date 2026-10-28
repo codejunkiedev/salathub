@@ -4,9 +4,15 @@ The five content types and the designer that produces one of them. Assignment to
 
 ## The shared pattern
 
-Every type has a list page with a create/edit modal, a soft delete that sets `archived: true` **and** removes all screen assignments, and per-screen ordering and visibility held on `screen_content` rather than on the item itself. Lists treat a null `archived` as not-archived, since legacy rows predate the default.
+Every type has a list page with a create/edit modal, a soft delete that sets `archived: true` **and** removes all screen assignments, and per-screen ordering held on `screen_content` rather than on the item itself. Lists treat a null `archived` as not-archived, since legacy rows predate the default.
 
 Content items therefore carry no `visible` or `display_order` of their own — those columns were dropped when ordering moved per-screen.
+
+## Drafts and publishing
+
+Every type has a nullable `published_at`; null is a draft. Creating offers **Save as draft** or **Publish**, editing keeps the current state, and each list row has a Publish / Unpublish action and a Status badge. A draft can be edited and assigned to screens, but `get_display_payload` leaves it out, so no screen shows it. Unpublishing keeps the screen assignments, so publishing again puts the item back where it was.
+
+There is no per-screen show/hide: an item is on a screen when it is published and assigned there. `screen_content.visible` was dropped, and assignments that were hidden at the time were deleted rather than made visible.
 
 ## Announcements
 

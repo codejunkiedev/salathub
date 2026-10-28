@@ -140,6 +140,7 @@ export async function getScreenContent(screenId: string): Promise<ScreenContent[
 export type ScreenContentWithDetails = ScreenContent & {
   title: string;
   description: string;
+  published: boolean;
 };
 
 export async function getScreenContentWithDetails(
@@ -156,7 +157,7 @@ export async function getScreenContentWithDetails(
   }
 
   // Batch fetch from each table
-  const contentMap = new Map<string, { title: string; description: string }>();
+  const contentMap = new Map<string, { title: string; description: string; published: boolean }>();
 
   const fetchFromTable = async (
     table: string,
@@ -171,6 +172,7 @@ export async function getScreenContentWithDetails(
       contentMap.set(item.id, {
         title: item[titleKey] || item[descKey] || '',
         description: item[descKey] || '',
+        published: item.published_at !== null,
       });
     }
   };
@@ -179,7 +181,7 @@ export async function getScreenContentWithDetails(
     if (ids.length === 0) return;
     const { data, error } = await supabase
       .from('ayat_and_hadith')
-      .select('id, type, source, cached_text')
+      .select('id, type, source, cached_text, published_at')
       .in('id', ids);
     if (error) throw error;
     for (const item of data || []) {
@@ -188,6 +190,7 @@ export async function getScreenContentWithDetails(
       contentMap.set(item.id, {
         title: item.type === 'ayat' ? 'Ayat' : 'Hadith',
         description: arabicPreview,
+        published: item.published_at !== null,
       });
     }
   };
@@ -204,6 +207,7 @@ export async function getScreenContentWithDetails(
     ...row,
     title: contentMap.get(row.content_id)?.title || 'Unknown',
     description: contentMap.get(row.content_id)?.description || '',
+    published: contentMap.get(row.content_id)?.published ?? false,
   }));
 }
 
@@ -222,11 +226,9 @@ export async function updateScreenContentOrder(
   if (failed?.error) throw failed.error;
 }
 
-export async function toggleScreenContentVisibility(id: string, visible: boolean): Promise<void> {
-  const { error } = await supabase
-    .from(SupabaseTables.ScreenContent)
-    .update({ visible })
-    .eq('id', id);
+/** Removes one item from one screen's playlist. */
+export async function unassignScreenContent(id: string): Promise<void> {
+  const { error } = await supabase.from(SupabaseTables.ScreenContent).delete().eq('id', id);
 
   if (error) throw error;
 }
@@ -294,7 +296,6 @@ export async function bulkUpdateScreenAssignments(
           content_id: contentId,
           content_type: contentType,
           display_order: maxOrder + 1,
-          visible: true,
         };
       })
     );

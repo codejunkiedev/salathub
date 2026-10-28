@@ -16,6 +16,10 @@ interface DeleteConfirmationModalProps {
   itemType?: string;
   itemTitle?: string;
   itemSubtitle?: string;
+  /** Override the wording for removals that are not deletes, such as unassigning. */
+  title?: string;
+  description?: string;
+  confirmLabel?: string;
 }
 
 /**
@@ -29,14 +33,18 @@ export function DeleteConfirmationModal({
   itemType = 'item',
   itemTitle,
   itemSubtitle,
+  title = 'Confirm Deletion',
+  description,
+  confirmLabel = 'Delete',
 }: DeleteConfirmationModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Confirm Deletion</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete this {itemType}? This action cannot be undone.
+            {description ??
+              `Are you sure you want to delete this ${itemType}? This action cannot be undone.`}
           </DialogDescription>
         </DialogHeader>
 
@@ -57,7 +65,7 @@ export function DeleteConfirmationModal({
             disabled={isDeleting}
             loading={isDeleting}
           >
-            Delete
+            {confirmLabel}
           </Button>
         </DialogFooter>
       </DialogContent>

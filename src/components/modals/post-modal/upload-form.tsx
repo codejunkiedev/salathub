@@ -6,6 +6,7 @@ import {
   ImageUpload,
   ValidationFeedback,
 } from '@/components/ui';
+import { SaveContentButtons } from '@/components/common';
 import type { UseFormRegister, FieldErrors } from 'react-hook-form';
 import type { PostData } from '@/lib/zod';
 import type { PostOrientation } from '@/types';
@@ -27,6 +28,7 @@ type UploadFormProps = {
   isSubmitting: boolean;
   onBack: () => void;
   onSubmit: React.FormEventHandler<HTMLFormElement>;
+  onSaveDraft: () => void;
   error?: string | null;
 };
 
@@ -43,6 +45,7 @@ export function UploadForm({
   isSubmitting,
   onBack,
   onSubmit,
+  onSaveDraft,
   error,
 }: UploadFormProps) {
   return (
@@ -91,9 +94,7 @@ export function UploadForm({
         <Button type='button' variant='outline' onClick={onBack}>
           {isEdit ? 'Cancel' : 'Back'}
         </Button>
-        <Button type='submit' disabled={isSubmitting} loading={isSubmitting}>
-          {isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Add'}
-        </Button>
+        <SaveContentButtons isEdit={isEdit} isSubmitting={isSubmitting} onSaveDraft={onSaveDraft} />
       </DialogFooter>
     </form>
   );

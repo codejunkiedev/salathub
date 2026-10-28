@@ -1,4 +1,5 @@
 import { Button, DialogFooter, Input, Label, PredesignedImageSelector } from '@/components/ui';
+import { SaveContentButtons } from '@/components/common';
 import type { UseFormRegister, FieldErrors } from 'react-hook-form';
 import type { PostData } from '@/lib/zod';
 import { ModalError } from './modal-error';
@@ -10,6 +11,7 @@ type PredesignedStepProps = {
   errors: FieldErrors<PostData>;
   onBack: () => void;
   onSubmit: () => void;
+  onSaveDraft: () => void;
   isSubmitting: boolean;
   error?: string | null;
 };
@@ -21,6 +23,7 @@ export function PredesignedStep({
   errors,
   onBack,
   onSubmit,
+  onSaveDraft,
   isSubmitting,
   error,
 }: PredesignedStepProps) {
@@ -51,9 +54,12 @@ export function PredesignedStep({
           Back
         </Button>
         {selectedImage && (
-          <Button type='button' onClick={onSubmit} disabled={isSubmitting} loading={isSubmitting}>
-            {isSubmitting ? 'Creating...' : 'Create Post'}
-          </Button>
+          <SaveContentButtons
+            isEdit={false}
+            isSubmitting={isSubmitting}
+            onSaveDraft={onSaveDraft}
+            onSubmit={onSubmit}
+          />
         )}
       </DialogFooter>
     </div>
