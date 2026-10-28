@@ -211,6 +211,7 @@ export default function YouTubeVideos() {
             }
           }}
           contentId={screenAssignItem.id}
+          isDraft={screenAssignItem.published_at === null}
           contentType='youtube_videos'
           contentLabel={screenAssignItem.title}
           dismissLabel={assignedFromCreate ? 'Skip' : 'Cancel'}

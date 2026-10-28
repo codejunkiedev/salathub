@@ -251,6 +251,7 @@ export default function Posts() {
             }
           }}
           contentId={screenAssignItem.id}
+          isDraft={screenAssignItem.published_at === null}
           contentType='posts'
           contentLabel={screenAssignItem.title}
           contentOrientation={screenAssignItem.orientation}

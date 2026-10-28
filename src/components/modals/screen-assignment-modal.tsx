@@ -24,6 +24,8 @@ type ScreenAssignmentModalProps = {
   contentOrientation?: PostOrientation;
   /** Label for the dismiss button. Defaults to "Cancel". Use "Skip" in creation flows. */
   dismissLabel?: string;
+  /** Shows a note that drafts stay off screens until published. */
+  isDraft?: boolean;
 };
 
 function OrientationIcon({ orientation }: { orientation: DisplayScreen['orientation'] }) {
@@ -39,6 +41,7 @@ export function ScreenAssignmentModal({
   contentLabel,
   contentOrientation,
   dismissLabel = 'Cancel',
+  isDraft = false,
 }: ScreenAssignmentModalProps) {
   const [screens, setScreens] = useState<DisplayScreen[]>([]);
   const [selectedScreenIds, setSelectedScreenIds] = useState<Set<string>>(new Set());
@@ -131,6 +134,13 @@ export function ScreenAssignmentModal({
             </div>
           ) : (
             <div className='space-y-2'>
+              {isDraft && (
+                <div className='flex items-start gap-2 text-xs text-muted-foreground bg-muted/40 border border-border/50 rounded-lg px-3 py-2.5 mb-3'>
+                  <Info className='w-3.5 h-3.5 mt-0.5 shrink-0' />
+                  <span>This is a draft. It won't show on these screens until you publish it.</span>
+                </div>
+              )}
+
               {contentOrientation && incompatibleCount > 0 && (
                 <div className='flex items-start gap-2 text-xs text-muted-foreground bg-muted/40 border border-border/50 rounded-lg px-3 py-2.5 mb-3'>
                   <Info className='w-3.5 h-3.5 mt-0.5 shrink-0' />

@@ -221,6 +221,7 @@ export default function AyatAndHadithPage() {
           isOpen={!!screenAssignItem}
           onClose={() => setScreenAssignItem(null)}
           contentId={screenAssignItem.id}
+          isDraft={screenAssignItem.published_at === null}
           contentType='ayat_and_hadith'
           contentLabel={formatSlideReference(screenAssignItem)}
           contentOrientation={screenAssignItem.orientation}

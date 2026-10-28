@@ -247,6 +247,7 @@ export default function Events() {
             }
           }}
           contentId={screenAssignItem.id}
+          isDraft={screenAssignItem.published_at === null}
           contentType='events'
           contentLabel={screenAssignItem.title}
           dismissLabel={assignedFromCreate ? 'Skip' : 'Cancel'}

@@ -314,6 +314,7 @@ export default function AyatHadithDesigner() {
             navigate(AppRoutes.AyatAndHadith);
           }}
           contentId={screenAssignTarget.id}
+          isDraft={screenAssignTarget.published_at === null}
           contentType='ayat_and_hadith'
           contentLabel={formatSlideReference(screenAssignTarget)}
           contentOrientation={screenAssignTarget.orientation}
