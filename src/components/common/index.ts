@@ -4,7 +4,7 @@ export * from './empty-state';
 export * from './action-buttons';
 export * from './data-table';
 export * from './orientation-badge';
-export * from './publish-status-badge';
+export * from './content-status';
 export * from './auth-legal-links';
 export * from './image-tile';
 export * from './background-upload-tile';

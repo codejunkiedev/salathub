@@ -33,3 +33,4 @@ export * from './validation-feedback';
 export * from './predesigned-image-selector';
 export * from './color-input';
 export * from './remote-image';
+export * from './tooltip';

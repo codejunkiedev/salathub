@@ -13,7 +13,7 @@ import {
   EmptyState,
   ActionButtons,
   DataTable,
-  PublishStatusBadge,
+  ContentStatus,
   type Column,
 } from '@/components/common';
 import { Bell } from 'lucide-react';
@@ -115,8 +115,10 @@ export default function Announcements() {
     {
       key: 'published_at',
       name: 'Status',
-      width: 'w-[12%]',
-      render: value => <PublishStatusBadge published={value !== null} />,
+      width: 'w-[90px]',
+      render: (value, item) => (
+        <ContentStatus published={value !== null} showInApp={item.show_in_app} />
+      ),
     },
   ];
 
@@ -152,6 +154,7 @@ export default function Announcements() {
               onEdit={() => handleEdit(item)}
               onDelete={() => handleDeleteClick(item)}
               onScreens={() => setScreenAssignItem(item)}
+              screensLabel='Where to show'
               onTogglePublish={() => togglePublish(item)}
               published={item.published_at !== null}
             />
@@ -194,6 +197,8 @@ export default function Announcements() {
           }}
           contentId={screenAssignItem.id}
           isDraft={screenAssignItem.published_at === null}
+          showInApp={screenAssignItem.show_in_app}
+          onSaved={forceUpdate}
           contentType='announcements'
           contentLabel={screenAssignItem.title || screenAssignItem.description}
           dismissLabel={assignedFromCreate ? 'Skip' : 'Cancel'}

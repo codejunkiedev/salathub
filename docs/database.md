@@ -1,6 +1,6 @@
 # Database
 
-Fifteen tables in `public`. [`supabase/migrations/`](../supabase/migrations/) is authoritative — 63 files, applied in order, with several columns added and later dropped, so read the latest migration touching a table rather than the one that created it.
+Fifteen tables in `public`. [`supabase/migrations/`](../supabase/migrations/) is authoritative — 64 files, applied in order, with several columns added and later dropped, so read the latest migration touching a table rather than the one that created it.
 
 ## Tables
 

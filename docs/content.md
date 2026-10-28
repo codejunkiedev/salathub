@@ -10,7 +10,9 @@ Content items therefore carry no `visible` or `display_order` of their own — t
 
 ## Drafts and publishing
 
-Every type has a nullable `published_at`; null is a draft. Creating offers **Save as draft** or **Publish**, editing keeps the current state, and each list row has a Publish / Unpublish action and a Status badge. A draft can be edited and assigned to screens, but `get_display_payload` leaves it out, so no screen shows it. Unpublishing keeps the screen assignments, so publishing again puts the item back where it was.
+Every type has a nullable `published_at`; null is a draft. Creating offers **Save as draft** or **Publish**, editing keeps the current state, and each list row has a Publish / Unpublish action and a status icon (green check for published, dashed circle for draft). A draft can be edited and assigned to screens, but `get_display_payload` leaves it out, so no screen shows it. Unpublishing keeps the screen assignments, so publishing again puts the item back where it was.
+
+Announcements, events and posts also carry `show_in_app` (default true). It is set in the **Where to show** dialog, the screen-assignment dialog for these types, as an "App followers" choice above the screens, so where an item goes is chosen in one place. Lists show a second icon beside the status: monitor-and-phone for screens and app, monitor for screens only. YouTube videos and ayat & hadith slides are screen-only: no flag, and their dialog lists screens alone. Nothing reads it yet; the app feed will.
 
 There is no per-screen show/hide: an item is on a screen when it is published and assigned there. `screen_content.visible` was dropped, and assignments that were hidden at the time were deleted rather than made visible.
 

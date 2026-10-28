@@ -16,7 +16,6 @@ import {
   EmptyState,
   DataTable,
   OrientationBadge,
-  PublishStatusBadge,
   type Column,
 } from '@/components/common';
 import { ThemeSection } from '@/components/settings';
@@ -156,7 +155,7 @@ export default function ScreenDetail() {
               <div className='font-medium whitespace-pre-wrap line-clamp-1 overflow-hidden'>
                 {item.title}
               </div>
-              {!item.published && <PublishStatusBadge published={false} />}
+              {!item.published && <Badge variant='secondary'>Draft</Badge>}
             </div>
             {showDescription && (
               <div className='text-muted-foreground text-xs whitespace-pre-wrap line-clamp-1 overflow-hidden mt-0.5'>

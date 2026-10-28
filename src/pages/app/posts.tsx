@@ -15,7 +15,7 @@ import {
   ActionButtons,
   DataTable,
   OrientationBadge,
-  PublishStatusBadge,
+  ContentStatus,
   type Column,
 } from '@/components/common';
 import { FileImage } from 'lucide-react';
@@ -167,8 +167,10 @@ export default function Posts() {
     {
       key: 'published_at',
       name: 'Status',
-      width: 'w-[110px]',
-      render: value => <PublishStatusBadge published={value !== null} />,
+      width: 'w-[90px]',
+      render: (value, item) => (
+        <ContentStatus published={value !== null} showInApp={item.show_in_app} />
+      ),
     },
   ];
 
@@ -200,6 +202,7 @@ export default function Posts() {
               onEdit={() => handleEdit(item)}
               onDelete={() => handleDeleteClick(item)}
               onScreens={() => setScreenAssignItem(item)}
+              screensLabel='Where to show'
               onTogglePublish={() => togglePublish(item)}
               published={item.published_at !== null}
             />
@@ -252,6 +255,8 @@ export default function Posts() {
           }}
           contentId={screenAssignItem.id}
           isDraft={screenAssignItem.published_at === null}
+          showInApp={screenAssignItem.show_in_app}
+          onSaved={forceUpdate}
           contentType='posts'
           contentLabel={screenAssignItem.title}
           contentOrientation={screenAssignItem.orientation}

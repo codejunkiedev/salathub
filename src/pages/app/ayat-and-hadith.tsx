@@ -16,7 +16,7 @@ import {
   ActionButtons,
   DataTable,
   OrientationBadge,
-  PublishStatusBadge,
+  ContentStatus,
   type Column,
 } from '@/components/common';
 import { Badge, Popover, PopoverContent, PopoverTrigger, RemoteImage } from '@/components/ui';
@@ -163,8 +163,8 @@ export default function AyatAndHadithPage() {
     {
       key: 'published_at',
       name: 'Status',
-      width: 'w-[110px]',
-      render: value => <PublishStatusBadge published={value !== null} />,
+      width: 'w-[90px]',
+      render: value => <ContentStatus published={value !== null} />,
     },
   ];
 

@@ -90,6 +90,8 @@ export interface MasjidProfile extends Base {
 export type ScreenOrientation = 'landscape' | 'portrait';
 export type ScreenContentType =
   'announcements' | 'events' | 'posts' | 'youtube_videos' | 'ayat_and_hadith';
+/** Content types that can also reach followers in the app, via `show_in_app`. */
+export type AppContentType = Extract<ScreenContentType, 'announcements' | 'events' | 'posts'>;
 export type PostOrientation = 'landscape' | 'portrait';
 
 export type AyatHadithType = 'ayat' | 'hadith';
@@ -322,6 +324,7 @@ export interface Announcement extends Base, Publishable {
   title: string | null;
   description: string;
   archived: boolean;
+  show_in_app: boolean;
 }
 
 export interface Event extends Base, Publishable {
@@ -339,6 +342,7 @@ export interface Event extends Base, Publishable {
   naat_khawn: string;
   karm_farma: string;
   archived: boolean;
+  show_in_app: boolean;
 }
 
 export interface Post extends Base, Publishable {
@@ -346,6 +350,7 @@ export interface Post extends Base, Publishable {
   image_url: string;
   archived: boolean;
   orientation: PostOrientation;
+  show_in_app: boolean;
 }
 
 export interface YouTubeVideo extends Base, Publishable {

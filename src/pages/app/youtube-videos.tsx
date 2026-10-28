@@ -13,7 +13,7 @@ import {
   EmptyState,
   ActionButtons,
   DataTable,
-  PublishStatusBadge,
+  ContentStatus,
   type Column,
 } from '@/components/common';
 import { Video, Repeat } from 'lucide-react';
@@ -133,8 +133,8 @@ export default function YouTubeVideos() {
     {
       key: 'published_at',
       name: 'Status',
-      width: 'w-[12%]',
-      render: value => <PublishStatusBadge published={value !== null} />,
+      width: 'w-[90px]',
+      render: value => <ContentStatus published={value !== null} />,
     },
   ];
 
