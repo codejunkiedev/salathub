@@ -13,11 +13,7 @@
  * deadline is continued by simply invoking it again.
  */
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import {
-  listListedMasjidIds,
-  loadTimingsConfig,
-  resolveWindow,
-} from '../_shared/masjid-timings.ts';
+import { listInAppMasjidIds, loadTimingsConfig, resolveWindow } from '../_shared/masjid-timings.ts';
 import { shiftIsoDate, todayInTimeZone } from '../_shared/aladhan.ts';
 
 const DEFAULT_DAYS_AHEAD = 30;
@@ -57,7 +53,7 @@ Deno.serve(async req => {
   const summary = { masjids: 0, warmed: 0, days: 0, skipped: 0, failed: 0, remaining: 0 };
 
   try {
-    const masjidIds = await listListedMasjidIds(admin);
+    const masjidIds = await listInAppMasjidIds(admin);
     summary.masjids = masjidIds.length;
 
     for (const [index, masjidId] of masjidIds.entries()) {

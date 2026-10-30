@@ -85,6 +85,8 @@ export interface MasjidProfile extends Base {
   website: string;
   /** Opt-in to the public mobile directory. Requires coordinates; see 20260918000001. */
   listed: boolean;
+  /** Listed, verified or in grace, and not suspended. Set by the database only. */
+  in_app: boolean;
 }
 
 export type ScreenOrientation = 'landscape' | 'portrait';

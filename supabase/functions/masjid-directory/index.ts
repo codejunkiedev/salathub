@@ -1,5 +1,5 @@
 /**
- * The public read API for the mobile app: find listed masjids, and read the
+ * The public read API for the mobile app: find in-app masjids, and read the
  * prayer times of the ones a phone follows.
  *
  *   GET /nearby?lat=&lng=&radius_km=&limit=

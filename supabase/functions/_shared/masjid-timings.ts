@@ -69,9 +69,9 @@ export interface ResolvedDay {
 }
 
 /**
- * A listed masjid's timing configuration, or null when it is not listed, has no
- * coordinates, or does not exist. Un-listing withdraws consent, so it reads the
- * same as absence from here on.
+ * An in-app masjid's timing configuration, or null when it is not in the app, has
+ * no coordinates, or does not exist. Leaving the app reads the same as absence
+ * from here on.
  */
 export const loadTimingsConfig = async (
   admin: SupabaseClient,
@@ -79,9 +79,9 @@ export const loadTimingsConfig = async (
 ): Promise<MasjidTimingsConfig | null> => {
   const { data: profile, error } = await admin
     .from('masjid_profiles')
-    .select('id, latitude, longitude, timezone, listed')
+    .select('id, latitude, longitude, timezone')
     .eq('id', masjidId)
-    .eq('listed', true)
+    .eq('in_app', true)
     .maybeSingle();
 
   if (error) throw error;
@@ -330,11 +330,11 @@ export const defaultWindow = (timezone: string): { fromIso: string; toIso: strin
   return { fromIso: today, toIso: shiftIsoDate(today, 7) };
 };
 
-export const listListedMasjidIds = async (admin: SupabaseClient): Promise<string[]> => {
+export const listInAppMasjidIds = async (admin: SupabaseClient): Promise<string[]> => {
   const { data, error } = await admin
     .from('masjid_profiles')
     .select('id')
-    .eq('listed', true)
+    .eq('in_app', true)
     .not('latitude', 'is', null)
     .not('longitude', 'is', null);
 

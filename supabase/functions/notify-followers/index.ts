@@ -70,15 +70,18 @@ Deno.serve(async req => {
 
   const { data: profile, error: profileError } = await admin
     .from('masjid_profiles')
-    .select('listed, name')
+    .select('in_app, name')
     .eq('id', masjidId)
     .single();
   if (profileError) {
     console.error('notify-followers profile lookup failed', profileError);
     return json({ error: 'Could not load the masjid' }, 500);
   }
-  if (!profile.listed) {
-    return json({ error: 'List the masjid in the Alkhairia app before notifying followers' }, 409);
+  if (!profile.in_app) {
+    return json(
+      { error: 'The masjid must be verified and listed in the Alkhairia app to notify followers' },
+      409
+    );
   }
 
   const { data: claimed, error: claimError } = await admin.rpc('claim_masjid_notification', {

@@ -366,7 +366,7 @@ deno_version = 2
 
 # The mobile directory is public. Phones hold the publishable key, which is not a
 # JWT, so the gateway's verification would reject every request. Gatekeeping is
-# the function's own: read-only, listed masjids only, rate limited per IP.
+# the function's own: read-only, in-app masjids only, rate limited per IP.
 [functions.masjid-directory]
 verify_jwt = false
 
@@ -377,6 +377,10 @@ verify_jwt = false
 
 # Called by pg_cron, authenticated by PRAYER_CHANGES_SECRET.
 [functions.notify-prayer-changes]
+verify_jwt = false
+
+# Called by pg_cron, authenticated by VERIFICATION_PURGE_SECRET.
+[functions.purge-verification-documents]
 verify_jwt = false
 
 [analytics]
