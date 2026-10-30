@@ -9,6 +9,7 @@
  *   GET /feed?ids=<uuid>,<uuid>&limit=&offset=
  *   POST /devices    { device_id, token, platform, masjid_ids }
  *   DELETE /devices  { device_id }
+ *   POST /reports    { device_id, masjid_id, target_kind, target_id?, reason, details? }
  *
  * Why a function rather than RPCs the app calls directly: 20260909000002 took
  * every table read away from `anon` after the old policies turned the publishable
@@ -33,6 +34,10 @@ const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const PUSH_TOKEN_PATTERN = /^Expo(nent)?PushToken\[[^\]]{1,200}\]$/;
 const PLATFORMS = ['ios', 'android'];
+const REPORT_TARGET_KINDS = ['masjid', 'announcement', 'event', 'post'];
+const REPORT_REASONS = ['fake_masjid', 'wrong_information', 'inappropriate_content', 'other'];
+const REPORT_DETAILS_MAX = 1000;
+const REPORT_DAILY_LIMIT = 10;
 
 /**
  * Best-effort throttle. The directory is a deliberate enumeration of masjids
@@ -139,6 +144,52 @@ Deno.serve(async req => {
       if (error) throw error;
 
       return json({ ok: true });
+    }
+
+    if (route === 'reports') {
+      if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
+
+      const body = (await req.json().catch(() => null)) as {
+        device_id?: unknown;
+        masjid_id?: unknown;
+        target_kind?: unknown;
+        target_id?: unknown;
+        reason?: unknown;
+        details?: unknown;
+      } | null;
+      const deviceId = typeof body?.device_id === 'string' ? body.device_id : '';
+      const masjidId = typeof body?.masjid_id === 'string' ? body.masjid_id : '';
+      const targetKind = typeof body?.target_kind === 'string' ? body.target_kind : '';
+      const targetId = typeof body?.target_id === 'string' ? body.target_id : masjidId;
+      const reason = typeof body?.reason === 'string' ? body.reason : '';
+      const details = typeof body?.details === 'string' ? body.details.trim() : '';
+
+      if (!UUID_PATTERN.test(deviceId)) return json({ error: 'device_id is required' }, 400);
+      if (!UUID_PATTERN.test(masjidId)) return json({ error: 'masjid_id is required' }, 400);
+      if (!REPORT_TARGET_KINDS.includes(targetKind)) {
+        return json({ error: 'target_kind is invalid' }, 400);
+      }
+      if (!UUID_PATTERN.test(targetId)) return json({ error: 'target_id is invalid' }, 400);
+      if (!REPORT_REASONS.includes(reason)) return json({ error: 'reason is invalid' }, 400);
+      if (details.length > REPORT_DETAILS_MAX) {
+        return json({ error: `details must be at most ${REPORT_DETAILS_MAX} characters` }, 400);
+      }
+
+      const { data: result, error } = await admin.rpc('submit_masjid_report', {
+        p_device_id: deviceId,
+        p_masjid_id: masjidId,
+        p_target_kind: targetKind,
+        p_target_id: targetId,
+        p_reason: reason,
+        p_details: details || null,
+        p_daily_limit: REPORT_DAILY_LIMIT,
+      });
+      if (error) throw error;
+
+      if (result === 'not_found') return json({ error: 'Not available' }, 404);
+      if (result === 'rate_limited') return json({ error: 'Too many reports' }, 429);
+      // A repeat report is answered like the first, so the phone needn't care.
+      return json({ ok: true, duplicate: result === 'duplicate' });
     }
 
     if (req.method !== 'GET') return json({ error: 'Method not allowed' }, 405);
