@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import type { DisplayStore } from '@/types';
 
 export { useAuthStore } from './auth-store';
+export { useVerificationStore } from './verification-store';
 
 enum StorageKeys {
   Display = 'display',

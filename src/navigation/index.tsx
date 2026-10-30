@@ -25,6 +25,7 @@ import {
   Settings,
   SettingsProfile,
   SettingsAlkhairiaApp,
+  SettingsVerification,
   SettingsAccount,
   PrayerTimings,
   Display,
@@ -201,6 +202,14 @@ export default function Navigation() {
               element={
                 <RequireAdmin>
                   <SettingsAlkhairiaApp />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path={AppRoutes.SettingsVerification}
+              element={
+                <RequireAdmin>
+                  <SettingsVerification />
                 </RequireAdmin>
               }
             />

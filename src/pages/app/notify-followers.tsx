@@ -86,7 +86,7 @@ export default function NotifyFollowers() {
   const isAdmin = useAuthStore(s => s.role) === 'admin';
   const [history, setHistory] = useState<MasjidNotification[]>([]);
   const [followers, setFollowers] = useState<number | null>(null);
-  const [listed, setListed] = useState<boolean | null>(null);
+  const [inApp, setInApp] = useState<boolean | null>(null);
   const [masjidName, setMasjidName] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -120,7 +120,7 @@ export default function NotifyFollowers() {
         ]);
         setHistory(notifications);
         setFollowers(count);
-        setListed(profile?.listed ?? false);
+        setInApp(profile?.in_app ?? false);
         setMasjidName(profile?.name ?? '');
         setNow(Date.now());
       } catch (err) {
@@ -151,7 +151,7 @@ export default function NotifyFollowers() {
     return () => clearTimeout(timer);
   }, [nextSlotTime]);
 
-  const canSend = !loading && listed === true && remaining > 0;
+  const canSend = !loading && inApp === true && remaining > 0;
 
   const confirmSend = async () => {
     if (!pending) return;
@@ -223,22 +223,22 @@ export default function NotifyFollowers() {
 
       <ErrorAlert message={error} onClose={() => setError(null)} />
 
-      {listed === false && (
+      {inApp === false && (
         <Card>
           <CardContent className='text-sm text-muted-foreground'>
             {isAdmin ? (
               <>
-                The masjid isn't listed in the Alkhairia app, so it has no followers to notify.{' '}
+                The masjid isn't in the Alkhairia app, so it can't notify followers. It needs to be
+                verified and listed.{' '}
                 <Link
                   to={AppRoutes.SettingsAlkhairiaApp}
                   className='text-foreground underline underline-offset-2'
                 >
-                  List the masjid
-                </Link>{' '}
-                first.
+                  Alkhairia App settings
+                </Link>
               </>
             ) : (
-              "The masjid isn't listed in the Alkhairia app, so it has no followers to notify. Ask an admin to list it."
+              "The masjid isn't in the Alkhairia app, so it can't notify followers. Ask an admin to verify and list it."
             )}
           </CardContent>
         </Card>

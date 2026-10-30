@@ -16,6 +16,8 @@ export enum SupabaseTables {
   MasjidMembers = 'masjid_members',
   AyatAndHadith = 'ayat_and_hadith',
   MasjidNotifications = 'masjid_notifications',
+  MasjidVerifications = 'masjid_verifications',
+  VerificationDocuments = 'verification_documents',
 }
 
 export enum SupabaseBuckets {
@@ -24,6 +26,7 @@ export enum SupabaseBuckets {
   Assets = 'assets',
   AyatHadithSlides = 'ayat-hadith-slides',
   UserBackgrounds = 'user-backgrounds',
+  VerificationDocuments = 'verification-documents',
 }
 
 export enum SupabaseFolders {
@@ -42,6 +45,33 @@ export interface MasjidMember {
   last_active_at: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export type VerificationStatus = 'not_submitted' | 'pending' | 'verified' | 'rejected';
+
+export interface MasjidVerification {
+  masjid_id: string;
+  status: VerificationStatus;
+  rejection_reason: string | null;
+  submitted_at: string | null;
+  decided_at: string | null;
+  grace_until: string | null;
+  suspended_at: string | null;
+  suspension_reason: string | null;
+}
+
+/** existence: registration, charity letter or utility bill. representation: letter naming the applicant. */
+export type VerificationDocumentKind = 'existence' | 'representation' | 'photo';
+
+export interface VerificationDocument {
+  id: string;
+  masjid_id: string;
+  kind: VerificationDocumentKind;
+  storage_path: string;
+  file_name: string;
+  content_type: string;
+  size_bytes: number;
+  created_at: string;
 }
 
 export interface MasjidNotification {
