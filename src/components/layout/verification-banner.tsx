@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router';
 import { format } from 'date-fns';
 import { Ban, ShieldAlert } from 'lucide-react';
-import { Button } from '@/components/ui';
+import { buttonVariants } from '@/components/ui';
 import { AppRoutes } from '@/constants';
 import { useMasjidVerification } from '@/hooks';
 import { useAuthStore } from '@/store';
@@ -55,9 +55,12 @@ export default function VerificationBanner() {
     >
       <Icon className='h-4 w-4 shrink-0' />
       <p className='flex-1'>{message}</p>
-      <Button asChild size='sm' variant='outline' className='shrink-0'>
-        <Link to={AppRoutes.SettingsVerification}>{action}</Link>
-      </Button>
+      <Link
+        to={AppRoutes.SettingsVerification}
+        className={buttonVariants({ variant: 'outline', size: 'sm', className: 'shrink-0' })}
+      >
+        {action}
+      </Link>
     </div>
   );
 }

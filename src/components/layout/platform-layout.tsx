@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink, Outlet } from 'react-router';
 import { LogOut } from 'lucide-react';
-import { Button, ThemeToggle } from '@/components/ui';
+import { Button, buttonVariants, ThemeToggle } from '@/components/ui';
 import { SignOutModal } from '@/components/modals';
 import { AppRoutes, PlatformRoutes } from '@/constants';
 import { useAuthStore } from '@/store';
@@ -44,9 +44,12 @@ export default function PlatformLayout() {
           </nav>
           <div className='ml-auto flex items-center gap-2'>
             {masjidId && (
-              <Button asChild variant='ghost' size='sm'>
-                <NavLink to={AppRoutes.Home}>Masjid console</NavLink>
-              </Button>
+              <NavLink
+                to={AppRoutes.Home}
+                className={buttonVariants({ variant: 'ghost', size: 'sm' })}
+              >
+                Masjid console
+              </NavLink>
             )}
             <ThemeToggle />
             <Button
