@@ -370,6 +370,23 @@ deno_version = 2
 [functions.masjid-directory]
 verify_jwt = false
 
+# Moderator management. Deployed with the gateway's JWT check off since they
+# were added; each function checks the caller itself with auth.getUser.
+[functions.create-moderator]
+verify_jwt = false
+
+[functions.get-moderators]
+verify_jwt = false
+
+[functions.reset-moderator-password]
+verify_jwt = false
+
+[functions.revoke-moderator]
+verify_jwt = false
+
+[functions.update-moderator]
+verify_jwt = false
+
 # Called by a schedule rather than a user, and authenticated by
 # PRAYER_CACHE_WARM_SECRET instead of a JWT.
 [functions.warm-prayer-cache]

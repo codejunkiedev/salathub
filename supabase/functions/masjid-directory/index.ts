@@ -24,7 +24,8 @@ import { shiftIsoDate, timeInTimeZone, todayInTimeZone } from '../_shared/aladha
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers':
+    'authorization, x-client-info, apikey, content-type, baggage, sentry-trace',
   'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
 };
 
