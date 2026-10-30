@@ -22,7 +22,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui';
-import { ErrorAlert } from '@/components/common';
+import { ErrorAlert, PageHeader } from '@/components/common';
 import {
   DOCUMENT_KIND_LABELS,
   REPORT_REASON_LABELS,
@@ -253,10 +253,12 @@ export default function PlatformMasjidDetail() {
       {backLink}
       <ErrorAlert message={error} onClose={() => setError(null)} />
 
-      <div className='flex flex-wrap items-center gap-3'>
-        <h2 className='text-2xl font-semibold'>{profile.name}</h2>
-        <VerificationStatusBadge verification={verification} />
-      </div>
+      <PageHeader
+        title={profile.name}
+        description='Check its documents, decide on verification and manage its place in the app.'
+        showAddButton={false}
+        actions={<VerificationStatusBadge verification={verification} />}
+      />
 
       <div className='grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]'>
         <div className='space-y-6'>
