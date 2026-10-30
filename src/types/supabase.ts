@@ -84,6 +84,9 @@ export type PlatformMasjid = Pick<
 export type ReportTargetKind = 'masjid' | 'announcement' | 'event' | 'post';
 export type ReportReason = 'fake_masjid' | 'wrong_information' | 'inappropriate_content' | 'other';
 
+export type FeedItemKind = Exclude<ReportTargetKind, 'masjid'>;
+export type ReportResolution = 'dismissed' | 'removed' | 'suspended';
+
 export interface MasjidReport {
   id: string;
   masjid_id: string;
@@ -92,15 +95,22 @@ export interface MasjidReport {
   reason: ReportReason;
   details: string | null;
   resolved_at: string | null;
+  resolution: ReportResolution | null;
   created_at: string;
-  masjid: { name: string } | null;
+  masjid: PlatformMasjid | null;
 }
 
-export interface ReportTarget {
+export interface ReportTarget extends Removable {
   id: string;
-  title: string;
+  title: string | null;
   description?: string;
   image_url?: string;
+}
+
+/** Set when the platform team took a feed item out of the app. */
+export interface Removable {
+  removed_at: string | null;
+  removal_reason: string | null;
 }
 
 export interface MasjidNotification {
@@ -381,14 +391,14 @@ export interface ScreenContent {
   created_at: string;
 }
 
-export interface Announcement extends Base, Publishable {
+export interface Announcement extends Base, Publishable, Removable {
   title: string | null;
   description: string;
   archived: boolean;
   show_in_app: boolean;
 }
 
-export interface Event extends Base, Publishable {
+export interface Event extends Base, Publishable, Removable {
   title: string;
   description: string;
   date_time: string;
@@ -406,7 +416,7 @@ export interface Event extends Base, Publishable {
   show_in_app: boolean;
 }
 
-export interface Post extends Base, Publishable {
+export interface Post extends Base, Publishable, Removable {
   title: string;
   image_url: string;
   archived: boolean;

@@ -1,4 +1,9 @@
-import type { ReportReason, ReportTargetKind, VerificationDocumentKind } from '@/types';
+import type {
+  ReportReason,
+  ReportResolution,
+  ReportTargetKind,
+  VerificationDocumentKind,
+} from '@/types';
 
 export const DOCUMENT_KIND_LABELS: Record<VerificationDocumentKind, string> = {
   existence: 'Proof the masjid exists',
@@ -18,4 +23,10 @@ export const REPORT_TARGET_LABELS: Record<ReportTargetKind, string> = {
   announcement: 'Announcement',
   event: 'Event',
   post: 'Post',
+};
+
+export const REPORT_RESOLUTION_LABELS: Record<ReportResolution, string> = {
+  dismissed: 'Dismissed',
+  removed: 'Removed from the app',
+  suspended: 'Masjid suspended',
 };

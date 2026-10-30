@@ -8,6 +8,7 @@ import { ErrorAlert } from '@/components/common';
 import {
   DOCUMENT_KIND_LABELS,
   REPORT_REASON_LABELS,
+  REPORT_RESOLUTION_LABELS,
   REPORT_TARGET_LABELS,
   ReasonDialog,
   VerificationStatusBadge,
@@ -258,10 +259,14 @@ export default function PlatformMasjidDetail() {
                         )}
                       </div>
                       {report.resolved_at ? (
-                        <span className='text-xs text-muted-foreground'>Resolved</span>
+                        <span className='text-xs text-muted-foreground'>
+                          {report.resolution
+                            ? REPORT_RESOLUTION_LABELS[report.resolution]
+                            : 'Resolved'}
+                        </span>
                       ) : (
                         <Button size='sm' variant='outline' onClick={() => handleResolve(report)}>
-                          Resolve
+                          Dismiss
                         </Button>
                       )}
                     </li>

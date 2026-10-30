@@ -45,3 +45,28 @@ export const graceWarningEmail = (to: string[], masjidName: string, graceUntil: 
     ],
     verificationLink()
   );
+
+const ITEM_PAGES = { announcement: 'announcements', event: 'events', post: 'posts' } as const;
+
+export const removedItemEmail = (
+  to: string[],
+  masjidName: string,
+  kind: keyof typeof ITEM_PAGES,
+  title: string | null,
+  reason: string
+): Email => {
+  const base = (Deno.env.get('CONSOLE_URL') ?? '').replace(/\/+$/, '');
+  const label = title ? `"${title}"` : `One of ${masjidName}'s ${ITEM_PAGES[kind]}`;
+  return composeEmail(
+    to,
+    `${masjidName}: a ${kind} was removed from the Alkhairia app`,
+    [
+      `Assalamu alaikum. After reports from app users, the SalatHub team removed ${label} from ${masjidName}'s feed in the Alkhairia app.`,
+      `Reason: ${reason}`,
+      "It still shows on the masjid's screens. If you think this was a mistake, contact the SalatHub team.",
+    ],
+    base
+      ? { label: `Open ${ITEM_PAGES[kind]}`, url: `${base}/admin/${ITEM_PAGES[kind]}` }
+      : undefined
+  );
+};

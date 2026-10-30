@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import {
+  Ban,
   CircleCheck,
   CircleDashed,
   EyeOff,
@@ -15,10 +16,18 @@ interface ContentStatusProps {
   showInApp?: boolean;
   /** Whether it is assigned to at least one screen. Used with `showInApp`. */
   onScreens?: boolean;
+  /** Why the SalatHub team removed it from the app, if they did. */
+  removalReason?: string | null;
 }
 
 /** Compact status icons for content lists, each labelled by a tooltip. */
-export function ContentStatus({ published, showInApp, onScreens = false }: ContentStatusProps) {
+export function ContentStatus({
+  published,
+  showInApp,
+  onScreens = false,
+  removalReason,
+}: ContentStatusProps) {
+  const removed = removalReason != null;
   return (
     <div className='flex items-center gap-2'>
       {published ? (
@@ -30,7 +39,12 @@ export function ContentStatus({ published, showInApp, onScreens = false }: Conte
           <CircleDashed className='h-4 w-4 text-muted-foreground' />
         </StatusIcon>
       )}
-      {showInApp !== undefined && <ReachIcon app={showInApp} screens={onScreens} />}
+      {showInApp !== undefined && <ReachIcon app={showInApp && !removed} screens={onScreens} />}
+      {removed && (
+        <StatusIcon label={`Removed from the app by SalatHub: ${removalReason}`}>
+          <Ban className='h-4 w-4 text-destructive' />
+        </StatusIcon>
+      )}
     </div>
   );
 }

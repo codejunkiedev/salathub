@@ -174,6 +174,7 @@ export default function Posts() {
         <ContentStatus
           published={value !== null}
           showInApp={item.show_in_app}
+          removalReason={item.removed_at ? item.removal_reason : null}
           onScreens={onScreenIds.has(item.id)}
         />
       ),
@@ -262,6 +263,7 @@ export default function Posts() {
           contentId={screenAssignItem.id}
           isDraft={screenAssignItem.published_at === null}
           showInApp={screenAssignItem.show_in_app}
+          removalReason={screenAssignItem.removed_at ? screenAssignItem.removal_reason : null}
           onSaved={forceUpdate}
           contentType='posts'
           contentLabel={screenAssignItem.title}

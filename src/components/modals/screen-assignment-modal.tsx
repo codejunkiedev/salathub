@@ -33,6 +33,8 @@ type ScreenAssignmentModalProps = {
   isDraft?: boolean;
   /** The item's current `show_in_app`, for the types that can reach the app. */
   showInApp?: boolean;
+  /** Why the SalatHub team removed it from the app, if they did. */
+  removalReason?: string | null;
   /** Called after a successful save, so the caller can refetch. */
   onSaved?: () => void;
 };
@@ -58,8 +60,10 @@ export function ScreenAssignmentModal({
   dismissLabel = 'Cancel',
   isDraft = false,
   showInApp,
+  removalReason,
   onSaved,
 }: ScreenAssignmentModalProps) {
+  const isRemoved = removalReason != null;
   const hasAppOption = APP_CONTENT_TYPES.includes(contentType);
   const currentShowInApp = showInApp ?? true;
   const [screens, setScreens] = useState<DisplayScreen[]>([]);
@@ -162,12 +166,16 @@ export function ScreenAssignmentModal({
                 <>
                   <ChoiceRow
                     id='app-followers'
-                    checked={appSelected}
+                    checked={appSelected && !isRemoved}
                     onToggle={() => setAppSelected(prev => !prev)}
-                    disabled={isSaving}
+                    disabled={isSaving || isRemoved}
                     icon={<Smartphone className='w-4 h-4 text-muted-foreground' />}
                     title='App followers'
-                    subtitle="Shows in your masjid's feed in the app"
+                    subtitle={
+                      isRemoved
+                        ? `Removed from the app by SalatHub: ${removalReason}`
+                        : "Shows in your masjid's feed in the app"
+                    }
                   />
                   <p className='text-xs font-medium text-muted-foreground pt-3 pb-1'>Screens</p>
                 </>

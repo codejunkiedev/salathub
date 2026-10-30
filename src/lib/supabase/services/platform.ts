@@ -1,5 +1,6 @@
 import {
   SupabaseTables,
+  type FeedItemKind,
   type MasjidProfile,
   type MasjidReport,
   type MasjidVerification,
@@ -81,17 +82,21 @@ export async function getMasjidDocuments(masjidId: string): Promise<Verification
   return data ?? [];
 }
 
+export type ReportFilter = 'open' | 'actioned' | 'dismissed';
+
 export async function getMasjidReports(options: {
   masjidId?: string;
-  open?: boolean;
+  filter?: ReportFilter;
 }): Promise<MasjidReport[]> {
   let query = supabase
     .from(SupabaseTables.MasjidReports)
-    .select('*, masjid:masjid_profiles(name)')
+    .select(`*, masjid:masjid_profiles(${MASJID_COLUMNS}, verification:masjid_verifications(*))`)
     .order('created_at', { ascending: false });
 
   if (options.masjidId) query = query.eq('masjid_id', options.masjidId);
-  if (options.open) query = query.is('resolved_at', null);
+  if (options.filter === 'open') query = query.is('resolved_at', null);
+  if (options.filter === 'actioned') query = query.in('resolution', ['removed', 'suspended']);
+  if (options.filter === 'dismissed') query = query.eq('resolution', 'dismissed');
 
   const { data, error } = await query;
   if (error) throw error;
@@ -117,7 +122,11 @@ export async function getReportTargets(
 
       const { data, error } = await supabase
         .from(TARGET_TABLES[kind])
-        .select(kind === 'post' ? 'id, title, image_url' : 'id, title, description')
+        .select(
+          kind === 'post'
+            ? 'id, title, image_url, removed_at, removal_reason'
+            : 'id, title, description, removed_at, removal_reason'
+        )
         .in('id', ids);
       if (error) throw error;
 
@@ -131,6 +140,25 @@ export async function getReportTargets(
 export async function resolveReport(id: string): Promise<void> {
   const { error } = await supabase.rpc('resolve_masjid_report', { p_report_id: id });
   if (error) throw new Error(error.message || 'Failed to resolve the report');
+}
+
+/** Closes every open report on one target without changing anything else. */
+export async function dismissReports(kind: MasjidReport['target_kind'], targetId: string) {
+  const { error } = await supabase.rpc('close_masjid_reports', {
+    p_target_kind: kind,
+    p_target_id: targetId,
+    p_resolution: 'dismissed',
+  });
+  if (error) throw new Error(error.message || 'Failed to dismiss the reports');
+}
+
+export async function restoreFeedItem(kind: FeedItemKind, id: string): Promise<void> {
+  const { error } = await supabase.rpc('set_feed_item_removal', {
+    p_kind: kind,
+    p_id: id,
+    p_removed: false,
+  });
+  if (error) throw new Error(error.message || 'Failed to restore the item');
 }
 
 const invokeReview = async <T>(body: Record<string, unknown>): Promise<T> => {
@@ -162,4 +190,13 @@ export async function getMasjidAdminContacts(masjidId: string): Promise<MasjidAd
     masjid_id: masjidId,
   });
   return admins;
+}
+
+/** Takes a feed item out of the app, closes its reports and emails the masjid. */
+export async function removeFeedItem(
+  kind: FeedItemKind,
+  id: string,
+  reason: string
+): Promise<{ emailed: boolean }> {
+  return invokeReview({ action: 'remove_item', target_kind: kind, target_id: id, reason });
 }
