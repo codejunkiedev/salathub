@@ -13,7 +13,15 @@ import {
   Phone,
   type LucideIcon,
 } from 'lucide-react';
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui';
 import { ErrorAlert } from '@/components/common';
 import {
   DOCUMENT_KIND_LABELS,
@@ -24,14 +32,14 @@ import {
   VerificationStatusBadge,
 } from '@/components/platform';
 import {
-  getMasjidAdminContacts,
+  getMasjidMembers,
   getMasjidDocuments,
   getMasjidReports,
   getPlatformMasjid,
   getVerificationDocumentUrl,
   resolveReport,
   reviewMasjid,
-  type MasjidAdminContact,
+  type MasjidMemberContact,
   type ReviewAction,
 } from '@/lib/supabase';
 import { useTrigger } from '@/hooks';
@@ -126,7 +134,7 @@ export default function PlatformMasjidDetail() {
   const [profile, setProfile] = useState<MasjidProfile | null>(null);
   const [verification, setVerification] = useState<MasjidVerification | null>(null);
   const [documents, setDocuments] = useState<DocumentWithUrl[]>([]);
-  const [admins, setAdmins] = useState<MasjidAdminContact[] | null>(null);
+  const [members, setMembers] = useState<MasjidMemberContact[] | null>(null);
   const [reports, setReports] = useState<MasjidReport[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -164,13 +172,13 @@ export default function PlatformMasjidDetail() {
     };
 
     void load();
-    getMasjidAdminContacts(id)
+    getMasjidMembers(id)
       .then(contacts => {
-        if (!cancelled) setAdmins(contacts);
+        if (!cancelled) setMembers(contacts);
       })
       .catch(err => {
         console.error(err);
-        if (!cancelled) setAdmins([]);
+        if (!cancelled) setMembers([]);
       });
 
     return () => {
@@ -436,19 +444,30 @@ export default function PlatformMasjidDetail() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Admins</CardTitle>
+              <CardTitle>Team</CardTitle>
+              <CardDescription>SalatHub's emails go to admins only.</CardDescription>
             </CardHeader>
             <CardContent>
-              {admins === null ? (
+              {members === null ? (
                 <div className='animate-pulse bg-muted rounded h-10' />
-              ) : admins.length === 0 ? (
-                <p className='text-sm text-muted-foreground'>No admins found.</p>
+              ) : members.length === 0 ? (
+                <p className='text-sm text-muted-foreground'>No members found.</p>
               ) : (
-                <ul className='space-y-2 text-sm'>
-                  {admins.map(contact => (
-                    <li key={contact.user_id}>
-                      <p className='font-medium'>{contact.name || 'No name'}</p>
-                      <p className='text-muted-foreground break-all'>{contact.email}</p>
+                <ul className='space-y-3 text-sm'>
+                  {members.map(member => (
+                    <li key={member.user_id} className='flex items-start gap-2 min-w-0'>
+                      <div className='min-w-0 flex-1'>
+                        <p className='font-medium truncate'>{member.name || 'No name'}</p>
+                        <p
+                          className='text-muted-foreground truncate'
+                          title={member.email ?? undefined}
+                        >
+                          {member.email}
+                        </p>
+                      </div>
+                      <Badge variant={member.role === 'admin' ? 'secondary' : 'outline'}>
+                        {member.role === 'admin' ? 'Admin' : 'Moderator'}
+                      </Badge>
                     </li>
                   ))}
                 </ul>

@@ -9,7 +9,7 @@
  */
 import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendEmail } from '../_shared/email.ts';
-import { adminEmails, getMasjidAdminContacts } from '../_shared/masjid-admins.ts';
+import { adminEmails, getMasjidMembers } from '../_shared/masjid-admins.ts';
 import { graceWarningEmail } from '../_shared/verification-emails.ts';
 
 const BUCKET = 'verification-documents';
@@ -81,7 +81,7 @@ const sendGraceWarnings = async (
   for (const row of due) {
     if (Date.now() - startedAt > SOFT_DEADLINE_MS) break;
     try {
-      const to = adminEmails(await getMasjidAdminContacts(admin, row.masjid_id));
+      const to = adminEmails(await getMasjidMembers(admin, row.masjid_id));
       await sendEmail(
         graceWarningEmail(to, row.masjid_profiles?.name ?? 'Your masjid', row.grace_until)
       );

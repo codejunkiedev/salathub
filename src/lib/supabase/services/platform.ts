@@ -4,6 +4,7 @@ import {
   type MasjidProfile,
   type MasjidReport,
   type MasjidVerification,
+  type MemberRole,
   type PlatformMasjid,
   type ReportTarget,
   type VerificationDocument,
@@ -13,10 +14,11 @@ import { captureSupabaseError } from '@/lib/sentry';
 
 export type ReviewAction = 'approve' | 'reject' | 'suspend' | 'restore';
 
-export interface MasjidAdminContact {
+export interface MasjidMemberContact {
   user_id: string;
   name: string | null;
   email: string | null;
+  role: MemberRole;
 }
 
 export async function checkIsPlatformAdmin(): Promise<boolean> {
@@ -184,12 +186,13 @@ export async function reviewMasjid(
   return invokeReview({ action, masjid_id: masjidId, reason });
 }
 
-export async function getMasjidAdminContacts(masjidId: string): Promise<MasjidAdminContact[]> {
-  const { admins } = await invokeReview<{ admins: MasjidAdminContact[] }>({
+/** Admins first, then moderators. */
+export async function getMasjidMembers(masjidId: string): Promise<MasjidMemberContact[]> {
+  const { members } = await invokeReview<{ members: MasjidMemberContact[] }>({
     action: 'contacts',
     masjid_id: masjidId,
   });
-  return admins;
+  return members;
 }
 
 /** Takes a feed item out of the app, closes its reports and emails the masjid. */

@@ -8,12 +8,12 @@
  * approve / reject decide a pending verification and email the masjid's
  * admins. suspend / restore change its app presence; suspending also closes
  * the open reports about the masjid. contacts lists its admins so a reviewer
- * can match them against the documents. remove_item takes a reported feed item
+ * can match them against the documents, with its moderators alongside. remove_item takes a reported feed item
  * out of the app and emails the masjid's admins why.
  */
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendEmail } from '../_shared/email.ts';
-import { adminEmails, getMasjidAdminContacts } from '../_shared/masjid-admins.ts';
+import { adminEmails, getMasjidMembers } from '../_shared/masjid-admins.ts';
 import { approvedEmail, rejectedEmail, removedItemEmail } from '../_shared/verification-emails.ts';
 
 const ACTIONS = ['approve', 'reject', 'suspend', 'restore', 'contacts', 'remove_item'] as const;
@@ -108,7 +108,7 @@ Deno.serve(async req => {
     try {
       const [{ data: profile }, contacts] = await Promise.all([
         admin.from('masjid_profiles').select('name').eq('id', itemMasjidId).single(),
-        getMasjidAdminContacts(admin, itemMasjidId),
+        getMasjidMembers(admin, itemMasjidId),
       ]);
       const to = adminEmails(contacts);
       await sendEmail(removedItemEmail(to, profile?.name ?? 'Your masjid', kind, title, reason));
@@ -123,7 +123,8 @@ Deno.serve(async req => {
   if (action === 'reject' && !reason) return json({ error: 'A rejection needs a reason' }, 400);
 
   if (action === 'contacts') {
-    return json({ admins: await getMasjidAdminContacts(admin, masjidId) });
+    const members = await getMasjidMembers(admin, masjidId);
+    return json({ members, admins: members.filter(member => member.role === 'admin') });
   }
 
   const { data: verification, error } =
@@ -161,7 +162,7 @@ Deno.serve(async req => {
   try {
     const [{ data: profile }, contacts] = await Promise.all([
       admin.from('masjid_profiles').select('name').eq('id', masjidId).single(),
-      getMasjidAdminContacts(admin, masjidId),
+      getMasjidMembers(admin, masjidId),
     ]);
     const to = adminEmails(contacts);
     const name = profile?.name ?? 'Your masjid';
