@@ -2,7 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
-import { ArrowLeft, ExternalLink, FileText } from 'lucide-react';
+import {
+  ArrowLeft,
+  CalendarDays,
+  ExternalLink,
+  FileText,
+  Globe,
+  Mail,
+  MapPin,
+  Phone,
+  type LucideIcon,
+} from 'lucide-react';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui';
 import { ErrorAlert } from '@/components/common';
 import {
@@ -43,12 +53,47 @@ const formatDate = (value: string | null) =>
 
 function Detail({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className='grid grid-cols-[140px_1fr] gap-2 text-sm'>
+    <div className='grid grid-cols-[96px_1fr] gap-3 text-sm'>
       <dt className='text-muted-foreground'>{label}</dt>
       <dd className='min-w-0 break-words'>{children || '—'}</dd>
     </div>
   );
 }
+
+function InfoRow({
+  icon: Icon,
+  href,
+  external,
+  children,
+}: {
+  icon: LucideIcon;
+  href?: string;
+  external?: boolean;
+  children: React.ReactNode;
+}) {
+  const content = href ? (
+    <a
+      href={href}
+      {...(external && { target: '_blank', rel: 'noopener noreferrer' })}
+      className='truncate hover:underline underline-offset-2'
+      title={typeof children === 'string' ? children : undefined}
+    >
+      {children}
+    </a>
+  ) : (
+    <span className='truncate'>{children}</span>
+  );
+
+  return (
+    <li className='flex items-center gap-3 text-sm min-w-0'>
+      <Icon className='h-4 w-4 shrink-0 text-muted-foreground' />
+      {content}
+    </li>
+  );
+}
+
+const withProtocol = (url: string) => (/^https?:\/\//i.test(url) ? url : `https://${url}`);
+const withoutProtocol = (url: string) => url.replace(/^https?:\/\//i, '').replace(/\/$/, '');
 
 function DocumentTile({ document }: { document: DocumentWithUrl }) {
   const isImage = document.content_type.startsWith('image/');
@@ -361,25 +406,31 @@ export default function PlatformMasjidDetail() {
               <CardTitle>Masjid</CardTitle>
             </CardHeader>
             <CardContent>
-              <dl className='space-y-2'>
-                <Detail label='Area'>{profile.area}</Detail>
-                <Detail label='Location'>
-                  {mapUrl && (
-                    <a
-                      href={mapUrl}
-                      target='_blank'
-                      rel='noopener noreferrer'
-                      className='underline underline-offset-2'
-                    >
-                      Open map
-                    </a>
-                  )}
-                </Detail>
-                <Detail label='Phone'>{profile.contact_number}</Detail>
-                <Detail label='Email'>{profile.contact_email}</Detail>
-                <Detail label='Website'>{profile.website}</Detail>
-                <Detail label='Joined'>{formatDate(profile.created_at ?? null)}</Detail>
-              </dl>
+              <ul className='space-y-3'>
+                <InfoRow icon={MapPin} href={mapUrl ?? undefined} external>
+                  {profile.area || (mapUrl ? 'Open map' : 'No location')}
+                </InfoRow>
+                {profile.contact_number && (
+                  <InfoRow icon={Phone} href={`tel:${profile.contact_number}`}>
+                    {profile.contact_number}
+                  </InfoRow>
+                )}
+                {profile.contact_email && (
+                  <InfoRow icon={Mail} href={`mailto:${profile.contact_email}`}>
+                    {profile.contact_email}
+                  </InfoRow>
+                )}
+                {profile.website && (
+                  <InfoRow icon={Globe} href={withProtocol(profile.website)} external>
+                    {withoutProtocol(profile.website)}
+                  </InfoRow>
+                )}
+                {profile.created_at && (
+                  <InfoRow icon={CalendarDays}>
+                    Joined {format(new Date(profile.created_at), 'd MMM yyyy')}
+                  </InfoRow>
+                )}
+              </ul>
             </CardContent>
           </Card>
 
