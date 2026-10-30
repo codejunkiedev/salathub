@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { ArrowLeft } from 'lucide-react';
+import { format } from 'date-fns';
 import { toast } from 'sonner';
 import {
   Button,
@@ -15,12 +16,14 @@ import { getMasjidProfile, setMasjidListed } from '@/lib/supabase';
 import { PageHeader } from '@/components/common';
 import { FollowQrPreview } from '@/components/settings';
 import { AppRoutes } from '@/constants';
+import { useMasjidVerification } from '@/hooks';
 import type { MasjidProfile } from '@/types';
 
 export default function AlkhairiaApp() {
   const [profile, setProfile] = useState<MasjidProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const { verification } = useMasjidVerification();
 
   useEffect(() => {
     getMasjidProfile()
@@ -34,6 +37,58 @@ export default function AlkhairiaApp() {
 
   const hasLocation = !!profile?.latitude && !!profile?.longitude;
   const listed = profile?.listed ?? false;
+  const inApp = profile?.in_app ?? false;
+  const suspended = !!verification?.suspended_at;
+  const verified = verification?.status === 'verified' && !suspended;
+  const graceUntil =
+    !verified && inApp && verification?.grace_until
+      ? format(new Date(verification.grace_until), 'd MMM yyyy')
+      : null;
+
+  const linkClass = 'text-foreground underline underline-offset-2';
+  let listingNote: React.ReactNode = null;
+  if (suspended) {
+    listingNote = (
+      <>
+        The masjid is suspended from the Alkhairia app.{' '}
+        <Link to={AppRoutes.SettingsVerification} className={linkClass}>
+          See details
+        </Link>
+        .
+      </>
+    );
+  } else if (graceUntil) {
+    listingNote = (
+      <>
+        Shown in the app until {graceUntil}.{' '}
+        <Link to={AppRoutes.SettingsVerification} className={linkClass}>
+          Verify the masjid
+        </Link>{' '}
+        to keep it listed after that.
+      </>
+    );
+  } else if (!verified) {
+    listingNote = (
+      <>
+        {listed
+          ? 'Hidden from the app until the masjid is verified.'
+          : 'Available once the masjid is verified.'}{' '}
+        <Link to={AppRoutes.SettingsVerification} className={linkClass}>
+          {verification?.status === 'pending' ? 'View verification' : 'Verify the masjid'}
+        </Link>
+      </>
+    );
+  } else if (!hasLocation) {
+    listingNote = (
+      <>
+        Set the masjid location in the{' '}
+        <Link to={AppRoutes.SettingsProfile} className={linkClass}>
+          masjid profile
+        </Link>{' '}
+        first — the app finds masjids by distance.
+      </>
+    );
+  }
 
   const toggleListed = async (checked: boolean) => {
     try {
@@ -90,22 +145,13 @@ export default function AlkhairiaApp() {
                   id='listed'
                   checked={listed}
                   onCheckedChange={toggleListed}
-                  disabled={isSaving || (!hasLocation && !listed)}
+                  disabled={isSaving || (!listed && (!hasLocation || !verified))}
                 />
               </div>
             </CardHeader>
-            {!hasLocation && (
+            {listingNote && (
               <CardContent>
-                <p className='text-sm text-muted-foreground'>
-                  Set the masjid location in the{' '}
-                  <Link
-                    to={AppRoutes.SettingsProfile}
-                    className='text-foreground underline underline-offset-2'
-                  >
-                    masjid profile
-                  </Link>{' '}
-                  first — the app finds masjids by distance.
-                </p>
+                <p className='text-sm text-muted-foreground'>{listingNote}</p>
               </CardContent>
             )}
           </Card>
@@ -120,15 +166,15 @@ export default function AlkhairiaApp() {
                     the entrance, or show the code on a display from the screen's settings.
                   </CardDescription>
                 </div>
-                {profile && listed && (
+                {profile && inApp && (
                   <FollowQrPreview masjidId={profile.id} masjidName={profile.name} />
                 )}
               </div>
             </CardHeader>
-            {!listed && (
+            {!inApp && (
               <CardContent>
                 <p className='text-sm text-muted-foreground'>
-                  Available once the masjid is listed.
+                  Available once the masjid is verified and listed.
                 </p>
               </CardContent>
             )}

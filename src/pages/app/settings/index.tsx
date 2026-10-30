@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { UserRound, Shield, Smartphone } from 'lucide-react';
+import { UserRound, Shield, Smartphone, BadgeCheck } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui';
 import { AppRoutes } from '@/constants';
 import { PageHeader } from '@/components/common';
@@ -13,6 +13,14 @@ const settingsModules = [
     route: AppRoutes.SettingsProfile,
     color: 'text-orange-600',
     requiresMasjid: false,
+  },
+  {
+    title: 'Verification',
+    description: 'Send the documents our team needs to verify the masjid',
+    icon: BadgeCheck,
+    route: AppRoutes.SettingsVerification,
+    color: 'text-sky-600',
+    requiresMasjid: true,
   },
   {
     title: 'Alkhairia App',

@@ -1,10 +1,15 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router';
 import { useEffect, useState, Suspense } from 'react';
-import { getCurrentSession, getMasjidMembership, updateLastActive } from '@/lib/supabase';
+import {
+  checkIsPlatformAdmin,
+  getCurrentSession,
+  getMasjidMembership,
+  updateLastActive,
+} from '@/lib/supabase';
 import { subscribeToAuthChanges } from '@/lib/supabase';
 import { identifySentryUser, clearSentryUser } from '@/lib/sentry';
-import { AppRoutes, AuthRoutes, PublicRoutes } from '@/constants';
-import { AppLayout } from '@/components/layout';
+import { AppRoutes, AuthRoutes, PlatformRoutes, PublicRoutes } from '@/constants';
+import { AppLayout, PlatformLayout } from '@/components/layout';
 import {
   Announcements,
   AyatAndHadith,
@@ -25,6 +30,7 @@ import {
   Settings,
   SettingsProfile,
   SettingsAlkhairiaApp,
+  SettingsVerification,
   SettingsAccount,
   PrayerTimings,
   Display,
@@ -35,6 +41,10 @@ import {
   PrivacyPolicy,
   TermsConditions,
   MasjidFollow,
+  PlatformQueue,
+  PlatformMasjids,
+  PlatformMasjidDetail,
+  PlatformReports,
 } from '@/pages';
 import { useDisplayStore, useAuthStore } from '@/store';
 
@@ -49,9 +59,12 @@ export default function Navigation() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const { loggedIn: isLoggedInWithCode } = useDisplayStore();
-  const { setAuth, clearAuth } = useAuthStore();
+  const { setAuth, setPlatformAdmin, clearAuth, masjidId, isPlatformAdmin } = useAuthStore();
 
-  const route = isLoggedInWithEmail ? AppRoutes.Home : AppRoutes.Display;
+  // A platform admin who runs no masjid has nothing in the masjid console.
+  const platformOnly = isPlatformAdmin && !masjidId;
+  const home = platformOnly ? PlatformRoutes.Queue : AppRoutes.Home;
+  const route = isLoggedInWithEmail ? home : AppRoutes.Display;
 
   useEffect(() => {
     const checkUser = async () => {
@@ -60,6 +73,7 @@ export default function Navigation() {
         setIsLoggedInWithEmail(!!session);
 
         if (session?.user) {
+          setPlatformAdmin(await checkIsPlatformAdmin());
           try {
             const membership = await getMasjidMembership();
             setAuth(membership.masjid_id, membership.role);
@@ -87,6 +101,7 @@ export default function Navigation() {
       setIsLoggedInWithEmail(!!session?.user);
 
       if (session?.user) {
+        setPlatformAdmin(await checkIsPlatformAdmin());
         try {
           const membership = await getMasjidMembership();
           setAuth(membership.masjid_id, membership.role);
@@ -104,7 +119,7 @@ export default function Navigation() {
     return () => {
       if (subscription) subscription.unsubscribe();
     };
-  }, [setAuth, clearAuth]);
+  }, [setAuth, setPlatformAdmin, clearAuth]);
 
   if (isLoading) {
     return <Loading />;
@@ -120,7 +135,7 @@ export default function Navigation() {
           <Route path={PublicRoutes.Masjid} element={<MasjidFollow />} />
 
           {/* Email auth routes - only accessible when not logged in with email */}
-          <Route element={isLoggedInWithEmail ? <Navigate to={AppRoutes.Home} /> : <Outlet />}>
+          <Route element={isLoggedInWithEmail ? <Navigate to={home} /> : <Outlet />}>
             <Route path={AuthRoutes.Login} element={<Login />} />
             <Route path={AuthRoutes.Register} element={<Register />} />
             <Route path={AuthRoutes.ForgotPassword} element={<ForgotPassword />} />
@@ -146,7 +161,34 @@ export default function Navigation() {
           </Route>
 
           {/* Admin routes with layout - require authentication */}
-          <Route element={isLoggedInWithEmail ? <AppLayout /> : <Navigate to={AuthRoutes.Login} />}>
+          <Route
+            element={
+              !isLoggedInWithEmail ? (
+                <Navigate to={AuthRoutes.Login} />
+              ) : isPlatformAdmin ? (
+                <PlatformLayout />
+              ) : (
+                <Navigate to={AppRoutes.Home} />
+              )
+            }
+          >
+            <Route path={PlatformRoutes.Queue} element={<PlatformQueue />} />
+            <Route path={PlatformRoutes.Masjids} element={<PlatformMasjids />} />
+            <Route path={PlatformRoutes.Masjid} element={<PlatformMasjidDetail />} />
+            <Route path={PlatformRoutes.Reports} element={<PlatformReports />} />
+          </Route>
+
+          <Route
+            element={
+              !isLoggedInWithEmail ? (
+                <Navigate to={AuthRoutes.Login} />
+              ) : platformOnly ? (
+                <Navigate to={PlatformRoutes.Queue} />
+              ) : (
+                <AppLayout />
+              )
+            }
+          >
             <Route path={AppRoutes.Home} element={<Home />} />
             <Route path={AppRoutes.ResetPassword} element={<ResetPassword />} />
             <Route path={AppRoutes.SettingsAccount} element={<SettingsAccount />} />
@@ -201,6 +243,14 @@ export default function Navigation() {
               element={
                 <RequireAdmin>
                   <SettingsAlkhairiaApp />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path={AppRoutes.SettingsVerification}
+              element={
+                <RequireAdmin>
+                  <SettingsVerification />
                 </RequireAdmin>
               }
             />

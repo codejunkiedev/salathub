@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import {
   Button,
   Input,
@@ -26,6 +26,7 @@ import { useTrigger } from '@/hooks';
 import { MapModal } from '@/components/modals';
 import { PageHeader } from '@/components/common';
 import { AppRoutes } from '@/constants';
+import { useAuthStore } from '@/store';
 
 export default function Profile() {
   const [masjidLogo, setMasjidLogo] = useState<File | null>(null);
@@ -37,6 +38,8 @@ export default function Profile() {
   const [isResolvingTimezone, setIsResolvingTimezone] = useState(false);
 
   const [trigger, triggerUpdate] = useTrigger();
+  const navigate = useNavigate();
+  const isNewMasjid = !useAuthStore(s => s.masjidId);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -177,6 +180,10 @@ export default function Profile() {
       setIsSaving(true);
       await upsertMasjidProfile(data, masjidLogo, logoRemoved);
       toast.success('Masjid profile saved successfully');
+      if (isNewMasjid) {
+        navigate(`${AppRoutes.SettingsVerification}?setup=1`);
+        return;
+      }
       triggerUpdate();
       if (logoRemoved) setLogoRemoved(false);
     } catch (error) {

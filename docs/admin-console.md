@@ -34,7 +34,7 @@ Moderators sign in through the same `/login` page; the role only restricts what 
 
 ## Notify followers
 
-`/admin/notify-followers`, admins and moderators. A title (50 chars, sent as `Masjid Name: title` like timing-change alerts) and message (150 chars) go out as an Expo push to every device subscribed to the masjid, on the `masjid-updates` Android channel with `data.type = 'masjid_message'`, which the Alkhairia app opens as the masjid's page. Nothing reaches a display screen. The `notify-followers` Edge Function refuses an unlisted masjid and a fourth send within a rolling 24 hours (429 with `retry_at`); a send that fails before reaching Expo is deleted so it doesn't use up the limit.
+`/admin/notify-followers`, admins and moderators. A title (50 chars, sent as `Masjid Name: title` like timing-change alerts) and message (150 chars) go out as an Expo push to every device subscribed to the masjid, on the `masjid-updates` Android channel with `data.type = 'masjid_message'`, which the Alkhairia app opens as the masjid's page. Nothing reaches a display screen. The `notify-followers` Edge Function refuses a masjid that isn't `in_app` and a fourth send within a rolling 24 hours (429 with `retry_at`); a send that fails before reaching Expo is deleted so it doesn't use up the limit.
 
 ## Masjid profile
 
@@ -47,6 +47,20 @@ Fields: `name`, `name_ur`, `name_ar`, `area`, `area_ur`, `area_ar`, `logo_url`, 
 **Location** is a Leaflet modal on Geoapify `osm-bright` tiles: click to place, "locate me" with distinct permission/unavailable/timeout messages, and a search box debounced 400 ms at a 3-character minimum. Default centre is Islamabad/Rawalpindi.
 
 Logos upload to `masjid-logos/<masjid_id>/<timestamp>` so storage RLS can scope by folder. On a first-ever profile the logo uploads after the insert, then patches `logo_url`.
+
+## Verification
+
+`/admin/settings/verification`, admin-only. A new masjid lands here (`?setup=1`, with "Submit later") right after saving its first profile. Admins upload proof of existence and a photo (required) and a representation letter (optional) to the private `verification-documents` bucket, then submit for review. Files are locked while a review is pending. A banner across the console (`verification-banner.tsx`) asks admins to act until the masjid submits, and again after a rejection or suspension. Listing in the Alkhairia app can only be switched on once the masjid is verified. See [Database](./database.md) for the status rules.
+
+## Platform area
+
+`/platform`, for the SalatHub team only: users in `platform_admins`, added by hand with `INSERT INTO platform_admins (user_id) VALUES ('<auth user id>');`. Masjid users are sent back to the console. A platform admin with no masjid lands here after signing in; one who also runs a masjid gets a Platform link in the sidebar.
+
+- **Review queue**: pending submissions, longest waiting first.
+- **Masjids**: every masjid with its verification and app status. A masjid's page shows its documents, its admins' names and emails, its reports, and the approve, reject, suspend and restore actions.
+- **Reports**: what app users reported, with the reported item, and a Resolve button.
+
+Actions go through the `review-masjid` Edge Function, which checks `platform_admins`, makes the change as the caller so the decision records who made it, and emails the masjid's admins on approval or rejection. A failed email doesn't undo the decision; the reviewer is told.
 
 ## Display screens
 

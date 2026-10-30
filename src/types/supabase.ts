@@ -16,6 +16,9 @@ export enum SupabaseTables {
   MasjidMembers = 'masjid_members',
   AyatAndHadith = 'ayat_and_hadith',
   MasjidNotifications = 'masjid_notifications',
+  MasjidVerifications = 'masjid_verifications',
+  VerificationDocuments = 'verification_documents',
+  MasjidReports = 'masjid_reports',
 }
 
 export enum SupabaseBuckets {
@@ -24,6 +27,7 @@ export enum SupabaseBuckets {
   Assets = 'assets',
   AyatHadithSlides = 'ayat-hadith-slides',
   UserBackgrounds = 'user-backgrounds',
+  VerificationDocuments = 'verification-documents',
 }
 
 export enum SupabaseFolders {
@@ -42,6 +46,61 @@ export interface MasjidMember {
   last_active_at: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export type VerificationStatus = 'not_submitted' | 'pending' | 'verified' | 'rejected';
+
+export interface MasjidVerification {
+  masjid_id: string;
+  status: VerificationStatus;
+  rejection_reason: string | null;
+  submitted_at: string | null;
+  decided_at: string | null;
+  grace_until: string | null;
+  suspended_at: string | null;
+  suspension_reason: string | null;
+}
+
+/** existence: registration, charity letter or utility bill. representation: letter naming the applicant. */
+export type VerificationDocumentKind = 'existence' | 'representation' | 'photo';
+
+export interface VerificationDocument {
+  id: string;
+  masjid_id: string;
+  kind: VerificationDocumentKind;
+  storage_path: string;
+  file_name: string;
+  content_type: string;
+  size_bytes: number;
+  created_at: string;
+}
+
+/** A masjid as the platform admin area lists it. */
+export type PlatformMasjid = Pick<
+  MasjidProfile,
+  'id' | 'name' | 'area' | 'logo_url' | 'listed' | 'in_app'
+> & { created_at: string; verification: MasjidVerification | null };
+
+export type ReportTargetKind = 'masjid' | 'announcement' | 'event' | 'post';
+export type ReportReason = 'fake_masjid' | 'wrong_information' | 'inappropriate_content' | 'other';
+
+export interface MasjidReport {
+  id: string;
+  masjid_id: string;
+  target_kind: ReportTargetKind;
+  target_id: string;
+  reason: ReportReason;
+  details: string | null;
+  resolved_at: string | null;
+  created_at: string;
+  masjid: { name: string } | null;
+}
+
+export interface ReportTarget {
+  id: string;
+  title: string;
+  description?: string;
+  image_url?: string;
 }
 
 export interface MasjidNotification {
@@ -85,6 +144,8 @@ export interface MasjidProfile extends Base {
   website: string;
   /** Opt-in to the public mobile directory. Requires coordinates; see 20260918000001. */
   listed: boolean;
+  /** Listed, verified or in grace, and not suspended. Set by the database only. */
+  in_app: boolean;
 }
 
 export type ScreenOrientation = 'landscape' | 'portrait';

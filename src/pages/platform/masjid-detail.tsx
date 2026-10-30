@@ -1,0 +1,427 @@
+import React, { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router';
+import { format } from 'date-fns';
+import { toast } from 'sonner';
+import { ArrowLeft, ExternalLink, FileText } from 'lucide-react';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui';
+import { ErrorAlert } from '@/components/common';
+import {
+  DOCUMENT_KIND_LABELS,
+  REPORT_REASON_LABELS,
+  REPORT_TARGET_LABELS,
+  ReasonDialog,
+  VerificationStatusBadge,
+} from '@/components/platform';
+import {
+  getMasjidAdminContacts,
+  getMasjidDocuments,
+  getMasjidReports,
+  getPlatformMasjid,
+  getVerificationDocumentUrl,
+  resolveReport,
+  reviewMasjid,
+  type MasjidAdminContact,
+  type ReviewAction,
+} from '@/lib/supabase';
+import { useTrigger } from '@/hooks';
+import { PlatformRoutes } from '@/constants';
+import type {
+  MasjidProfile,
+  MasjidReport,
+  MasjidVerification,
+  VerificationDocument,
+  VerificationDocumentKind,
+} from '@/types';
+
+const PREVIEW_SECONDS = 10 * 60;
+
+type DocumentWithUrl = VerificationDocument & { url: string | null };
+
+const formatDate = (value: string | null) =>
+  value ? format(new Date(value), 'd MMM yyyy, h:mm a') : '—';
+
+function Detail({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className='grid grid-cols-[140px_1fr] gap-2 text-sm'>
+      <dt className='text-muted-foreground'>{label}</dt>
+      <dd className='min-w-0 break-words'>{children || '—'}</dd>
+    </div>
+  );
+}
+
+function DocumentTile({ document }: { document: DocumentWithUrl }) {
+  const isImage = document.content_type.startsWith('image/');
+
+  return (
+    <a
+      href={document.url ?? undefined}
+      target='_blank'
+      rel='noopener noreferrer'
+      className='block rounded-md border overflow-hidden hover:border-foreground/40 transition-colors'
+    >
+      {isImage && document.url ? (
+        <img src={document.url} alt={document.file_name} className='h-40 w-full object-cover' />
+      ) : (
+        <div className='h-40 flex items-center justify-center bg-muted'>
+          <FileText className='h-10 w-10 text-muted-foreground' />
+        </div>
+      )}
+      <div className='flex items-center gap-2 px-3 py-2 text-xs'>
+        <span className='truncate flex-1'>{document.file_name}</span>
+        <ExternalLink className='h-3 w-3 shrink-0 text-muted-foreground' />
+      </div>
+    </a>
+  );
+}
+
+export default function PlatformMasjidDetail() {
+  const { id = '' } = useParams();
+  const [trigger, reload] = useTrigger();
+  const [profile, setProfile] = useState<MasjidProfile | null>(null);
+  const [verification, setVerification] = useState<MasjidVerification | null>(null);
+  const [documents, setDocuments] = useState<DocumentWithUrl[]>([]);
+  const [admins, setAdmins] = useState<MasjidAdminContact[] | null>(null);
+  const [reports, setReports] = useState<MasjidReport[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [dialog, setDialog] = useState<'reject' | 'suspend' | null>(null);
+  const [busy, setBusy] = useState<ReviewAction | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        const [masjid, docs, masjidReports] = await Promise.all([
+          getPlatformMasjid(id),
+          getMasjidDocuments(id),
+          getMasjidReports({ masjidId: id }),
+        ]);
+        const withUrls = await Promise.all(
+          docs.map(async doc => ({
+            ...doc,
+            url: await getVerificationDocumentUrl(doc, PREVIEW_SECONDS).catch(() => null),
+          }))
+        );
+        if (cancelled) return;
+        setProfile(masjid?.profile ?? null);
+        setVerification(masjid?.verification ?? null);
+        setDocuments(withUrls);
+        setReports(masjidReports);
+        if (!masjid) setError('Masjid not found');
+      } catch (err) {
+        console.error(err);
+        if (!cancelled) setError('Failed to load the masjid');
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+
+    void load();
+    getMasjidAdminContacts(id)
+      .then(contacts => {
+        if (!cancelled) setAdmins(contacts);
+      })
+      .catch(err => {
+        console.error(err);
+        if (!cancelled) setAdmins([]);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, trigger]);
+
+  const act = async (action: ReviewAction, reason?: string) => {
+    try {
+      setBusy(action);
+      const { emailed } = await reviewMasjid(action, id, reason);
+      const done = {
+        approve: 'Masjid verified',
+        reject: 'Verification rejected',
+        suspend: 'Masjid suspended from the app',
+        restore: 'Masjid restored to the app',
+      }[action];
+      if (action === 'approve' || action === 'reject') {
+        if (emailed) toast.success(`${done}. The masjid's admins were emailed.`);
+        else toast.warning(`${done}, but the email to the masjid's admins couldn't be sent.`);
+      } else {
+        toast.success(done);
+      }
+      setDialog(null);
+      reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Action failed');
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const handleResolve = async (report: MasjidReport) => {
+    try {
+      await resolveReport(report.id);
+      reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to resolve the report');
+    }
+  };
+
+  if (isLoading) return <div className='animate-pulse bg-muted rounded-lg h-96' />;
+
+  const backLink = (
+    <Link to={PlatformRoutes.Masjids}>
+      <Button variant='ghost' size='sm'>
+        <ArrowLeft className='h-4 w-4 mr-2' />
+        All masjids
+      </Button>
+    </Link>
+  );
+
+  if (!profile || !verification) {
+    return (
+      <div className='space-y-6'>
+        {backLink}
+        <ErrorAlert message={error ?? 'Masjid not found'} />
+      </div>
+    );
+  }
+
+  const isPending = verification.status === 'pending';
+  const isSuspended = !!verification.suspended_at;
+  const kinds = Object.keys(DOCUMENT_KIND_LABELS) as VerificationDocumentKind[];
+  const mapUrl =
+    profile.latitude && profile.longitude
+      ? `https://www.google.com/maps?q=${profile.latitude},${profile.longitude}`
+      : null;
+
+  return (
+    <div className='space-y-6'>
+      {backLink}
+      <ErrorAlert message={error} onClose={() => setError(null)} />
+
+      <div className='flex flex-wrap items-center gap-3'>
+        <h2 className='text-2xl font-semibold'>{profile.name}</h2>
+        <VerificationStatusBadge verification={verification} />
+      </div>
+
+      <div className='grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]'>
+        <div className='space-y-6'>
+          <Card>
+            <CardHeader>
+              <CardTitle>Documents</CardTitle>
+              <CardDescription>
+                Check the documents name this masjid and one of the admins listed alongside.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className='space-y-6'>
+              {kinds.map(kind => {
+                const ofKind = documents.filter(d => d.kind === kind);
+                return (
+                  <div key={kind} className='space-y-2'>
+                    <h3 className='text-sm font-medium'>{DOCUMENT_KIND_LABELS[kind]}</h3>
+                    {ofKind.length === 0 ? (
+                      <p className='text-sm text-muted-foreground'>None uploaded.</p>
+                    ) : (
+                      <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-3'>
+                        {ofKind.map(doc => (
+                          <DocumentTile key={doc.id} document={doc} />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Reports</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {reports.length === 0 ? (
+                <p className='text-sm text-muted-foreground'>No reports.</p>
+              ) : (
+                <ul className='divide-y'>
+                  {reports.map(report => (
+                    <li key={report.id} className='flex items-start gap-3 py-3 text-sm'>
+                      <div className='flex-1 space-y-0.5'>
+                        <p>
+                          <span className='font-medium'>{REPORT_REASON_LABELS[report.reason]}</span>{' '}
+                          <span className='text-muted-foreground'>
+                            · {REPORT_TARGET_LABELS[report.target_kind]} ·{' '}
+                            {formatDate(report.created_at)}
+                          </span>
+                        </p>
+                        {report.details && (
+                          <p className='text-muted-foreground'>{report.details}</p>
+                        )}
+                      </div>
+                      {report.resolved_at ? (
+                        <span className='text-xs text-muted-foreground'>Resolved</span>
+                      ) : (
+                        <Button size='sm' variant='outline' onClick={() => handleResolve(report)}>
+                          Resolve
+                        </Button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className='space-y-6'>
+          <Card>
+            <CardHeader>
+              <CardTitle>Decision</CardTitle>
+            </CardHeader>
+            <CardContent className='space-y-4'>
+              <dl className='space-y-2'>
+                <Detail label='Submitted'>{formatDate(verification.submitted_at)}</Detail>
+                <Detail label='Decided'>{formatDate(verification.decided_at)}</Detail>
+                {verification.rejection_reason && (
+                  <Detail label='Reason'>{verification.rejection_reason}</Detail>
+                )}
+                {verification.grace_until && (
+                  <Detail label='Grace ends'>{formatDate(verification.grace_until)}</Detail>
+                )}
+              </dl>
+              {isPending ? (
+                <div className='flex gap-2'>
+                  <Button
+                    onClick={() => act('approve')}
+                    loading={busy === 'approve'}
+                    disabled={!!busy}
+                  >
+                    Approve
+                  </Button>
+                  <Button variant='outline' onClick={() => setDialog('reject')} disabled={!!busy}>
+                    Reject
+                  </Button>
+                </div>
+              ) : (
+                <p className='text-sm text-muted-foreground'>
+                  {verification.status === 'not_submitted'
+                    ? 'The masjid has not submitted its documents yet.'
+                    : 'Decisions are made on a pending submission.'}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>App presence</CardTitle>
+              <CardDescription>
+                Suspending removes the masjid from the directory, feed and notifications. Its
+                screens keep working and nothing is deleted.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className='space-y-4'>
+              <dl className='space-y-2'>
+                <Detail label='Listed'>{profile.listed ? 'Yes' : 'No'}</Detail>
+                <Detail label='In the app'>{profile.in_app ? 'Yes' : 'No'}</Detail>
+                {isSuspended && (
+                  <>
+                    <Detail label='Suspended'>{formatDate(verification.suspended_at)}</Detail>
+                    <Detail label='Reason'>{verification.suspension_reason}</Detail>
+                  </>
+                )}
+              </dl>
+              {isSuspended ? (
+                <Button
+                  variant='outline'
+                  onClick={() => act('restore')}
+                  loading={busy === 'restore'}
+                  disabled={!!busy}
+                >
+                  Restore
+                </Button>
+              ) : (
+                <Button
+                  variant='destructive'
+                  onClick={() => setDialog('suspend')}
+                  disabled={!!busy}
+                >
+                  Suspend
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Masjid</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <dl className='space-y-2'>
+                <Detail label='Area'>{profile.area}</Detail>
+                <Detail label='Location'>
+                  {mapUrl && (
+                    <a
+                      href={mapUrl}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='underline underline-offset-2'
+                    >
+                      Open map
+                    </a>
+                  )}
+                </Detail>
+                <Detail label='Phone'>{profile.contact_number}</Detail>
+                <Detail label='Email'>{profile.contact_email}</Detail>
+                <Detail label='Website'>{profile.website}</Detail>
+                <Detail label='Joined'>{formatDate(profile.created_at ?? null)}</Detail>
+              </dl>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Admins</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {admins === null ? (
+                <div className='animate-pulse bg-muted rounded h-10' />
+              ) : admins.length === 0 ? (
+                <p className='text-sm text-muted-foreground'>No admins found.</p>
+              ) : (
+                <ul className='space-y-2 text-sm'>
+                  {admins.map(contact => (
+                    <li key={contact.user_id}>
+                      <p className='font-medium'>{contact.name || 'No name'}</p>
+                      <p className='text-muted-foreground break-all'>{contact.email}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      <ReasonDialog
+        isOpen={dialog === 'reject'}
+        title='Reject verification'
+        description="The masjid's admins see this reason and are emailed it, so say what to fix."
+        confirmLabel='Reject'
+        reasonRequired
+        isSaving={busy === 'reject'}
+        onConfirm={reason => act('reject', reason)}
+        onClose={() => setDialog(null)}
+      />
+      <ReasonDialog
+        isOpen={dialog === 'suspend'}
+        title='Suspend from the Alkhairia app'
+        description="The masjid's admins see this reason in the console."
+        confirmLabel='Suspend'
+        reasonRequired={false}
+        isSaving={busy === 'suspend'}
+        onConfirm={reason => act('suspend', reason)}
+        onClose={() => setDialog(null)}
+      />
+    </div>
+  );
+}

@@ -61,7 +61,7 @@ export default function Display() {
   const showWeather = displayScreen?.show_weather ?? true;
   // Un-listing withdraws the masjid from the app, so the invitation goes with it.
   const followQrMasjidId =
-    displayScreen?.show_follow_qr && masjidProfile?.listed ? masjidProfile.id : null;
+    displayScreen?.show_follow_qr && masjidProfile?.in_app ? masjidProfile.id : null;
   const language = displayScreen?.language ?? 'en';
   const slideDelay = displayScreen?.slide_interval_seconds
     ? displayScreen.slide_interval_seconds * 1000

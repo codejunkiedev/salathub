@@ -58,7 +58,7 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
-  const [isListed, setIsListed] = useState(false);
+  const [isInApp, setIsInApp] = useState(false);
   const isEdit = !!initialData;
 
   const {
@@ -104,7 +104,7 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
     let cancelled = false;
     getMasjidProfile()
       .then(profile => {
-        if (!cancelled) setIsListed(profile?.listed ?? false);
+        if (!cancelled) setIsInApp(profile?.in_app ?? false);
       })
       .catch(() => undefined);
     return () => {
@@ -285,7 +285,7 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
               <Checkbox
                 id='show_follow_qr'
                 checked={showFollowQr}
-                disabled={!isListed && !showFollowQr}
+                disabled={!isInApp && !showFollowQr}
                 onCheckedChange={checked => setValue('show_follow_qr', !!checked)}
               />
               <label htmlFor='show_follow_qr' className='text-sm cursor-pointer'>
@@ -293,11 +293,11 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
               </label>
             </div>
             <p className='text-xs text-muted-foreground'>
-              {isListed ? (
+              {isInApp ? (
                 'Adds a slide people can scan to follow the masjid in the Alkhairia app.'
               ) : (
                 <>
-                  Appears only while the masjid is listed in the Alkhairia app. Turn listing on in{' '}
+                  Appears only while the masjid is verified and listed in the Alkhairia app. See{' '}
                   <Link
                     to={AppRoutes.SettingsAlkhairiaApp}
                     className='text-foreground underline underline-offset-2'
