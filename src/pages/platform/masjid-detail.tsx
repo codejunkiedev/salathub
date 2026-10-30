@@ -223,12 +223,14 @@ export default function PlatformMasjidDetail() {
   if (isLoading) return <div className='animate-pulse bg-muted rounded-lg h-96' />;
 
   const backLink = (
-    <Link to={PlatformRoutes.Masjids}>
-      <Button variant='ghost' size='sm'>
-        <ArrowLeft className='h-4 w-4 mr-2' />
-        All masjids
-      </Button>
-    </Link>
+    <div>
+      <Link to={PlatformRoutes.Masjids}>
+        <Button variant='ghost' size='sm'>
+          <ArrowLeft className='h-4 w-4 mr-2' />
+          All masjids
+        </Button>
+      </Link>
+    </div>
   );
 
   if (!profile || !verification) {
