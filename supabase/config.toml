@@ -379,8 +379,8 @@ verify_jwt = false
 [functions.notify-prayer-changes]
 verify_jwt = false
 
-# Called by pg_cron, authenticated by VERIFICATION_PURGE_SECRET.
-[functions.purge-verification-documents]
+# Called by pg_cron, authenticated by VERIFICATION_JOBS_SECRET.
+[functions.verification-jobs]
 verify_jwt = false
 
 [analytics]

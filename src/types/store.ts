@@ -13,7 +13,9 @@ export type DisplayStore = {
 export type AuthStore = {
   masjidId: string | null;
   role: MemberRole | null;
+  isPlatformAdmin: boolean;
   setAuth: (masjidId: string | null, role: MemberRole) => void;
+  setPlatformAdmin: (isPlatformAdmin: boolean) => void;
   clearAuth: () => void;
 };
 

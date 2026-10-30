@@ -11,6 +11,13 @@ export enum PublicRoutes {
   Masjid = '/masjid/:id',
 }
 
+export enum PlatformRoutes {
+  Queue = '/platform',
+  Masjids = '/platform/masjids',
+  Masjid = '/platform/masjids/:id',
+  Reports = '/platform/reports',
+}
+
 export enum AppRoutes {
   Display = '/',
   DisplayLogout = '/logout',

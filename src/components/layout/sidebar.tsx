@@ -14,8 +14,9 @@ import {
   LifeBuoy,
   Users,
   Send,
+  ShieldCheck,
 } from 'lucide-react';
-import { AppRoutes } from '@/constants';
+import { AppRoutes, PlatformRoutes } from '@/constants';
 import { Button } from '@/components/ui';
 import { cn } from '@/utils';
 import { useSidebarState } from '@/hooks';
@@ -33,6 +34,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
   const [collapsed, toggleSidebar] = useSidebarState(false);
   const location = useLocation();
   const role = useAuthStore(s => s.role);
+  const isPlatformAdmin = useAuthStore(s => s.isPlatformAdmin);
   const masjidId = useAuthStore(s => s.masjidId);
 
   /**
@@ -133,6 +135,9 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
     },
     ...contentNavItems,
     ...adminNavItems,
+    ...(isPlatformAdmin
+      ? [{ label: 'Platform', path: PlatformRoutes.Queue, icon: <ShieldCheck size={20} /> }]
+      : []),
   ];
 
   const navItems = allNavItems;

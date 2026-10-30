@@ -109,10 +109,13 @@ export async function removeVerificationDocument(document: VerificationDocument)
 }
 
 /** A short-lived link, since the bucket is private. */
-export async function getVerificationDocumentUrl(document: VerificationDocument): Promise<string> {
+export async function getVerificationDocumentUrl(
+  document: VerificationDocument,
+  expiresInSeconds = 60
+): Promise<string> {
   const { data, error } = await supabase.storage
     .from(SupabaseBuckets.VerificationDocuments)
-    .createSignedUrl(document.storage_path, 60);
+    .createSignedUrl(document.storage_path, expiresInSeconds);
 
   if (error) throw error;
   return data.signedUrl;

@@ -1,6 +1,6 @@
 # Database
 
-Nineteen tables in `public`. [`supabase/migrations/`](../supabase/migrations/) is authoritative — 71 files, applied in order, with several columns added and later dropped, so read the latest migration touching a table rather than the one that created it.
+Nineteen tables in `public`. [`supabase/migrations/`](../supabase/migrations/) is authoritative — 72 files, applied in order, with several columns added and later dropped, so read the latest migration touching a table rather than the one that created it.
 
 ## Tables
 
@@ -44,7 +44,7 @@ Beyond the two RLS helpers and the display read functions covered in [Architectu
 - `search_masjids_nearby()` / `search_masjids_by_name()` / `get_masjids_public()` — the directory reads, granted to `service_role` alone. See [Architecture](./architecture.md#how-the-mobile-app-reads-data).
 - `compute_masjid_in_app()` — a `BEFORE` trigger setting `in_app`: listed, verified or in grace, and not suspended. **Every app path reads `in_app`, never `listed`.** `sync_masjid_in_app()` re-runs it when a masjid's verification changes.
 - `submit_masjid_verification()` (masjid admin), `decide_masjid_verification()`, `set_masjid_suspension()` and `resolve_masjid_report()` (platform admin) — the only writes to verification state. `submit_masjid_report()` is `service_role` only.
-- Cron: `expire-verification-grace` hourly; `purge-verification-documents` daily, deleting documents 90 days after a decision.
+- Cron, both hourly: `expire-verification-grace`, and `verification-jobs`, which deletes documents 90 days after a decision and sends each masjid in grace one warning email (`grace_warned_at`).
 
 Every `SECURITY DEFINER` function now pins `search_path`.
 

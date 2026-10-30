@@ -4,10 +4,10 @@
 -- Hourly: end grace periods that have run out, which drops those masjids from
 -- the app through trg_sync_masjid_in_app.
 --
--- Daily: purge-verification-documents deletes files 90 days after a decision.
--- Storage files can only be deleted through the Storage API, hence the Edge
--- Function. Reads the Vault secrets `project_url` and
--- `verification_purge_secret`, the latter matching VERIFICATION_PURGE_SECRET.
+-- Hourly: verification-jobs deletes documents 90 days after a decision (files
+-- can only be deleted through the Storage API, hence the Edge Function) and
+-- sends the one-off grace warning email. Reads the Vault secrets `project_url`
+-- and `verification_jobs_secret`, the latter matching VERIFICATION_JOBS_SECRET.
 
 SELECT cron.schedule(
   'expire-verification-grace',
@@ -20,16 +20,16 @@ SELECT cron.schedule(
 );
 
 SELECT cron.schedule(
-  'purge-verification-documents',
-  '30 3 * * *',
+  'verification-jobs',
+  '15 * * * *',
   $$
   SELECT net.http_post(
     url := (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'project_url')
-      || '/functions/v1/purge-verification-documents',
+      || '/functions/v1/verification-jobs',
     headers := jsonb_build_object(
       'Content-Type', 'application/json',
-      'x-purge-secret',
-      (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'verification_purge_secret')
+      'x-jobs-secret',
+      (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'verification_jobs_secret')
     ),
     body := '{}'::jsonb
   );

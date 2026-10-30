@@ -18,6 +18,7 @@ export enum SupabaseTables {
   MasjidNotifications = 'masjid_notifications',
   MasjidVerifications = 'masjid_verifications',
   VerificationDocuments = 'verification_documents',
+  MasjidReports = 'masjid_reports',
 }
 
 export enum SupabaseBuckets {
@@ -72,6 +73,34 @@ export interface VerificationDocument {
   content_type: string;
   size_bytes: number;
   created_at: string;
+}
+
+/** A masjid as the platform admin area lists it. */
+export type PlatformMasjid = Pick<
+  MasjidProfile,
+  'id' | 'name' | 'area' | 'logo_url' | 'listed' | 'in_app'
+> & { created_at: string; verification: MasjidVerification | null };
+
+export type ReportTargetKind = 'masjid' | 'announcement' | 'event' | 'post';
+export type ReportReason = 'fake_masjid' | 'wrong_information' | 'inappropriate_content' | 'other';
+
+export interface MasjidReport {
+  id: string;
+  masjid_id: string;
+  target_kind: ReportTargetKind;
+  target_id: string;
+  reason: ReportReason;
+  details: string | null;
+  resolved_at: string | null;
+  created_at: string;
+  masjid: { name: string } | null;
+}
+
+export interface ReportTarget {
+  id: string;
+  title: string;
+  description?: string;
+  image_url?: string;
 }
 
 export interface MasjidNotification {

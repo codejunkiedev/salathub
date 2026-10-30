@@ -11,8 +11,10 @@ export const useAuthStore = create<AuthStore>()(
     set => ({
       masjidId: null,
       role: null,
+      isPlatformAdmin: false,
       setAuth: (masjidId, role) => set({ masjidId, role }),
-      clearAuth: () => set({ masjidId: null, role: null }),
+      setPlatformAdmin: isPlatformAdmin => set({ isPlatformAdmin }),
+      clearAuth: () => set({ masjidId: null, role: null, isPlatformAdmin: false }),
     }),
     { name: StorageKeys.Auth, storage: createJSONStorage(() => localStorage) }
   )
