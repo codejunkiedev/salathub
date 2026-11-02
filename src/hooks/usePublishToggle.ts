@@ -1,7 +1,12 @@
 import { useCallback } from 'react';
 import { toast } from 'sonner';
-import { setPublished } from '@/lib/supabase';
-import type { Publishable, ScreenContentType } from '@/types';
+import { getContentNotificationStatus, setPublished } from '@/lib/supabase';
+import { contentNotificationLine } from '@/utils';
+import type { AppContentType, AppShown, Publishable, Removable, ScreenContentType } from '@/types';
+
+type ToggleItem = Publishable & { id: string } & Partial<AppShown & Removable> & {
+    show_in_app?: boolean;
+  };
 
 /**
  * Returns a handler that flips an item between draft and published, then
@@ -9,11 +14,23 @@ import type { Publishable, ScreenContentType } from '@/types';
  */
 export function usePublishToggle(contentType: ScreenContentType, onChange: () => void) {
   return useCallback(
-    async (item: Publishable & { id: string }) => {
+    async (item: ToggleItem) => {
       const publish = item.published_at === null;
       try {
         await setPublished(contentType, item.id, publish);
-        toast.success(publish ? 'Published' : 'Moved to drafts');
+
+        const firstTimeInApp =
+          publish && item.show_in_app && !item.app_shown_at && !item.removed_at;
+        const description = firstTimeInApp
+          ? contentNotificationLine(
+              await getContentNotificationStatus().catch(() => null),
+              contentType as AppContentType
+            )
+          : null;
+
+        toast.success(publish ? 'Published' : 'Moved to drafts', {
+          description: description ?? undefined,
+        });
         onChange();
       } catch (err) {
         console.error('Error changing publish state:', err);

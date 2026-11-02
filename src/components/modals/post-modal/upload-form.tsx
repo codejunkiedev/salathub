@@ -6,7 +6,7 @@ import {
   ImageUpload,
   ValidationFeedback,
 } from '@/components/ui';
-import { SaveContentButtons } from '@/components/common';
+import { NotifyFollowersNote, SaveContentButtons } from '@/components/common';
 import type { UseFormRegister, FieldErrors } from 'react-hook-form';
 import type { PostData } from '@/lib/zod';
 import type { PostOrientation } from '@/types';
@@ -89,6 +89,8 @@ export function UploadForm({
 
         <ImageRequirements orientation={orientation} />
       </div>
+
+      {!isEdit && <NotifyFollowersNote type='posts' />}
 
       <DialogFooter>
         <Button type='button' variant='outline' onClick={onBack}>

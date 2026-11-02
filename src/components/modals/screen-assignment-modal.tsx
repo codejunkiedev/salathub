@@ -17,6 +17,7 @@ import {
   setShowInApp,
 } from '@/lib/supabase';
 import type { AppContentType, DisplayScreen, PostOrientation, ScreenContentType } from '@/types';
+import { NotifyFollowersNote } from '@/components/common';
 import { toast } from 'sonner';
 
 type ScreenAssignmentModalProps = {
@@ -35,6 +36,8 @@ type ScreenAssignmentModalProps = {
   showInApp?: boolean;
   /** Why the SalatHub team removed it from the app, if they did. */
   removalReason?: string | null;
+  /** Whether it has shown in the app before, so ticking the app won't notify again. */
+  appShown?: boolean;
   /** Called after a successful save, so the caller can refetch. */
   onSaved?: () => void;
 };
@@ -61,6 +64,7 @@ export function ScreenAssignmentModal({
   isDraft = false,
   showInApp,
   removalReason,
+  appShown = false,
   onSaved,
 }: ScreenAssignmentModalProps) {
   const isRemoved = removalReason != null;
@@ -177,6 +181,9 @@ export function ScreenAssignmentModal({
                         : "Shows in your masjid's feed in the app"
                     }
                   />
+                  {appSelected && !isRemoved && !appShown && !isDraft && (
+                    <NotifyFollowersNote type={contentType as AppContentType} className='px-1' />
+                  )}
                   <p className='text-xs font-medium text-muted-foreground pt-3 pb-1'>Screens</p>
                 </>
               )}

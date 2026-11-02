@@ -16,7 +16,7 @@ import {
 } from '@/components/ui';
 import { eventSchema, type EventData } from '@/lib/zod';
 import { upsertEvent } from '@/lib/supabase';
-import { SaveContentButtons } from '@/components/common';
+import { NotifyFollowersNote, SaveContentButtons } from '@/components/common';
 import type { Event } from '@/types';
 import {
   describeTimeZone,
@@ -329,6 +329,8 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData, timeZone }
               </div>
             </div>
           </div>
+
+          {!isEdit && <NotifyFollowersNote type='events' className='mt-6' />}
 
           <DialogFooter className='mt-6'>
             <DialogClose asChild>

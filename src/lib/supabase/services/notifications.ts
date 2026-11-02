@@ -1,4 +1,9 @@
-import { SupabaseTables, type MasjidNotification } from '@/types';
+import {
+  SupabaseTables,
+  type ContentNotificationStatus,
+  type ContentNotificationSwitches,
+  type MasjidNotification,
+} from '@/types';
 import type { FollowerNotificationData } from '../../zod';
 import supabase from '../index';
 import { getMasjidMembership } from '../helpers';
@@ -52,4 +57,22 @@ export async function notifyFollowers(
   }
 
   return data as MasjidNotification;
+}
+
+export async function getContentNotificationStatus(): Promise<ContentNotificationStatus | null> {
+  const { data, error } = await supabase.rpc('get_content_notification_status');
+  if (error) throw error;
+  return (data as ContentNotificationStatus[] | null)?.[0] ?? null;
+}
+
+export async function setContentNotificationSwitches(
+  switches: ContentNotificationSwitches
+): Promise<void> {
+  const { masjid_id } = await getMasjidMembership();
+
+  const { error } = await supabase
+    .from(SupabaseTables.MasjidContentNotificationSettings)
+    .upsert({ masjid_id, ...switches, updated_at: new Date().toISOString() });
+
+  if (error) throw error;
 }

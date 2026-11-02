@@ -16,6 +16,7 @@ export enum SupabaseTables {
   MasjidMembers = 'masjid_members',
   AyatAndHadith = 'ayat_and_hadith',
   MasjidNotifications = 'masjid_notifications',
+  MasjidContentNotificationSettings = 'masjid_content_notification_settings',
   MasjidVerifications = 'masjid_verifications',
   VerificationDocuments = 'verification_documents',
   MasjidReports = 'masjid_reports',
@@ -122,6 +123,20 @@ export interface MasjidNotification {
   sent_by_name: string;
   devices_reached: number | null;
   created_at: string;
+}
+
+/** Which content types notify followers when they first show in the app. */
+export type ContentNotificationSwitches = Record<AppContentType, boolean>;
+
+export interface ContentNotificationStatus extends ContentNotificationSwitches {
+  in_app: boolean;
+  daily_limit: number;
+  sent_today: number;
+}
+
+/** Set by the database the first time an item shows in the app. */
+export interface AppShown {
+  app_shown_at: string | null;
 }
 
 interface Base {
@@ -391,14 +406,14 @@ export interface ScreenContent {
   created_at: string;
 }
 
-export interface Announcement extends Base, Publishable, Removable {
+export interface Announcement extends Base, Publishable, Removable, AppShown {
   title: string | null;
   description: string;
   archived: boolean;
   show_in_app: boolean;
 }
 
-export interface Event extends Base, Publishable, Removable {
+export interface Event extends Base, Publishable, Removable, AppShown {
   title: string;
   description: string;
   date_time: string;
@@ -416,7 +431,7 @@ export interface Event extends Base, Publishable, Removable {
   show_in_app: boolean;
 }
 
-export interface Post extends Base, Publishable, Removable {
+export interface Post extends Base, Publishable, Removable, AppShown {
   title: string;
   image_url: string;
   archived: boolean;

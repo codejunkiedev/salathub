@@ -1,3 +1,5 @@
+import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
 const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
 const BATCH_SIZE = 100;
 
@@ -62,4 +64,17 @@ export const sendPushMessages = async (messages: PushMessage[]): Promise<PushRes
   }
 
   return result;
+};
+
+export const followerTokens = async (
+  admin: SupabaseClient,
+  masjidId: string
+): Promise<string[]> => {
+  const { data, error } = await admin
+    .from('push_devices')
+    .select('expo_push_token, push_subscriptions!inner(masjid_id)')
+    .eq('push_subscriptions.masjid_id', masjidId);
+  if (error) throw error;
+
+  return (data ?? []).map(row => row.expo_push_token as string);
 };

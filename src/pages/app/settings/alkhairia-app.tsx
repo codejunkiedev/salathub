@@ -14,9 +14,10 @@ import {
 } from '@/components/ui';
 import { getMasjidProfile, setMasjidListed } from '@/lib/supabase';
 import { PageHeader } from '@/components/common';
-import { FollowQrPreview } from '@/components/settings';
+import { ContentNotificationsCard, FollowQrPreview } from '@/components/settings';
 import { AppRoutes } from '@/constants';
 import { useMasjidVerification } from '@/hooks';
+import { useAuthStore } from '@/store';
 import type { MasjidProfile } from '@/types';
 
 export default function AlkhairiaApp() {
@@ -24,6 +25,7 @@ export default function AlkhairiaApp() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const { verification } = useMasjidVerification();
+  const isAdmin = useAuthStore(s => s.role) === 'admin';
 
   useEffect(() => {
     getMasjidProfile()
@@ -107,20 +109,28 @@ export default function AlkhairiaApp() {
 
   return (
     <div className='container mx-auto py-8 space-y-6'>
-      <div className='flex items-center gap-4'>
-        <Link to={AppRoutes.Settings}>
-          <Button variant='ghost' size='sm'>
-            <ArrowLeft className='h-4 w-4 mr-2' />
-            Back to Settings
-          </Button>
-        </Link>
-      </div>
+      {isAdmin && (
+        <div className='flex items-center gap-4'>
+          <Link to={AppRoutes.Settings}>
+            <Button variant='ghost' size='sm'>
+              <ArrowLeft className='h-4 w-4 mr-2' />
+              Back to Settings
+            </Button>
+          </Link>
+        </div>
+      )}
       <PageHeader
         title='Alkhairia App'
-        description='Let people find and follow the masjid in the Alkhairia mobile app'
+        description={
+          isAdmin
+            ? 'Let people find and follow the masjid in the Alkhairia mobile app'
+            : 'Choose which new content notifies followers in the Alkhairia mobile app'
+        }
       />
 
-      {isLoading ? (
+      {!isAdmin ? (
+        <ContentNotificationsCard />
+      ) : isLoading ? (
         <div className='animate-pulse bg-muted rounded-lg h-64'></div>
       ) : (
         <>
@@ -179,6 +189,8 @@ export default function AlkhairiaApp() {
               </CardContent>
             )}
           </Card>
+
+          <ContentNotificationsCard />
         </>
       )}
     </div>

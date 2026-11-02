@@ -1,5 +1,5 @@
 import { Button, DialogFooter, Input, Label, PredesignedImageSelector } from '@/components/ui';
-import { SaveContentButtons } from '@/components/common';
+import { NotifyFollowersNote, SaveContentButtons } from '@/components/common';
 import type { UseFormRegister, FieldErrors } from 'react-hook-form';
 import type { PostData } from '@/lib/zod';
 import { ModalError } from './modal-error';
@@ -48,6 +48,8 @@ export function PredesignedStep({
           {errors.title && <p className='text-destructive text-sm'>{errors.title.message}</p>}
         </div>
       )}
+
+      {selectedImage && <NotifyFollowersNote type='posts' />}
 
       <DialogFooter>
         <Button type='button' variant='outline' onClick={onBack}>

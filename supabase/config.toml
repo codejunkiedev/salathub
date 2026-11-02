@@ -400,6 +400,10 @@ verify_jwt = false
 [functions.verification-jobs]
 verify_jwt = false
 
+# Called by pg_cron, authenticated by CONTENT_NOTIFICATIONS_SECRET.
+[functions.notify-content]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

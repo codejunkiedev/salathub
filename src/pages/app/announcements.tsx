@@ -208,6 +208,7 @@ export default function Announcements() {
           contentId={screenAssignItem.id}
           isDraft={screenAssignItem.published_at === null}
           showInApp={screenAssignItem.show_in_app}
+          appShown={screenAssignItem.app_shown_at !== null}
           removalReason={screenAssignItem.removed_at ? screenAssignItem.removal_reason : null}
           onSaved={forceUpdate}
           contentType='announcements'

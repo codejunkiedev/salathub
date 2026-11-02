@@ -15,6 +15,7 @@ import {
   Users,
   Send,
   ShieldCheck,
+  Smartphone,
 } from 'lucide-react';
 import { AppRoutes, PlatformRoutes } from '@/constants';
 import { Button } from '@/components/ui';
@@ -90,7 +91,15 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
       ];
 
   const adminNavItems = !isAdmin
-    ? []
+    ? needsOnboarding
+      ? []
+      : [
+          {
+            label: 'App Notifications',
+            path: AppRoutes.SettingsAlkhairiaApp,
+            icon: <Smartphone size={20} />,
+          },
+        ]
     : needsOnboarding
       ? [
           {

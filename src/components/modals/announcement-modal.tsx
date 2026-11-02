@@ -12,7 +12,7 @@ import {
 } from '@/components/ui';
 import { announcementSchema, type AnnouncementData } from '@/lib/zod';
 import { upsertAnnouncement } from '@/lib/supabase';
-import { SaveContentButtons } from '@/components/common';
+import { NotifyFollowersNote, SaveContentButtons } from '@/components/common';
 import type { Announcement } from '@/types';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -124,6 +124,8 @@ export function AnnouncementModal({
               <p className='text-destructive text-sm'>{errors.description.message}</p>
             )}
           </div>
+
+          {!isEdit && <NotifyFollowersNote type='announcements' />}
 
           <DialogFooter>
             <DialogClose asChild>

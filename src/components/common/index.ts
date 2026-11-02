@@ -10,3 +10,4 @@ export * from './image-tile';
 export * from './background-upload-tile';
 export * from './background-control';
 export * from './save-content-buttons';
+export * from './notify-followers-note';

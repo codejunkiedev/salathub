@@ -26,7 +26,7 @@ import {
   type AlAdhanDay,
 } from '../_shared/aladhan.ts';
 import { describeChanges, diffPrayerDays, type DayTimes } from '../_shared/prayer-changes.ts';
-import { sendPushMessages } from '../_shared/expo-push.ts';
+import { followerTokens, sendPushMessages } from '../_shared/expo-push.ts';
 
 const QUIET_SECONDS = 120;
 const CLAIM_LIMIT = 20;
@@ -39,16 +39,6 @@ const json = (body: unknown, status = 200): Response =>
     status,
     headers: { 'Content-Type': 'application/json' },
   });
-
-const followerTokens = async (admin: SupabaseClient, masjidId: string): Promise<string[]> => {
-  const { data, error } = await admin
-    .from('push_devices')
-    .select('expo_push_token, push_subscriptions!inner(masjid_id)')
-    .eq('push_subscriptions.masjid_id', masjidId);
-  if (error) throw error;
-
-  return (data ?? []).map(row => row.expo_push_token as string);
-};
 
 interface Snapshot {
   profile: ProfileRow | null;

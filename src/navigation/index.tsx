@@ -238,14 +238,7 @@ export default function Navigation() {
                 </RequireAdmin>
               }
             />
-            <Route
-              path={AppRoutes.SettingsAlkhairiaApp}
-              element={
-                <RequireAdmin>
-                  <SettingsAlkhairiaApp />
-                </RequireAdmin>
-              }
-            />
+            <Route path={AppRoutes.SettingsAlkhairiaApp} element={<SettingsAlkhairiaApp />} />
             <Route
               path={AppRoutes.SettingsVerification}
               element={
