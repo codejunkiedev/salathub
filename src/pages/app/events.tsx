@@ -15,7 +15,7 @@ import {
 import { Calendar } from 'lucide-react';
 import { useTrigger, useMasjidTimezone, usePublishToggle } from '@/hooks';
 import { describeTimeZone, formatZonedDateTime } from '@/utils';
-import { Button } from '@/components/ui';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui';
 import { toast } from 'sonner';
 
 const SCOPES: { value: EventScope; label: string }[] = [
@@ -176,17 +176,15 @@ export default function Events() {
         onAddClick={handleAddNew}
         addButtonDisabled={isTimezoneLoading}
         actions={
-          <div className='flex gap-1'>
-            {SCOPES.map(option => (
-              <Button
-                key={option.value}
-                variant={scope === option.value ? 'default' : 'outline'}
-                onClick={() => setScope(option.value)}
-              >
-                {option.label}
-              </Button>
-            ))}
-          </div>
+          <Tabs value={scope} onValueChange={v => setScope(v as EventScope)}>
+            <TabsList className='h-9'>
+              {SCOPES.map(option => (
+                <TabsTrigger key={option.value} value={option.value} className='px-3'>
+                  {option.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
         }
       />
 
