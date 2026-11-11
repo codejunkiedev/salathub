@@ -14,6 +14,7 @@ import { useDisplayStore } from '@/store';
 import { formatContactDetails, localizedProfileField } from '@/helpers';
 import { isEventUpcoming } from '@/utils';
 import Loading from '../loading-page';
+import { LoadingStep } from '@/constants/loading';
 import {
   ErrorDisplay,
   PrayerTimingDisplay,
@@ -172,10 +173,22 @@ export default function Display() {
     return () => clearInterval(interval);
   }, [youtubeSlideIndices, slideDelay]);
 
-  const isPageLoading =
-    isLoading || (showPrayerTimes && isPrayerTimingsLoading) || (showWeather && isWeatherLoading);
+  const loads = [
+    isLoading,
+    ...(showPrayerTimes ? [isPrayerTimingsLoading] : []),
+    ...(showWeather ? [isWeatherLoading] : []),
+  ];
+  const pending = loads.filter(Boolean).length;
 
-  if (isPageLoading) return <Loading />;
+  if (pending > 0) {
+    const done = (loads.length - pending) / loads.length;
+    return (
+      <Loading
+        progress={LoadingStep.Page + (1 - LoadingStep.Page) * done}
+        label='Getting the screen ready'
+      />
+    );
+  }
 
   if (orientationMismatch) {
     return (

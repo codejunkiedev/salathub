@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router';
+import { BrowserRouter, Navigate, Outlet, Route, Routes, type NavigateProps } from 'react-router';
 import { useEffect, useState, Suspense } from 'react';
 import {
   checkIsPlatformAdmin,
@@ -8,7 +8,8 @@ import {
 } from '@/lib/supabase';
 import { subscribeToAuthChanges } from '@/lib/supabase';
 import { identifySentryUser, clearSentryUser } from '@/lib/sentry';
-import { AppRoutes, AuthRoutes, PlatformRoutes, PublicRoutes } from '@/constants';
+import { AppRoutes, AuthRoutes, LoadingStep, PlatformRoutes, PublicRoutes } from '@/constants';
+import type { Session } from '@supabase/supabase-js';
 import { AppLayout, PlatformLayout } from '@/components/layout';
 import {
   Announcements,
@@ -56,9 +57,24 @@ function RequireAdmin({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+/**
+ * Route changes run as transitions, so React keeps the old screen up while the
+ * next page's code loads. A bare <Navigate> leaves nothing on screen, so keep
+ * the loading screen up during a redirect instead of a blank page.
+ */
+function Redirect(props: NavigateProps) {
+  return (
+    <>
+      <Navigate {...props} />
+      <Loading progress={LoadingStep.Page} />
+    </>
+  );
+}
+
 export default function Navigation() {
   const [isLoggedInWithEmail, setIsLoggedInWithEmail] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [bootProgress, setBootProgress] = useState<number>(LoadingStep.Session);
 
   const { loggedIn: isLoggedInWithCode } = useDisplayStore();
   const { setAuth, setPlatformAdmin, clearAuth, masjidId, isPlatformAdmin } = useAuthStore();
@@ -73,24 +89,35 @@ export default function Navigation() {
       : PublicRoutes.Landing;
 
   useEffect(() => {
+    const loadAccount = async (session: Session) => {
+      const [platformAdmin, membership] = await Promise.all([
+        checkIsPlatformAdmin(),
+        getMasjidMembership().catch(() => null),
+      ]);
+      setPlatformAdmin(platformAdmin);
+      if (membership) {
+        setAuth(membership.masjid_id, membership.role);
+        identifySentryUser(session, membership.masjid_id, membership.role);
+      } else {
+        // Fresh signup: no membership yet. Grant transient admin with
+        // a null masjidId so onboarding (Settings → Profile) is reachable.
+        setAuth(null, 'admin');
+        identifySentryUser(session, null, 'admin');
+      }
+      return membership;
+    };
+
     const checkUser = async () => {
       try {
         const session = await getCurrentSession();
         setIsLoggedInWithEmail(!!session);
 
         if (session?.user) {
-          setPlatformAdmin(await checkIsPlatformAdmin());
-          try {
-            const membership = await getMasjidMembership();
-            setAuth(membership.masjid_id, membership.role);
-            identifySentryUser(session, membership.masjid_id, membership.role);
-            updateLastActive();
-          } catch {
-            // Fresh signup: no membership yet. Grant transient admin with
-            // a null masjidId so onboarding (Settings → Profile) is reachable.
-            setAuth(null, 'admin');
-            identifySentryUser(session, null, 'admin');
-          }
+          setBootProgress(LoadingStep.Account);
+          if (await loadAccount(session)) updateLastActive();
+        } else {
+          clearAuth();
+          clearSentryUser();
         }
       } catch (error) {
         console.error('Error checking authentication:', error);
@@ -103,19 +130,15 @@ export default function Navigation() {
 
     const {
       data: { subscription },
-    } = subscribeToAuthChanges(async session => {
+    } = subscribeToAuthChanges((session, event) => {
+      // checkUser already handled the session this page loaded with, and a
+      // token refresh changes nothing we track.
+      if (event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') return;
+
       setIsLoggedInWithEmail(!!session?.user);
 
       if (session?.user) {
-        setPlatformAdmin(await checkIsPlatformAdmin());
-        try {
-          const membership = await getMasjidMembership();
-          setAuth(membership.masjid_id, membership.role);
-          identifySentryUser(session, membership.masjid_id, membership.role);
-        } catch {
-          setAuth(null, 'admin');
-          identifySentryUser(session, null, 'admin');
-        }
+        void loadAccount(session);
       } else {
         clearAuth();
         clearSentryUser();
@@ -128,13 +151,20 @@ export default function Navigation() {
   }, [setAuth, setPlatformAdmin, clearAuth]);
 
   if (isLoading) {
-    return <Loading />;
+    return (
+      <Loading
+        progress={bootProgress}
+        label={
+          bootProgress === LoadingStep.Account ? 'Loading your masjid' : 'Checking your sign-in'
+        }
+      />
+    );
   }
 
   return (
     <BrowserRouter>
       <PageMeta />
-      <Suspense fallback={<Loading />}>
+      <Suspense fallback={<Loading progress={LoadingStep.Page} />}>
         <PrerenderCleanup />
         <Routes>
           {/* Public legal routes - accessible without authentication */}
@@ -143,19 +173,19 @@ export default function Navigation() {
           <Route path={PublicRoutes.Masjid} element={<MasjidFollow />} />
 
           {/* Email auth routes - only accessible when not logged in with email */}
-          <Route element={isLoggedInWithEmail ? <Navigate to={home} /> : <Outlet />}>
+          <Route element={isLoggedInWithEmail ? <Redirect to={home} /> : <Outlet />}>
             <Route path={AuthRoutes.Login} element={<Login />} />
             <Route path={AuthRoutes.Register} element={<Register />} />
             <Route path={AuthRoutes.ForgotPassword} element={<ForgotPassword />} />
           </Route>
 
           {/* Code auth route - only accessible when not logged in with code */}
-          <Route element={isLoggedInWithCode ? <Navigate to={AppRoutes.Display} /> : <Outlet />}>
+          <Route element={isLoggedInWithCode ? <Redirect to={AppRoutes.Display} /> : <Outlet />}>
             <Route path={AuthRoutes.LoginWithCode} element={<LoginWithCode />} />
           </Route>
 
           {/* Admin routes WITHOUT layout - require authentication */}
-          <Route element={isLoggedInWithEmail ? <Outlet /> : <Navigate to={AuthRoutes.Login} />}>
+          <Route element={isLoggedInWithEmail ? <Outlet /> : <Redirect to={AuthRoutes.Login} />}>
             <Route path={AppRoutes.AyatAndHadithNew} element={<AyatHadithDesigner />} />
             <Route path={AppRoutes.AyatAndHadithEdit} element={<AyatHadithDesigner />} />
             <Route
@@ -172,11 +202,11 @@ export default function Navigation() {
           <Route
             element={
               !isLoggedInWithEmail ? (
-                <Navigate to={AuthRoutes.Login} />
+                <Redirect to={AuthRoutes.Login} />
               ) : isPlatformAdmin ? (
                 <PlatformLayout />
               ) : (
-                <Navigate to={AppRoutes.Home} />
+                <Redirect to={AppRoutes.Home} />
               )
             }
           >
@@ -189,9 +219,9 @@ export default function Navigation() {
           <Route
             element={
               !isLoggedInWithEmail ? (
-                <Navigate to={AuthRoutes.Login} />
+                <Redirect to={AuthRoutes.Login} />
               ) : platformOnly ? (
-                <Navigate to={PlatformRoutes.Queue} />
+                <Redirect to={PlatformRoutes.Queue} />
               ) : (
                 <AppLayout />
               )
@@ -276,18 +306,18 @@ export default function Navigation() {
           {/* Screens that still open the root (bookmarks, installed PWAs) go on to the display */}
           <Route
             path={PublicRoutes.Landing}
-            element={isLoggedInWithCode ? <Navigate to={AppRoutes.Display} replace /> : <Landing />}
+            element={isLoggedInWithCode ? <Redirect to={AppRoutes.Display} replace /> : <Landing />}
           />
 
           {/* Display routes - require authentication */}
           <Route
-            element={isLoggedInWithCode ? <Outlet /> : <Navigate to={AuthRoutes.LoginWithCode} />}
+            element={isLoggedInWithCode ? <Outlet /> : <Redirect to={AuthRoutes.LoginWithCode} />}
           >
             <Route path={AppRoutes.Display} element={<Display />} />
             <Route path={AppRoutes.DisplayLogout} element={<DisplayLogout />} />
           </Route>
 
-          <Route path={'*'} element={<Navigate to={route} />} />
+          <Route path={'*'} element={<Redirect to={route} />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

@@ -5,3 +5,4 @@ export * from './hadith';
 export * from './slide-design';
 export * from './custom-theme';
 export * from './seo';
+export * from './loading';

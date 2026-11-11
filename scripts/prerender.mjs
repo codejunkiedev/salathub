@@ -40,8 +40,8 @@ try {
       .replace(/<meta name="description"[^>]*>/, '')
       .replace('</head>', `  ${head}\n</head>`)
       .replace(
-        '<div id="root"></div>',
-        `<div id="prerender">${render(path)}</div>${guard}<div id="root"></div>`
+        '<div id="root">',
+        `<div id="prerender">${render(path)}</div>${guard}<div id="root">`
       );
 
     const file = path === '/' ? 'dist/index.html' : `dist${path}.html`;

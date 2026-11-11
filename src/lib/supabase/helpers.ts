@@ -1,6 +1,6 @@
 import { AppRoutes, AuthRoutes } from '@/constants';
 import supabase from './index';
-import { PostgrestError, type Session } from '@supabase/supabase-js';
+import { PostgrestError, type AuthChangeEvent, type Session } from '@supabase/supabase-js';
 import type { MemberRole, SupabaseBuckets, SupabaseFolders } from '@/types';
 import { captureSupabaseError } from '@/lib/sentry';
 
@@ -20,9 +20,11 @@ function isExpectedAuthError(error: unknown): boolean {
  * @param callback The callback to call when the auth state changes
  * @returns The subscription object
  */
-export const subscribeToAuthChanges = (callback: (session: Session | null) => void) => {
-  return supabase.auth.onAuthStateChange((_event, session) => {
-    callback(session);
+export const subscribeToAuthChanges = (
+  callback: (session: Session | null, event: AuthChangeEvent) => void
+) => {
+  return supabase.auth.onAuthStateChange((event, session) => {
+    callback(session, event);
   });
 };
 

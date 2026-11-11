@@ -1,48 +1,53 @@
 import { useEffect, useState } from 'react';
+import { LoadingStep } from '@/constants/loading';
 
-export default function Loading() {
-  const [progress, setProgress] = useState(0);
+// Carried across mounts so each new loading screen continues from where the
+// last one (or the static splash) left off instead of restarting at zero.
+let lastProgress: number = LoadingStep.Bundle;
 
-  // Animation for the progress bar
+type LoadingProps = {
+  /** 0–1: how much of the loading has actually finished. */
+  progress?: number;
+  /** What is being waited on right now. */
+  label?: string;
+};
+
+export default function Loading({
+  progress = LoadingStep.Page,
+  label = 'Opening page',
+}: LoadingProps) {
+  const [width, setWidth] = useState(lastProgress);
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        // Reset to 0 when reaching 100
-        if (prev >= 100) return 0;
-        // Random increment between 5-15
-        return Math.min(100, prev + Math.floor(Math.random() * 10) + 5);
-      });
-    }, 400);
+    lastProgress = progress;
+    const frame = requestAnimationFrame(() => setWidth(progress));
+    return () => cancelAnimationFrame(frame);
+  }, [progress]);
 
-    return () => clearInterval(interval);
-  }, []);
-
+  // Styled by the .splash rules in index.html, shared with the static splash.
   return (
-    <div className='flex h-screen w-screen flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-background to-purple-50 dark:from-blue-950/30 dark:via-background dark:to-purple-950/30'>
-      <div className='flex flex-col items-center gap-8 px-4 text-center'>
-        {/* SalatHub logo (matching sidebar style) */}
-        <div className='flex flex-col items-center gap-4'>
-          <div className='relative'>
-            <div className='absolute -inset-8 rounded-full bg-gradient-to-r from-blue-400/20 via-emerald-500/20 to-purple-400/20 blur-xl animate-pulse'></div>
-
-            <img src='/icons/icon-192.png' alt='' className='relative w-24 h-24 drop-shadow-lg' />
+    <div className='splash'>
+      <div className='splash-inner'>
+        <div className='splash-brand'>
+          <div className='splash-logo'>
+            <img src='/icons/icon-192.png' alt='' />
           </div>
-
-          <h1 className='text-3xl font-semibold bg-gradient-to-r from-emerald-500 via-emerald-400 to-blue-500 bg-clip-text text-transparent dark:from-emerald-400 dark:to-blue-400'>
-            SalatHub
-          </h1>
+          <div className='splash-title'>SalatHub</div>
         </div>
-
-        <div className='space-y-3'>
-          <p className='text-muted-foreground'>Preparing your spiritual journey</p>
-
-          {/* Dynamic progress bar */}
-          <div className='mt-4 h-2 w-60 max-w-full overflow-hidden rounded-full bg-secondary'>
-            <div
-              className='h-full rounded-full bg-gradient-to-r from-emerald-500 via-emerald-400 to-blue-500 transition-all duration-300 ease-out'
-              style={{ width: `${progress}%` }}
-            ></div>
+        <div className='splash-progress'>
+          <div
+            role='progressbar'
+            aria-label='Loading'
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(width * 100)}
+            className='splash-track'
+          >
+            <div className='splash-fill' style={{ width: `${width * 100}%` }} />
           </div>
+          <p className='splash-step' role='status'>
+            {label}
+          </p>
         </div>
       </div>
     </div>
