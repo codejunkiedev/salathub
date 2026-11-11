@@ -8,12 +8,12 @@ import { useMasjidVerification } from '@/hooks';
 import { useAuthStore } from '@/store';
 import { cn } from '@/utils';
 
-// Holds the message that was dismissed, so a different message shows again.
+// Dismissed for this visit only; a new visit or a different message shows it again.
 const DISMISSED_KEY = 'verification-banner-dismissed';
 
 function readDismissed(): string | null {
   try {
-    return localStorage.getItem(DISMISSED_KEY);
+    return sessionStorage.getItem(DISMISSED_KEY);
   } catch {
     return null;
   }
@@ -60,7 +60,7 @@ export default function VerificationBanner() {
   const dismiss = () => {
     setDismissed(message);
     try {
-      localStorage.setItem(DISMISSED_KEY, message);
+      sessionStorage.setItem(DISMISSED_KEY, message);
     } catch {
       // Storage blocked: it stays hidden until the page reloads.
     }
@@ -71,13 +71,13 @@ export default function VerificationBanner() {
   return (
     <div
       className={cn(
-        'relative mb-4 flex flex-col gap-3 rounded-lg border py-3 pl-4 pr-11 text-sm sm:flex-row sm:items-center',
+        'relative mb-4 flex flex-col gap-3 rounded-lg border px-4 py-3 text-sm sm:flex-row sm:items-center sm:pr-11',
         tone === 'danger'
           ? 'border-destructive/40 bg-destructive/10 text-destructive'
           : 'border-amber-400/60 bg-amber-50 text-amber-900 dark:bg-amber-950/40 dark:text-amber-200'
       )}
     >
-      <div className='flex flex-1 items-start gap-3 sm:items-center'>
+      <div className='flex flex-1 items-start gap-3 pr-7 sm:items-center sm:pr-0'>
         <Icon className='mt-0.5 h-4 w-4 shrink-0 sm:mt-0' />
         <p>{message}</p>
       </div>
