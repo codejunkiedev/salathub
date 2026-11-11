@@ -1,6 +1,8 @@
 import { Link, useLocation } from 'react-router';
-import { buttonVariants, ThemeToggle } from '@/components/ui';
-import { AuthRoutes, PublicRoutes } from '@/constants';
+// Direct imports, not barrels: the legal pages using this are pre-rendered in Node and the ui barrel pulls in Leaflet.
+import { buttonVariants } from '@/components/ui/button-variants';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { AuthRoutes, PublicRoutes } from '@/constants/routes';
 
 export function AuthHeader() {
   const { pathname } = useLocation();

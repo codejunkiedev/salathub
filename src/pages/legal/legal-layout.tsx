@@ -1,9 +1,8 @@
 import type { ReactNode } from 'react';
-import { Link, useNavigate } from 'react-router';
-import { ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router';
 // Direct imports, not barrels: this page is pre-rendered in Node and the ui barrel pulls in Leaflet.
-import { PublicRoutes, AuthRoutes } from '@/constants/routes';
-import { Button } from '@/components/ui/button';
+import { PublicRoutes } from '@/constants/routes';
+import { AuthHeader } from '@/components/common/auth-header';
 
 type LegalLayoutProps = {
   title: string;
@@ -12,37 +11,11 @@ type LegalLayoutProps = {
 };
 
 export function LegalLayout({ title, lastUpdated, children }: LegalLayoutProps) {
-  const navigate = useNavigate();
-
-  const handleBack = () => {
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else {
-      navigate(AuthRoutes.Login);
-    }
-  };
-
   return (
     <div className='min-h-screen bg-background'>
-      <header className='sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80'>
-        <div className='mx-auto flex max-w-5xl items-center gap-3 px-4 py-3 sm:px-6'>
-          <Button
-            variant='ghost'
-            size='icon'
-            onClick={handleBack}
-            aria-label='Go back'
-            className='h-8 w-8'
-          >
-            <ArrowLeft size={18} />
-          </Button>
-          <Link to={AuthRoutes.Login} className='flex items-center gap-2'>
-            <img src='/icons/icon-192.png' alt='' className='h-7 w-7' />
-            <span className='text-base font-semibold'>SalatHub</span>
-          </Link>
-        </div>
-      </header>
+      <AuthHeader />
 
-      <main className='mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12'>
+      <main className='mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12'>
         <div className='mb-8 space-y-2'>
           <h1 className='text-2xl font-bold tracking-tight sm:text-3xl'>{title}</h1>
           <p className='text-sm text-muted-foreground'>Last updated: {lastUpdated}</p>
