@@ -199,7 +199,7 @@ export function PrayerTimingsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
-      <DialogContent className='sm:max-w-[500px] max-w-[95vw] w-full max-h-[90vh] overflow-y-auto scrollbar-custom'>
+      <DialogContent className='sm:max-w-[500px] scrollbar-custom'>
         <DialogHeader>
           <DialogTitle>Prayer Time Adjustments</DialogTitle>
         </DialogHeader>
@@ -263,7 +263,7 @@ export function PrayerTimingsModal({
             ))}
           </Tabs>
 
-          <DialogFooter className='flex flex-col sm:flex-row gap-2 sm:gap-0'>
+          <DialogFooter>
             <Button type='button' variant='outline' onClick={onClose} className='w-full sm:w-auto'>
               Cancel
             </Button>

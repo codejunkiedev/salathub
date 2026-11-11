@@ -130,7 +130,7 @@ export function CalculationSettingsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && !isSubmitting && onClose()}>
-      <DialogContent className='sm:max-w-[640px] max-w-[95vw] w-full max-h-[90vh] overflow-y-auto scrollbar-custom'>
+      <DialogContent className='sm:max-w-[640px] scrollbar-custom'>
         <DialogHeader>
           <DialogTitle>Calculation Settings</DialogTitle>
         </DialogHeader>
@@ -293,7 +293,7 @@ export function CalculationSettingsModal({
           </TabsContent>
         </Tabs>
 
-        <DialogFooter className='flex flex-col sm:flex-row gap-2 sm:gap-0'>
+        <DialogFooter>
           <Button
             type='button'
             variant='outline'

@@ -8,6 +8,7 @@ import {
   Label,
   RadioGroup,
   RadioGroupItem,
+  DialogFooter,
 } from '@/components/ui';
 import type { ScreenOrientation } from '@/types';
 import { cn } from '@/utils';
@@ -95,14 +96,14 @@ export function OrientationPickerModal<T extends ScreenOrientation>({
             })}
           </RadioGroup>
 
-          <div className='flex justify-end gap-2'>
+          <DialogFooter>
             <Button type='button' variant='outline' onClick={handleCancel}>
               Cancel
             </Button>
             <Button type='button' onClick={handleContinue}>
               Continue
             </Button>
-          </div>
+          </DialogFooter>
         </div>
       </DialogContent>
     </Dialog>
