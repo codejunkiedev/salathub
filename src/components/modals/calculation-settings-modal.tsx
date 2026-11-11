@@ -130,13 +130,13 @@ export function CalculationSettingsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && !isSubmitting && onClose()}>
-      <DialogContent className='sm:max-w-[640px] max-w-[95vw] w-full max-h-[90vh] overflow-y-auto scrollbar-custom'>
+      <DialogContent className='sm:max-w-[640px] scrollbar-custom'>
         <DialogHeader>
           <DialogTitle>Calculation Settings</DialogTitle>
         </DialogHeader>
 
         <Tabs defaultValue='prayer' className='w-full'>
-          <TabsList className='grid w-full grid-cols-2'>
+          <TabsList className='w-full'>
             <TabsTrigger value='prayer'>Prayer</TabsTrigger>
             <TabsTrigger value='hijri'>Hijri</TabsTrigger>
           </TabsList>
@@ -293,7 +293,7 @@ export function CalculationSettingsModal({
           </TabsContent>
         </Tabs>
 
-        <DialogFooter className='flex flex-col sm:flex-row gap-2 sm:gap-0'>
+        <DialogFooter>
           <Button
             type='button'
             variant='outline'

@@ -214,7 +214,7 @@ export default function NotifyFollowers() {
   ];
 
   return (
-    <div className='container mx-auto py-8 space-y-6'>
+    <div className='container mx-auto pb-2 md:pb-8 space-y-6'>
       <PageHeader
         title='Notify Followers'
         description='Send a short message straight to the phones that follow the masjid in the Alkhairia app'

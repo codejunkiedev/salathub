@@ -196,6 +196,9 @@ function formatWith(
   }).format(instant);
 }
 
+/** Any Intl parts, in the given zone. */
+export const formatZoned = formatWith;
+
 /** Date only, e.g. `May 1, 2026` */
 export function formatZonedDate(
   value: Date | string | null | undefined,

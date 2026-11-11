@@ -1,6 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
 import type { ReactNode } from 'react';
 import { useRef, useCallback } from 'react';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import {
   DndContext,
   closestCenter,
@@ -20,12 +21,23 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical } from 'lucide-react';
 
+/** Where a column goes on the phone card. */
+export type CardRole = 'media' | 'title' | 'body' | 'meta' | 'field' | 'hidden';
+
 export type Column<T> = {
   key: string;
   name: string;
   width: string;
   render?: (value: unknown, item: T) => ReactNode;
   className?: string;
+  /**
+   * Phone card placement: `media` full width on top, `title` the heading, `body`
+   * muted text under it, `meta` unlabelled in one inline row, `field` a labelled
+   * row. Defaults to the first column as title and the rest as fields.
+   */
+  card?: CardRole;
+  /** Used instead of `render` on the phone card. */
+  renderCard?: (value: unknown, item: T) => ReactNode;
 };
 
 type DataTableProps<T> = {
@@ -40,6 +52,10 @@ type DataTableProps<T> = {
   onOrderChange?: (items: T[]) => void;
   rowClassName?: (item: T) => string;
   onRowClick?: (item: T) => void;
+  /** Replaces the column-based content of the phone card. */
+  renderCard?: (item: T) => ReactNode;
+  /** Shown on the left of the phone card's actions footer. */
+  renderCardFooter?: (item: T) => ReactNode;
 };
 
 function SortableRow<T>({
@@ -100,6 +116,160 @@ function SortableRow<T>({
   );
 }
 
+// Below this width rows render as cards: the table would otherwise scroll sideways.
+export const TABLE_QUERY = '(min-width: 1024px)';
+
+function renderCell<T>(column: Column<T>, item: T): ReactNode {
+  return column.render
+    ? column.render(item[column.key as keyof T], item)
+    : (item[column.key as keyof T] as ReactNode);
+}
+
+type RowCardProps<T> = {
+  item: T;
+  index: number;
+  columns: Column<T>[];
+  renderActions?: (item: T) => ReactNode;
+  showRowNumbers?: boolean;
+  rowClassName?: (item: T) => string;
+  onRowClick?: (item: T) => void;
+  dragHandle?: ReactNode;
+  renderCard?: (item: T) => ReactNode;
+  renderCardFooter?: (item: T) => ReactNode;
+};
+
+function RowCard<T>({
+  item,
+  index,
+  columns,
+  renderActions,
+  showRowNumbers,
+  rowClassName,
+  onRowClick,
+  dragHandle,
+  renderCard,
+  renderCardFooter,
+}: RowCardProps<T>) {
+  const hasTitle = columns.some(c => c.card === 'title');
+  const roleOf = (column: Column<T>, i: number): CardRole =>
+    column.card ?? (i === 0 && !hasTitle ? 'title' : 'field');
+  const byRole = (role: CardRole) => columns.filter((c, i) => roleOf(c, i) === role);
+  const cell = (column: Column<T>) =>
+    column.renderCard
+      ? column.renderCard(item[column.key as keyof T], item)
+      : renderCell(column, item);
+
+  const media = byRole('media');
+  const title = byRole('title');
+  const body = byRole('body');
+  const meta = byRole('meta');
+  const fields = byRole('field');
+
+  return (
+    <div
+      className={`overflow-hidden rounded-xl border bg-card ${rowClassName ? rowClassName(item) : ''} ${onRowClick ? 'cursor-pointer hover:bg-muted/30' : ''}`}
+      onClick={() => onRowClick?.(item)}
+    >
+      {media.map(column => (
+        <div key={column.key} className='border-b bg-muted'>
+          {cell(column)}
+        </div>
+      ))}
+
+      {renderCard ? (
+        <div className='flex items-start gap-2 p-4'>
+          {dragHandle}
+          <div className='min-w-0 flex-1'>{renderCard(item)}</div>
+        </div>
+      ) : (
+        <div className='space-y-3 p-4'>
+          <div className='flex items-start gap-2'>
+            {dragHandle}
+            {showRowNumbers && (
+              <span className='pt-0.5 text-sm text-muted-foreground tabular-nums'>
+                {index + 1}.
+              </span>
+            )}
+            <div className='min-w-0 flex-1 space-y-1'>
+              {title.map(column => (
+                <div key={column.key} className='font-medium'>
+                  {cell(column)}
+                </div>
+              ))}
+              {body.map(column => (
+                <div key={column.key} className='text-sm text-muted-foreground'>
+                  {cell(column)}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {meta.length > 0 && (
+            <div className='flex flex-wrap items-center gap-x-3 gap-y-2'>
+              {meta.map(column => (
+                <div key={column.key}>{cell(column)}</div>
+              ))}
+            </div>
+          )}
+
+          {fields.length > 0 && (
+            <dl className='grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-2 text-sm'>
+              {fields.map(column => (
+                <div key={column.key} className='contents'>
+                  <dt className='text-muted-foreground'>{column.name}</dt>
+                  <dd className='min-w-0'>{cell(column)}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+        </div>
+      )}
+
+      {(renderActions || renderCardFooter) && (
+        <div
+          className='flex items-center justify-between gap-3 border-t bg-muted/20 px-3 py-2'
+          onClick={e => e.stopPropagation()}
+        >
+          <div className='min-w-0 pl-1'>{renderCardFooter?.(item)}</div>
+          {renderActions?.(item)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SortableRowCard<T>(props: RowCardProps<T> & { id: string }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: props.id,
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+      }}
+    >
+      <RowCard
+        {...props}
+        dragHandle={
+          <button
+            type='button'
+            aria-label='Drag to reorder'
+            className='-m-1 cursor-grab touch-none p-1 text-muted-foreground hover:text-foreground active:cursor-grabbing'
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical className='h-4 w-4' />
+          </button>
+        }
+      />
+    </div>
+  );
+}
+
 /**
  * A generic data table component with optional drag-and-drop reordering
  */
@@ -115,6 +285,8 @@ export function DataTable<T>({
   onOrderChange,
   rowClassName,
   onRowClick,
+  renderCard,
+  renderCardFooter,
 }: DataTableProps<T>) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -144,6 +316,53 @@ export function DataTable<T>({
     },
     [data, keyField, onOrderChange]
   );
+
+  const showTable = useMediaQuery(TABLE_QUERY);
+
+  if (!showTable) {
+    const cards = data.map((item, index) =>
+      isDraggable ? (
+        <SortableRowCard
+          key={String(item[keyField])}
+          id={String(item[keyField])}
+          item={item}
+          index={index}
+          columns={columns}
+          renderActions={renderActions}
+          showRowNumbers={showRowNumbers}
+          rowClassName={rowClassName}
+          renderCard={renderCard}
+          renderCardFooter={renderCardFooter}
+        />
+      ) : (
+        <RowCard
+          key={String(item[keyField])}
+          item={item}
+          index={index}
+          columns={columns}
+          renderActions={renderActions}
+          showRowNumbers={showRowNumbers}
+          rowClassName={rowClassName}
+          onRowClick={onRowClick}
+          renderCard={renderCard}
+          renderCardFooter={renderCardFooter}
+        />
+      )
+    );
+
+    return isDraggable ? (
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext
+          items={data.map(item => String(item[keyField]))}
+          strategy={verticalListSortingStrategy}
+        >
+          <div className='space-y-3'>{cards}</div>
+        </SortableContext>
+      </DndContext>
+    ) : (
+      <div className='space-y-3'>{cards}</div>
+    );
+  }
 
   const headerContent = (
     <TableHeader>

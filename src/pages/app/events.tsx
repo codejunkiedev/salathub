@@ -12,10 +12,10 @@ import {
   ContentStatus,
   type Column,
 } from '@/components/common';
-import { Calendar } from 'lucide-react';
+import { Calendar, Clock, MapPin } from 'lucide-react';
 import { useTrigger, useMasjidTimezone, usePublishToggle } from '@/hooks';
-import { describeTimeZone, formatZonedDateTime } from '@/utils';
-import { Button } from '@/components/ui';
+import { describeTimeZone, formatZoned, formatZonedDateTime } from '@/utils';
+import { Skeleton, Tabs, TabsList, TabsTrigger } from '@/components/ui';
 import { toast } from 'sonner';
 
 const SCOPES: { value: EventScope; label: string }[] = [
@@ -122,6 +122,7 @@ export default function Events() {
     {
       key: 'description',
       name: 'Description',
+      card: 'body',
       width: 'w-[26%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden'>{value as string}</div>
@@ -150,6 +151,7 @@ export default function Events() {
     {
       key: 'published_at',
       name: 'Status',
+      card: 'meta',
       width: 'w-[90px]',
       render: (value, item) => (
         <ContentStatus
@@ -163,7 +165,7 @@ export default function Events() {
   ];
 
   return (
-    <div className='container mx-auto py-8 space-y-6'>
+    <div className='container mx-auto pb-2 md:pb-8 space-y-6'>
       <PageHeader
         title='Events'
         description={
@@ -174,24 +176,26 @@ export default function Events() {
         onAddClick={handleAddNew}
         addButtonDisabled={isTimezoneLoading}
         actions={
-          <div className='flex gap-1'>
-            {SCOPES.map(option => (
-              <Button
-                key={option.value}
-                variant={scope === option.value ? 'default' : 'outline'}
-                onClick={() => setScope(option.value)}
-              >
-                {option.label}
-              </Button>
-            ))}
-          </div>
+          <Tabs value={scope} onValueChange={v => setScope(v as EventScope)}>
+            <TabsList>
+              {SCOPES.map(option => (
+                <TabsTrigger key={option.value} value={option.value}>
+                  {option.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
         }
       />
 
       <ErrorAlert message={error} onClose={() => setError(null)} />
 
       {loading || isTimezoneLoading ? (
-        <TableSkeleton columns={columns} showRowNumbers={true} />
+        <TableSkeleton
+          columns={columns}
+          showRowNumbers={true}
+          cardSkeleton={<EventCardSkeleton />}
+        />
       ) : events.length === 0 ? (
         <EmptyState
           icon={<Calendar className='h-6 w-6 text-muted-foreground' />}
@@ -211,6 +215,15 @@ export default function Events() {
           keyField='id'
           showRowNumbers={true}
           actionsWidth='w-[12%]'
+          renderCard={item => <EventCard event={item} timeZone={timeZone} />}
+          renderCardFooter={item => (
+            <ContentStatus
+              published={item.published_at !== null}
+              showInApp={item.show_in_app}
+              removalReason={item.removed_at ? item.removal_reason : null}
+              onScreens={onScreenIds.has(item.id)}
+            />
+          )}
           renderActions={item => (
             <ActionButtons
               onEdit={() => handleEdit(item)}
@@ -270,6 +283,67 @@ export default function Events() {
           dismissLabel={assignedFromCreate ? 'Skip' : 'Cancel'}
         />
       )}
+    </div>
+  );
+}
+
+/** Phone card: a calendar tile for the date, then title, description, time and place. */
+function EventCard({ event, timeZone }: { event: Event; timeZone: string | null }) {
+  const at = (options: Intl.DateTimeFormatOptions, value = event.date_time) =>
+    formatZoned(value, timeZone, options);
+  const time: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
+  const day: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
+
+  const end = event.end_time;
+  const sameDay = end && at(day) === at(day, end);
+  const when = end
+    ? `${at(time)} – ${sameDay ? at(time, end) : at({ month: 'short', day: 'numeric', ...time }, end)}`
+    : at(time);
+
+  return (
+    <div className='flex gap-4'>
+      <div className='flex w-14 shrink-0 flex-col items-center rounded-lg border bg-muted/40 py-2 text-center'>
+        <span className='text-[11px] font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-400'>
+          {at({ month: 'short' })}
+        </span>
+        <span className='text-2xl font-semibold leading-tight tabular-nums'>
+          {at({ day: 'numeric' })}
+        </span>
+        <span className='text-[11px] text-muted-foreground'>{at({ weekday: 'short' })}</span>
+      </div>
+
+      <div className='min-w-0 flex-1 space-y-1.5'>
+        <div className='line-clamp-2 font-medium'>{event.title}</div>
+        {event.description && (
+          <p className='line-clamp-2 text-sm text-muted-foreground'>{event.description}</p>
+        )}
+        <div className='space-y-1 pt-0.5 text-sm text-muted-foreground'>
+          <div className='flex items-center gap-2'>
+            <Clock className='h-3.5 w-3.5 shrink-0' />
+            <span className='truncate'>{when}</span>
+          </div>
+          {event.location && (
+            <div className='flex items-center gap-2'>
+              <MapPin className='h-3.5 w-3.5 shrink-0' />
+              <span className='truncate'>{event.location}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EventCardSkeleton() {
+  return (
+    <div className='flex gap-4'>
+      <Skeleton className='h-[4.5rem] w-14 shrink-0 rounded-lg' />
+      <div className='flex-1 space-y-2'>
+        <Skeleton className='h-5 w-2/3' />
+        <Skeleton className='h-4 w-full' />
+        <Skeleton className='h-4 w-1/2' />
+        <Skeleton className='h-4 w-1/3' />
+      </div>
     </div>
   );
 }

@@ -166,7 +166,7 @@ export function ContentPanel({
         value={state.type}
         onValueChange={v => onChange({ ...state, type: v as AyatHadithType })}
       >
-        <TabsList className='grid w-full grid-cols-2'>
+        <TabsList className='w-full'>
           <TabsTrigger value='ayat'>Ayat</TabsTrigger>
           <TabsTrigger value='hadith'>Hadith</TabsTrigger>
         </TabsList>

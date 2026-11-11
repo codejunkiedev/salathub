@@ -278,7 +278,7 @@ export default function AyatHadithDesigner() {
         </div>
         <div className='overflow-y-auto pr-2'>
           <Tabs value={activeTab} onValueChange={v => setActiveTab(v as 'content' | 'design')}>
-            <TabsList className='grid w-full grid-cols-2'>
+            <TabsList className='w-full'>
               <TabsTrigger value='content'>Content</TabsTrigger>
               <TabsTrigger value='design'>Design</TabsTrigger>
             </TabsList>

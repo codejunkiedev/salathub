@@ -108,7 +108,7 @@ export default function AlkhairiaApp() {
   };
 
   return (
-    <div className='container mx-auto py-8 space-y-6'>
+    <div className='container mx-auto pb-2 md:pb-8 space-y-6'>
       {isAdmin && (
         <div className='flex items-center gap-4'>
           <Link to={AppRoutes.Settings}>

@@ -85,7 +85,7 @@ export function BackgroundControl({
             }
           }}
         >
-          <TabsList className='grid w-full grid-cols-3'>
+          <TabsList className='w-full'>
             <TabsTrigger value='image'>Image</TabsTrigger>
             <TabsTrigger value='color'>Color</TabsTrigger>
             <TabsTrigger value='gradient'>Gradient</TabsTrigger>
@@ -301,7 +301,7 @@ function UploadableImagePicker({
   return (
     <div className='space-y-3'>
       <Tabs value={source} onValueChange={v => setPickedSource(v as 'library' | 'upload')}>
-        <TabsList className='grid w-full grid-cols-2'>
+        <TabsList className='w-full'>
           <TabsTrigger value='library'>Library</TabsTrigger>
           <TabsTrigger value='upload'>Upload</TabsTrigger>
         </TabsList>

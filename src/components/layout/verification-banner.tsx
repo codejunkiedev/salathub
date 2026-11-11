@@ -1,11 +1,23 @@
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router';
 import { format } from 'date-fns';
-import { Ban, ShieldAlert } from 'lucide-react';
+import { Ban, ShieldAlert, X } from 'lucide-react';
 import { buttonVariants } from '@/components/ui';
 import { AppRoutes } from '@/constants';
 import { useMasjidVerification } from '@/hooks';
 import { useAuthStore } from '@/store';
 import { cn } from '@/utils';
+
+// Dismissed for this visit only; a new visit or a different message shows it again.
+const DISMISSED_KEY = 'verification-banner-dismissed';
+
+function readDismissed(): string | null {
+  try {
+    return sessionStorage.getItem(DISMISSED_KEY);
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Stays across the console until the masjid submits its documents, and again
@@ -15,6 +27,7 @@ export default function VerificationBanner() {
   const isAdmin = useAuthStore(s => s.role) === 'admin';
   const { pathname } = useLocation();
   const { verification } = useMasjidVerification();
+  const [dismissed, setDismissed] = useState(readDismissed);
 
   if (!isAdmin || !verification || pathname === AppRoutes.SettingsVerification) return null;
 
@@ -42,25 +55,46 @@ export default function VerificationBanner() {
     return null;
   }
 
+  if (dismissed === message) return null;
+
+  const dismiss = () => {
+    setDismissed(message);
+    try {
+      sessionStorage.setItem(DISMISSED_KEY, message);
+    } catch {
+      // Storage blocked: it stays hidden until the page reloads.
+    }
+  };
+
   const Icon = tone === 'danger' ? Ban : ShieldAlert;
 
   return (
     <div
       className={cn(
-        'mb-6 flex flex-col gap-3 rounded-lg border px-4 py-3 text-sm sm:flex-row sm:items-center',
+        'relative mb-4 flex flex-col gap-3 rounded-lg border px-4 py-3 text-sm sm:flex-row sm:items-center sm:pr-11',
         tone === 'danger'
           ? 'border-destructive/40 bg-destructive/10 text-destructive'
           : 'border-amber-400/60 bg-amber-50 text-amber-900 dark:bg-amber-950/40 dark:text-amber-200'
       )}
     >
-      <Icon className='h-4 w-4 shrink-0' />
-      <p className='flex-1'>{message}</p>
+      <div className='flex flex-1 items-start gap-3 pr-7 sm:items-center sm:pr-0'>
+        <Icon className='mt-0.5 h-4 w-4 shrink-0 sm:mt-0' />
+        <p>{message}</p>
+      </div>
       <Link
         to={AppRoutes.SettingsVerification}
         className={buttonVariants({ variant: 'outline', size: 'sm', className: 'shrink-0' })}
       >
         {action}
       </Link>
+      <button
+        type='button'
+        onClick={dismiss}
+        aria-label='Dismiss'
+        className='absolute right-2 top-2 rounded-md p-1.5 opacity-70 transition-opacity hover:opacity-100 sm:top-1/2 sm:-translate-y-1/2'
+      >
+        <X className='h-4 w-4' />
+      </button>
     </div>
   );
 }

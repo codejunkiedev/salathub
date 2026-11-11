@@ -133,13 +133,14 @@ export default function YouTubeVideos() {
     {
       key: 'published_at',
       name: 'Status',
+      card: 'meta',
       width: 'w-[90px]',
       render: value => <ContentStatus published={value !== null} />,
     },
   ];
 
   return (
-    <div className='container mx-auto py-8 space-y-6'>
+    <div className='container mx-auto pb-2 md:pb-8 space-y-6'>
       <PageHeader
         title='YouTube Videos'
         description='Manage YouTube video slides for your screens'

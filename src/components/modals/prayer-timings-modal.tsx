@@ -199,14 +199,14 @@ export function PrayerTimingsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
-      <DialogContent className='sm:max-w-[500px] max-w-[95vw] w-full max-h-[90vh] overflow-y-auto scrollbar-custom'>
+      <DialogContent className='sm:max-w-[500px] scrollbar-custom'>
         <DialogHeader>
           <DialogTitle>Prayer Time Adjustments</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onFormSubmit)} className='space-y-4 py-2'>
           <Tabs defaultValue='starts' className='w-full'>
-            <TabsList className='grid w-full grid-cols-3'>
+            <TabsList className='w-full'>
               {CATEGORIES.map(cat => (
                 <TabsTrigger key={cat.key} value={cat.key}>
                   {cat.label}
@@ -263,7 +263,7 @@ export function PrayerTimingsModal({
             ))}
           </Tabs>
 
-          <DialogFooter className='flex flex-col sm:flex-row gap-2 sm:gap-0'>
+          <DialogFooter>
             <Button type='button' variant='outline' onClick={onClose} className='w-full sm:w-auto'>
               Cancel
             </Button>

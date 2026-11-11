@@ -20,7 +20,7 @@ import {
   type Column,
 } from '@/components/common';
 import { Badge, Popover, PopoverContent, PopoverTrigger, RemoteImage } from '@/components/ui';
-import { BookOpen } from 'lucide-react';
+import { BookOpen, FileImage } from 'lucide-react';
 import { useTrigger, usePublishToggle } from '@/hooks';
 import { toast } from 'sonner';
 import { formatSlideReference } from '@/utils';
@@ -100,6 +100,20 @@ export default function AyatAndHadithPage() {
     {
       key: 'image_url',
       name: 'Preview',
+      card: 'media',
+      renderCard: value =>
+        value ? (
+          <RemoteImage
+            src={value as string}
+            alt='Slide preview'
+            fit='contain'
+            containerClassName='aspect-video w-full'
+          />
+        ) : (
+          <div className='flex aspect-video w-full items-center justify-center'>
+            <FileImage className='h-8 w-8 text-muted-foreground' />
+          </div>
+        ),
       width: 'w-[120px]',
       render: value => (
         <Popover>
@@ -132,18 +146,21 @@ export default function AyatAndHadithPage() {
     {
       key: 'id',
       name: 'Reference',
+      card: 'title',
       width: 'w-auto',
       render: (_, item) => <span>{formatSlideReference(item)}</span>,
     },
     {
       key: 'orientation',
       name: 'Orientation',
+      card: 'meta',
       width: 'w-[130px]',
       render: value => <OrientationBadge orientation={value as AyatAndHadith['orientation']} />,
     },
     {
       key: 'type',
       name: 'Type',
+      card: 'meta',
       width: 'w-[100px]',
       render: value => {
         const type = value as AyatAndHadith['type'];
@@ -169,7 +186,7 @@ export default function AyatAndHadithPage() {
   ];
 
   return (
-    <div className='container mx-auto py-8 space-y-6'>
+    <div className='container mx-auto pb-2 md:pb-8 space-y-6'>
       <PageHeader
         title='Ayat & Hadith'
         description='Design Ayat and Hadith slides for your displays'

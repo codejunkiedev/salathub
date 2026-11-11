@@ -118,11 +118,13 @@ export function PrayerTimesTable({ prayerTimes, savedSettings, settings }: Praye
 
   const currentMonth = prayerTimes[0]?.date?.gregorian?.month?.en;
   const currentYear = prayerTimes[0]?.date?.gregorian?.year;
+  // Date + Fajr + the solar columns (Starts only) + the rest.
+  const columnCount = 2 + (category === 'starts' ? solarColumns.length : 0) + columns.length - 1;
 
   return (
     <Card className='gap-0 py-0'>
       <CardHeader className='bg-primary/5 py-3'>
-        <div className='flex items-center justify-between'>
+        <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
           <CardTitle className='text-base'>
             Prayer Times for {currentMonth}, {currentYear}
           </CardTitle>
@@ -136,10 +138,13 @@ export function PrayerTimesTable({ prayerTimes, savedSettings, settings }: Praye
         </div>
       </CardHeader>
       <CardContent className='p-0 overflow-auto'>
-        <Table className='table-fixed'>
+        {/* Scrolls sideways on narrow screens; the date column stays pinned. */}
+        <Table className='table-fixed' style={{ minWidth: `${columnCount * 5.5}rem` }}>
           <TableHeader>
             <TableRow className='bg-muted/50'>
-              <TableHead className='text-center font-medium py-3'>Date</TableHead>
+              <TableHead className='sticky left-0 z-10 bg-card text-center font-medium py-3'>
+                Date
+              </TableHead>
               <TableHead className='text-center font-semibold'>Fajr</TableHead>
               {category === 'starts' &&
                 solarColumns.map(col => (
@@ -166,7 +171,7 @@ export function PrayerTimesTable({ prayerTimes, savedSettings, settings }: Praye
                     index + 1 === currentDay ? 'bg-primary/10' : isJummaDay ? 'bg-secondary/10' : ''
                   }
                 >
-                  <TableCell className='font-medium text-center'>
+                  <TableCell className='sticky left-0 z-10 bg-card font-medium text-center'>
                     {day.date.gregorian.day}
                     {isJummaDay && <span className='ml-1 text-xs text-primary'>(Fri)</span>}
                   </TableCell>

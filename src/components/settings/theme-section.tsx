@@ -76,7 +76,7 @@ export function ThemeSection({ screen, onScreenChange }: ThemeSectionProps) {
       </CardHeader>
       <CardContent>
         <div className='space-y-4'>
-          <div className='flex flex-row gap-4'>
+          <div className='grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:gap-4'>
             {themeOptions.map(theme => {
               const themeKey = theme as Theme;
               const themeName = themeLabels[themeKey];
@@ -97,13 +97,17 @@ export function ThemeSection({ screen, onScreenChange }: ThemeSectionProps) {
                   aria-label={`Select ${themeName}`}
                 >
                   {previewSrc ? (
-                    <img src={previewSrc} alt={themeName} className='w-32 h-20 object-cover' />
+                    <img
+                      src={previewSrc}
+                      alt={themeName}
+                      className='aspect-[8/5] w-full object-cover sm:h-20 sm:w-32'
+                    />
                   ) : (
-                    <div className='w-32 h-20 flex items-center justify-center rounded bg-gradient-to-br from-emerald-700 to-emerald-950 text-white text-xs font-semibold'>
+                    <div className='aspect-[8/5] w-full sm:h-20 sm:w-32 flex items-center justify-center rounded bg-gradient-to-br from-emerald-700 to-emerald-950 text-white text-xs font-semibold'>
                       Custom
                     </div>
                   )}
-                  <div className='mt-2 text-center text-xs font-medium text-foreground truncate w-32 capitalize'>
+                  <div className='mt-2 text-center text-xs font-medium text-foreground truncate sm:w-32 capitalize'>
                     {themeName}
                   </div>
                 </button>
@@ -121,7 +125,7 @@ export function ThemeSection({ screen, onScreenChange }: ThemeSectionProps) {
           )}
 
           {selectedTheme === Theme.Theme4 && (
-            <div className='flex items-center justify-between gap-4 rounded-lg border bg-muted/40 p-4'>
+            <div className='flex flex-col gap-4 rounded-lg border bg-muted/40 p-4 sm:flex-row sm:items-center sm:justify-between'>
               <div>
                 <p className='text-sm font-medium text-foreground'>Custom theme</p>
                 <p className='text-xs text-muted-foreground'>
