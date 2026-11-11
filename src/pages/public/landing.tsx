@@ -14,10 +14,12 @@ import {
   Video,
   type LucideIcon,
 } from 'lucide-react';
-import { buttonVariants, ThemeToggle } from '@/components/ui';
-import { AppRoutes, AuthRoutes, PublicRoutes } from '@/constants';
-import { ALKHAIRIA_PLAY_STORE_URL } from '@/helpers';
-import { useAuthStore } from '@/store';
+// Direct imports, not barrels: this page is pre-rendered in Node and the ui barrel pulls in Leaflet.
+import { buttonVariants } from '@/components/ui/button-variants';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { AppRoutes, AuthRoutes, PublicRoutes } from '@/constants/routes';
+import { ALKHAIRIA_PLAY_STORE_URL } from '@/helpers/follow-link';
+import { useAuthStore } from '@/store/auth-store';
 
 type Feature = { icon: LucideIcon; title: string; body: string };
 

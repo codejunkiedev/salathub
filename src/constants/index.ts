@@ -4,3 +4,4 @@ export * from './quran';
 export * from './hadith';
 export * from './slide-design';
 export * from './custom-theme';
+export * from './seo';

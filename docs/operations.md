@@ -37,14 +37,14 @@ Al-Adhan and AlQuran.cloud need no key.
 
 ## Scripts
 
-| Command                           | Description                                         |
-| --------------------------------- | --------------------------------------------------- |
-| `npm run dev`                     | Vite dev server                                     |
-| `npm run build`                   | `tsc -b && vite build`                              |
-| `npm run preview`                 | Serve the production build                          |
-| `npm run lint`                    | ESLint (flat config, `eslint.config.js`)            |
-| `npm run format` / `format:check` | Prettier write / check                              |
-| `npm run prepare`                 | Installs Husky hooks; runs automatically on install |
+| Command                           | Description                                          |
+| --------------------------------- | ---------------------------------------------------- |
+| `npm run dev`                     | Vite dev server                                      |
+| `npm run build`                   | `tsc -b && vite build && node scripts/prerender.mjs` |
+| `npm run preview`                 | Serve the production build                           |
+| `npm run lint`                    | ESLint (flat config, `eslint.config.js`)             |
+| `npm run format` / `format:check` | Prettier write / check                               |
+| `npm run prepare`                 | Installs Husky hooks; runs automatically on install  |
 
 `.husky/pre-commit` runs `npx lint-staged`, which applies `eslint --fix` and `prettier --write` to staged `*.{js,jsx,ts,tsx}`. CI (`.github/workflows/ci.yml`) additionally runs `npx tsc --noEmit`. **There is no test runner and there are no test files.**
 
@@ -77,9 +77,11 @@ Pinned means they are downlevelled no matter where the floor sits, so moving the
 
 Display components size themselves in viewport and container units, with `[@media(min-width:3000px)]` and `4000px` variants for 4K panels and `100dvh` with a `100vh` fallback for embedded browsers. These are arbitrary Tailwind variants, which is why they work with no config file: Tailwind 4 is configured entirely from `src/index.css`.
 
+**Pre-rendering.** After `vite build`, `scripts/prerender.mjs` renders `/`, `/privacy` and `/terms` in Node and writes them to `dist/` as static HTML inside `#prerender`, which the app removes once its own page is ready. Titles and descriptions live in `src/constants/seo.ts`. Anything those pages import must load without a browser, so they import components by file, not through barrels.
+
 ## Deployment
 
-Vercel, as a static SPA build. `vercel.json` is only a catch-all rewrite to `/`; Vercel auto-detects Vite, and deployment runs through the Git integration — CI lints, type-checks, and builds but does not deploy.
+Vercel, as a static SPA build. `vercel.json` turns on `cleanUrls` and adds a catch-all rewrite to `/`; Vercel auto-detects Vite, and deployment runs through the Git integration — CI lints, type-checks, and builds but does not deploy.
 
 The rewrite deliberately catches `/admin/*` too, which is why `index.html` carries an inline service-worker recovery script for non-display routes.
 

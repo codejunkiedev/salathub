@@ -1,56 +1,105 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="SalatHub turns any TV or tablet into a prayer-time display for your masjid. Manage iqamah times, announcements and events from one console."
+    />
+    <meta name="theme-color" content="#047857" />
+    <meta property="og:site_name" content="SalatHub" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://salathub.alkhairia.org/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="SalatHub: prayer times and notices on every screen in your masjid" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "SalatHub",
+        "url": "https://salathub.alkhairia.org/",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "description": "Digital prayer-time and announcement screens for masjids, managed from one web console."
+      }
+    </script>
 
-<head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/png" href="/icons/icon-192.png" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="SalatHub turns any TV or tablet into a prayer-time display for your masjid. Manage iqamah times, announcements and events from one console." />
+    <!-- Apply the saved theme before first paint so pre-rendered pages don't flash. -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('prayerbox-ui-theme') || 'system';
+          if (t === 'system')
+            t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          document.documentElement.classList.add(t);
+        } catch (e) {}
+      })();
+    </script>
+    <style>
+      #prerender ~ #root {
+        display: none;
+      }
+    </style>
 
-  <!--
+    <!--
     Service worker recovery. Runs before any bundled module so that even if a
     stale SW serves a cached index.html with broken asset hashes, admin users
     still escape the cache instead of seeing a blank screen.
   -->
-  <script>
-    (function () {
-      var displayPaths = ['/', '/display', '/logout', '/login-with-code'];
-      if (displayPaths.indexOf(window.location.pathname) !== -1) return;
-      if (!('serviceWorker' in navigator)) return;
-      navigator.serviceWorker.getRegistrations().then(function (regs) {
-        if (!regs.length) return;
-        Promise.all(regs.map(function (r) { return r.unregister(); }))
-          .then(function () {
-            if ('caches' in window) {
-              return caches.keys().then(function (keys) {
-                return Promise.all(keys.map(function (k) { return caches.delete(k); }));
-              });
-            }
-          })
-          .then(function () { window.location.reload(); });
-      });
-    })();
-  </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script>
+      (function () {
+        var displayPaths = ['/', '/display', '/logout', '/login-with-code'];
+        if (displayPaths.indexOf(window.location.pathname) !== -1) return;
+        if (!('serviceWorker' in navigator)) return;
+        navigator.serviceWorker.getRegistrations().then(function (regs) {
+          if (!regs.length) return;
+          Promise.all(
+            regs.map(function (r) {
+              return r.unregister();
+            })
+          )
+            .then(function () {
+              if ('caches' in window) {
+                return caches.keys().then(function (keys) {
+                  return Promise.all(
+                    keys.map(function (k) {
+                      return caches.delete(k);
+                    })
+                  );
+                });
+              }
+            })
+            .then(function () {
+              window.location.reload();
+            });
+        });
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-  <!-- Poppins -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-    rel="stylesheet">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-    rel="stylesheet">
+    <!-- Poppins -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+      rel="stylesheet"
+    />
 
-  <title>SalatHub</title>
-</head>
+    <title>SalatHub</title>
+  </head>
 
-<body>
-  <div id="root"></div>
-  <script type="module" src="/src/main.tsx"></script>
-</body>
-
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>

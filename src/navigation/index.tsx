@@ -48,6 +48,7 @@ import {
   PlatformReports,
 } from '@/pages';
 import { useDisplayStore, useAuthStore } from '@/store';
+import { PageMeta, PrerenderCleanup } from './page-meta';
 
 function RequireAdmin({ children }: { children: React.ReactNode }) {
   const role = useAuthStore(s => s.role);
@@ -132,7 +133,9 @@ export default function Navigation() {
 
   return (
     <BrowserRouter>
+      <PageMeta />
       <Suspense fallback={<Loading />}>
+        <PrerenderCleanup />
         <Routes>
           {/* Public legal routes - accessible without authentication */}
           <Route path={PublicRoutes.PrivacyPolicy} element={<PrivacyPolicy />} />

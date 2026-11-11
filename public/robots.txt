@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /admin
+Disallow: /platform
+Disallow: /display
+Disallow: /logout
+Disallow: /login-with-code
+
+Sitemap: https://salathub.alkhairia.org/sitemap.xml

@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { ArrowLeft } from 'lucide-react';
-import { PublicRoutes, AuthRoutes } from '@/constants';
-import { Button } from '@/components/ui';
+// Direct imports, not barrels: this page is pre-rendered in Node and the ui barrel pulls in Leaflet.
+import { PublicRoutes, AuthRoutes } from '@/constants/routes';
+import { Button } from '@/components/ui/button';
 
 type LegalLayoutProps = {
   title: string;

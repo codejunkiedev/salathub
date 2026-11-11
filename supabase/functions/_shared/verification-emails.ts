@@ -1,6 +1,6 @@
 import { composeEmail, type Email } from './email.ts';
 
-/** CONSOLE_URL is the SalatHub site, for example https://salathub.app. */
+/** CONSOLE_URL is the SalatHub site, for example https://salathub.alkhairia.org. */
 const verificationLink = () => {
   const base = (Deno.env.get('CONSOLE_URL') ?? '').replace(/\/+$/, '');
   return base

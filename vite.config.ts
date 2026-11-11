@@ -34,6 +34,7 @@ export default defineConfig(({ mode }) => {
           // with no service-worker caching, so a network blip on a kiosk
           // leaves a permanently broken (gray) background until reload.
           globPatterns: ['**/*.{js,css,html,ico,png,jpg,jpeg,svg,webp,woff,woff2}'],
+          globIgnores: ['og-image.png'],
           navigateFallback: '/index.html',
           navigateFallbackDenylist: [
             /^\/admin(\/|$)/,
