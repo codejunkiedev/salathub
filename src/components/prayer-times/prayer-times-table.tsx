@@ -118,6 +118,8 @@ export function PrayerTimesTable({ prayerTimes, savedSettings, settings }: Praye
 
   const currentMonth = prayerTimes[0]?.date?.gregorian?.month?.en;
   const currentYear = prayerTimes[0]?.date?.gregorian?.year;
+  // Date + Fajr + the solar columns (Starts only) + the rest.
+  const columnCount = 2 + (category === 'starts' ? solarColumns.length : 0) + columns.length - 1;
 
   return (
     <Card className='gap-0 py-0'>
@@ -137,7 +139,7 @@ export function PrayerTimesTable({ prayerTimes, savedSettings, settings }: Praye
       </CardHeader>
       <CardContent className='p-0 overflow-auto'>
         {/* Scrolls sideways on narrow screens; the date column stays pinned. */}
-        <Table className='min-w-[48rem] table-fixed'>
+        <Table className='table-fixed' style={{ minWidth: `${columnCount * 5.5}rem` }}>
           <TableHeader>
             <TableRow className='bg-muted/50'>
               <TableHead className='sticky left-0 z-10 bg-card text-center font-medium py-3'>
