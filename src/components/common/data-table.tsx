@@ -113,7 +113,7 @@ function SortableRow<T>({
 }
 
 // Below this width rows render as cards: the table would otherwise scroll sideways.
-const TABLE_QUERY = '(min-width: 1024px)';
+export const TABLE_QUERY = '(min-width: 1024px)';
 
 function renderCell<T>(column: Column<T>, item: T): ReactNode {
   return column.render
