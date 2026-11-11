@@ -23,3 +23,4 @@ export * from './useImageValidation';
 export * from './usePublishToggle';
 export * from './useMasjidVerification';
 export * from './useContentNotificationStatus';
+export * from './useMediaQuery';

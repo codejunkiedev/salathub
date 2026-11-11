@@ -1,6 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
 import type { ReactNode } from 'react';
-import { useRef, useCallback, useSyncExternalStore } from 'react';
+import { useRef, useCallback } from 'react';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import {
   DndContext,
   closestCenter,
@@ -102,20 +103,6 @@ function SortableRow<T>({
 
 // Below this width rows render as cards: the table would otherwise scroll sideways.
 const TABLE_QUERY = '(min-width: 1024px)';
-
-function subscribeToTableQuery(onChange: () => void) {
-  const query = window.matchMedia(TABLE_QUERY);
-  query.addEventListener('change', onChange);
-  return () => query.removeEventListener('change', onChange);
-}
-
-function useShowTable() {
-  return useSyncExternalStore(
-    subscribeToTableQuery,
-    () => window.matchMedia(TABLE_QUERY).matches,
-    () => true
-  );
-}
 
 function renderCell<T>(column: Column<T>, item: T): ReactNode {
   return column.render
@@ -258,7 +245,7 @@ export function DataTable<T>({
     [data, keyField, onOrderChange]
   );
 
-  const showTable = useShowTable();
+  const showTable = useMediaQuery(TABLE_QUERY);
 
   if (!showTable) {
     const cards = data.map((item, index) =>

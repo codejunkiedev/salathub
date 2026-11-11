@@ -11,6 +11,7 @@ import { identifySentryUser, clearSentryUser } from '@/lib/sentry';
 import { AppRoutes, AuthRoutes, LoadingStep, PlatformRoutes, PublicRoutes } from '@/constants';
 import type { Session } from '@supabase/supabase-js';
 import { AppLayout, PlatformLayout } from '@/components/layout';
+import { DesktopOnly } from '@/components/common';
 import {
   Announcements,
   AyatAndHadith,
@@ -186,13 +187,29 @@ export default function Navigation() {
 
           {/* Admin routes WITHOUT layout - require authentication */}
           <Route element={isLoggedInWithEmail ? <Outlet /> : <Redirect to={AuthRoutes.Login} />}>
-            <Route path={AppRoutes.AyatAndHadithNew} element={<AyatHadithDesigner />} />
-            <Route path={AppRoutes.AyatAndHadithEdit} element={<AyatHadithDesigner />} />
+            <Route
+              path={AppRoutes.AyatAndHadithNew}
+              element={
+                <DesktopOnly backTo={AppRoutes.AyatAndHadith} backLabel='Back to Ayat & Hadith'>
+                  <AyatHadithDesigner />
+                </DesktopOnly>
+              }
+            />
+            <Route
+              path={AppRoutes.AyatAndHadithEdit}
+              element={
+                <DesktopOnly backTo={AppRoutes.AyatAndHadith} backLabel='Back to Ayat & Hadith'>
+                  <AyatHadithDesigner />
+                </DesktopOnly>
+              }
+            />
             <Route
               path={AppRoutes.ScreenCustomTheme}
               element={
                 <RequireAdmin>
-                  <CustomThemeEditor />
+                  <DesktopOnly backTo={AppRoutes.Screens} backLabel='Back to Screens'>
+                    <CustomThemeEditor />
+                  </DesktopOnly>
                 </RequireAdmin>
               }
             />

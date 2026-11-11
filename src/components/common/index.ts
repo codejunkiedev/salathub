@@ -12,3 +12,4 @@ export * from './background-control';
 export * from './save-content-buttons';
 export * from './notify-followers-note';
 export * from './auth-header';
+export * from './desktop-only';
