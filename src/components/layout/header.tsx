@@ -1,12 +1,5 @@
-import { Menu, LogOut, UserRound } from 'lucide-react';
-import {
-  Button,
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  ThemeToggle,
-} from '@/components/ui';
+import { Menu, LogOut } from 'lucide-react';
+import { Button, ThemeToggle } from '@/components/ui';
 import { useState } from 'react';
 import { SignOutModal } from '@/components/modals';
 import { cn } from '@/utils';
@@ -17,7 +10,7 @@ interface HeaderProps {
 }
 
 /**
- * Application header component with menu toggle, branding, and user dropdown menu
+ * Application header with menu toggle, branding, theme toggle and sign out
  */
 export default function Header({ onMenuClick, isScrolled = false }: HeaderProps) {
   const [showSignOutDialog, setShowSignOutDialog] = useState(false);
@@ -51,26 +44,16 @@ export default function Header({ onMenuClick, isScrolled = false }: HeaderProps)
 
       <div className='ml-auto flex items-center space-x-2'>
         <ThemeToggle />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant='ghost'
-              size='icon'
-              className='text-muted-foreground hover:bg-accent rounded-full'
-            >
-              <UserRound size={20} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align='end' className='w-56'>
-            <DropdownMenuItem
-              onClick={openSignOutDialog}
-              className='cursor-pointer text-red-600 focus:text-red-600'
-            >
-              <LogOut className='mr-2 h-4 w-4 text-red-600 hover:text-red-600' />
-              <span>Sign Out</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button
+          variant='ghost'
+          size='icon'
+          onClick={openSignOutDialog}
+          aria-label='Sign out'
+          title='Sign out'
+          className='text-muted-foreground hover:text-red-600'
+        >
+          <LogOut size={20} />
+        </Button>
       </div>
 
       <SignOutModal isOpen={showSignOutDialog} onClose={closeSignOutDialog} />
