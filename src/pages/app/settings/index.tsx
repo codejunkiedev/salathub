@@ -47,7 +47,7 @@ export default function Settings() {
     : settingsModules.filter(m => !m.requiresMasjid);
 
   return (
-    <div className='container mx-auto py-6 space-y-4'>
+    <div className='container mx-auto pb-6 space-y-4'>
       <PageHeader
         title='Settings'
         description='Configure your application preferences and display settings'

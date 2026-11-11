@@ -23,7 +23,7 @@ export default function Support() {
   }, []);
 
   return (
-    <div className='container mx-auto py-6 space-y-4'>
+    <div className='container mx-auto pb-6 space-y-4'>
       <PageHeader
         title='Support'
         description='Have a question, suggestion, or issue? Fill out the form below and we will get back to you.'
