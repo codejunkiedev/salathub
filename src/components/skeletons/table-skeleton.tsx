@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import {
   Table,
   TableBody,
@@ -16,6 +17,8 @@ type TableSkeletonProps = {
   showActions?: boolean;
   showRowNumbers?: boolean;
   rowNumberWidth?: string;
+  /** Placeholder for one phone card when the page draws its own (DataTable `renderCard`). */
+  cardSkeleton?: ReactNode;
 };
 
 /**
@@ -29,10 +32,32 @@ export function TableSkeleton({
   showActions = true,
   showRowNumbers = false,
   rowNumberWidth = 'w-[5%]',
+  cardSkeleton,
 }: TableSkeletonProps) {
   const showTable = useMediaQuery(TABLE_QUERY);
 
   if (!showTable) {
+    if (cardSkeleton) {
+      return (
+        <div className='space-y-3'>
+          {[...Array(Math.min(rows, 3))].map((_, i) => (
+            <div key={i} className='overflow-hidden rounded-xl border bg-card'>
+              <div className='p-4'>{cardSkeleton}</div>
+              {showActions && (
+                <div className='flex items-center justify-between border-t bg-muted/20 px-3 py-2'>
+                  <Skeleton className='h-4 w-12' />
+                  <div className='flex gap-1'>
+                    {[...Array(4)].map((_, j) => (
+                      <Skeleton key={j} className='h-8 w-8 rounded-md' />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    }
     return <CardSkeletons columns={columns} rows={Math.min(rows, 3)} showActions={showActions} />;
   }
 

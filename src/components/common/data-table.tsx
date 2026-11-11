@@ -52,6 +52,10 @@ type DataTableProps<T> = {
   onOrderChange?: (items: T[]) => void;
   rowClassName?: (item: T) => string;
   onRowClick?: (item: T) => void;
+  /** Replaces the column-based content of the phone card. */
+  renderCard?: (item: T) => ReactNode;
+  /** Shown on the left of the phone card's actions footer. */
+  renderCardFooter?: (item: T) => ReactNode;
 };
 
 function SortableRow<T>({
@@ -130,6 +134,8 @@ type RowCardProps<T> = {
   rowClassName?: (item: T) => string;
   onRowClick?: (item: T) => void;
   dragHandle?: ReactNode;
+  renderCard?: (item: T) => ReactNode;
+  renderCardFooter?: (item: T) => ReactNode;
 };
 
 function RowCard<T>({
@@ -141,6 +147,8 @@ function RowCard<T>({
   rowClassName,
   onRowClick,
   dragHandle,
+  renderCard,
+  renderCardFooter,
 }: RowCardProps<T>) {
   const hasTitle = columns.some(c => c.card === 'title');
   const roleOf = (column: Column<T>, i: number): CardRole =>
@@ -168,52 +176,62 @@ function RowCard<T>({
         </div>
       ))}
 
-      <div className='space-y-3 p-4'>
-        <div className='flex items-start gap-2'>
+      {renderCard ? (
+        <div className='flex items-start gap-2 p-4'>
           {dragHandle}
-          {showRowNumbers && (
-            <span className='pt-0.5 text-sm text-muted-foreground tabular-nums'>{index + 1}.</span>
-          )}
-          <div className='min-w-0 flex-1 space-y-1'>
-            {title.map(column => (
-              <div key={column.key} className='font-medium'>
-                {cell(column)}
-              </div>
-            ))}
-            {body.map(column => (
-              <div key={column.key} className='text-sm text-muted-foreground'>
-                {cell(column)}
-              </div>
-            ))}
-          </div>
+          <div className='min-w-0 flex-1'>{renderCard(item)}</div>
         </div>
-
-        {meta.length > 0 && (
-          <div className='flex flex-wrap items-center gap-x-3 gap-y-2'>
-            {meta.map(column => (
-              <div key={column.key}>{cell(column)}</div>
-            ))}
+      ) : (
+        <div className='space-y-3 p-4'>
+          <div className='flex items-start gap-2'>
+            {dragHandle}
+            {showRowNumbers && (
+              <span className='pt-0.5 text-sm text-muted-foreground tabular-nums'>
+                {index + 1}.
+              </span>
+            )}
+            <div className='min-w-0 flex-1 space-y-1'>
+              {title.map(column => (
+                <div key={column.key} className='font-medium'>
+                  {cell(column)}
+                </div>
+              ))}
+              {body.map(column => (
+                <div key={column.key} className='text-sm text-muted-foreground'>
+                  {cell(column)}
+                </div>
+              ))}
+            </div>
           </div>
-        )}
 
-        {fields.length > 0 && (
-          <dl className='grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-2 text-sm'>
-            {fields.map(column => (
-              <div key={column.key} className='contents'>
-                <dt className='text-muted-foreground'>{column.name}</dt>
-                <dd className='min-w-0'>{cell(column)}</dd>
-              </div>
-            ))}
-          </dl>
-        )}
-      </div>
+          {meta.length > 0 && (
+            <div className='flex flex-wrap items-center gap-x-3 gap-y-2'>
+              {meta.map(column => (
+                <div key={column.key}>{cell(column)}</div>
+              ))}
+            </div>
+          )}
 
-      {renderActions && (
+          {fields.length > 0 && (
+            <dl className='grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-2 text-sm'>
+              {fields.map(column => (
+                <div key={column.key} className='contents'>
+                  <dt className='text-muted-foreground'>{column.name}</dt>
+                  <dd className='min-w-0'>{cell(column)}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+        </div>
+      )}
+
+      {(renderActions || renderCardFooter) && (
         <div
-          className='flex justify-end border-t bg-muted/20 px-3 py-2'
+          className='flex items-center justify-between gap-3 border-t bg-muted/20 px-3 py-2'
           onClick={e => e.stopPropagation()}
         >
-          {renderActions(item)}
+          <div className='min-w-0 pl-1'>{renderCardFooter?.(item)}</div>
+          {renderActions?.(item)}
         </div>
       )}
     </div>
@@ -267,6 +285,8 @@ export function DataTable<T>({
   onOrderChange,
   rowClassName,
   onRowClick,
+  renderCard,
+  renderCardFooter,
 }: DataTableProps<T>) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -311,6 +331,8 @@ export function DataTable<T>({
           renderActions={renderActions}
           showRowNumbers={showRowNumbers}
           rowClassName={rowClassName}
+          renderCard={renderCard}
+          renderCardFooter={renderCardFooter}
         />
       ) : (
         <RowCard
@@ -322,6 +344,8 @@ export function DataTable<T>({
           showRowNumbers={showRowNumbers}
           rowClassName={rowClassName}
           onRowClick={onRowClick}
+          renderCard={renderCard}
+          renderCardFooter={renderCardFooter}
         />
       )
     );
