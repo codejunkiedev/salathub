@@ -15,6 +15,10 @@ try {
     await vite.ssrLoadModule('/src/constants/seo.ts');
   const shell = await readFile('dist/index.html', 'utf8');
 
+  // Every route that isn't pre-rendered is served this untouched shell (see
+  // vercel.json), so it never carries the landing page's content or canonical.
+  await writeFile('dist/app.html', shell);
+
   const escape = s =>
     s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 

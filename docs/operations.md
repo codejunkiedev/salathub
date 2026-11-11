@@ -81,7 +81,7 @@ Display components size themselves in viewport and container units, with `[@medi
 
 ## Deployment
 
-Vercel, as a static SPA build. `vercel.json` turns on `cleanUrls` and adds a catch-all rewrite to `/`; Vercel auto-detects Vite, and deployment runs through the Git integration — CI lints, type-checks, and builds but does not deploy.
+Vercel, as a static SPA build. `vercel.json` turns on `cleanUrls` and rewrites every other path to `/app` (the plain app shell the pre-render step writes); Vercel auto-detects Vite, and deployment runs through the Git integration — CI lints, type-checks, and builds but does not deploy.
 
 The rewrite deliberately catches `/admin/*` too, which is why `index.html` carries an inline service-worker recovery script for non-display routes.
 
