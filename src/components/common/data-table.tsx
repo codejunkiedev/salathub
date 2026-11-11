@@ -1,6 +1,6 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
 import type { ReactNode } from 'react';
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useSyncExternalStore } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -100,6 +100,119 @@ function SortableRow<T>({
   );
 }
 
+// Below this width rows render as cards: the table would otherwise scroll sideways.
+const TABLE_QUERY = '(min-width: 1024px)';
+
+function subscribeToTableQuery(onChange: () => void) {
+  const query = window.matchMedia(TABLE_QUERY);
+  query.addEventListener('change', onChange);
+  return () => query.removeEventListener('change', onChange);
+}
+
+function useShowTable() {
+  return useSyncExternalStore(
+    subscribeToTableQuery,
+    () => window.matchMedia(TABLE_QUERY).matches,
+    () => true
+  );
+}
+
+function renderCell<T>(column: Column<T>, item: T): ReactNode {
+  return column.render
+    ? column.render(item[column.key as keyof T], item)
+    : (item[column.key as keyof T] as ReactNode);
+}
+
+type RowCardProps<T> = {
+  item: T;
+  index: number;
+  columns: Column<T>[];
+  renderActions?: (item: T) => ReactNode;
+  showRowNumbers?: boolean;
+  rowClassName?: (item: T) => string;
+  onRowClick?: (item: T) => void;
+  dragHandle?: ReactNode;
+};
+
+function RowCard<T>({
+  item,
+  index,
+  columns,
+  renderActions,
+  showRowNumbers,
+  rowClassName,
+  onRowClick,
+  dragHandle,
+}: RowCardProps<T>) {
+  const [titleColumn, ...detailColumns] = columns;
+
+  return (
+    <div
+      className={`space-y-3 rounded-lg border bg-card p-4 ${rowClassName ? rowClassName(item) : ''} ${onRowClick ? 'cursor-pointer hover:bg-muted/30' : ''}`}
+      onClick={() => onRowClick?.(item)}
+    >
+      <div className='flex items-start gap-2'>
+        {dragHandle}
+        {showRowNumbers && (
+          <span className='pt-0.5 text-sm text-muted-foreground tabular-nums'>{index + 1}.</span>
+        )}
+        <div className='min-w-0 flex-1 font-medium'>
+          {titleColumn && renderCell(titleColumn, item)}
+        </div>
+      </div>
+
+      {detailColumns.length > 0 && (
+        <dl className='grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-2 text-sm'>
+          {detailColumns.map(column => (
+            <div key={column.key} className='contents'>
+              <dt className='text-muted-foreground'>{column.name}</dt>
+              <dd className='min-w-0'>{renderCell(column, item)}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+
+      {renderActions && (
+        <div className='flex justify-end border-t pt-3' onClick={e => e.stopPropagation()}>
+          {renderActions(item)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SortableRowCard<T>(props: RowCardProps<T> & { id: string }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: props.id,
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+      }}
+    >
+      <RowCard
+        {...props}
+        dragHandle={
+          <button
+            type='button'
+            aria-label='Drag to reorder'
+            className='-m-1 cursor-grab touch-none p-1 text-muted-foreground hover:text-foreground active:cursor-grabbing'
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical className='h-4 w-4' />
+          </button>
+        }
+      />
+    </div>
+  );
+}
+
 /**
  * A generic data table component with optional drag-and-drop reordering
  */
@@ -144,6 +257,49 @@ export function DataTable<T>({
     },
     [data, keyField, onOrderChange]
   );
+
+  const showTable = useShowTable();
+
+  if (!showTable) {
+    const cards = data.map((item, index) =>
+      isDraggable ? (
+        <SortableRowCard
+          key={String(item[keyField])}
+          id={String(item[keyField])}
+          item={item}
+          index={index}
+          columns={columns}
+          renderActions={renderActions}
+          showRowNumbers={showRowNumbers}
+          rowClassName={rowClassName}
+        />
+      ) : (
+        <RowCard
+          key={String(item[keyField])}
+          item={item}
+          index={index}
+          columns={columns}
+          renderActions={renderActions}
+          showRowNumbers={showRowNumbers}
+          rowClassName={rowClassName}
+          onRowClick={onRowClick}
+        />
+      )
+    );
+
+    return isDraggable ? (
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext
+          items={data.map(item => String(item[keyField]))}
+          strategy={verticalListSortingStrategy}
+        >
+          <div className='space-y-3'>{cards}</div>
+        </SortableContext>
+      </DndContext>
+    ) : (
+      <div className='space-y-3'>{cards}</div>
+    );
+  }
 
   const headerContent = (
     <TableHeader>
