@@ -169,6 +169,7 @@ export default function ScreenDetail() {
     {
       key: 'content_type',
       name: 'Type',
+      card: 'meta',
       width: 'w-[15%]',
       render: value => {
         const config = CONTENT_TYPE_CONFIG[value as string];

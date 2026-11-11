@@ -21,12 +21,23 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical } from 'lucide-react';
 
+/** Where a column goes on the phone card. */
+export type CardRole = 'media' | 'title' | 'body' | 'meta' | 'field' | 'hidden';
+
 export type Column<T> = {
   key: string;
   name: string;
   width: string;
   render?: (value: unknown, item: T) => ReactNode;
   className?: string;
+  /**
+   * Phone card placement: `media` full width on top, `title` the heading, `body`
+   * muted text under it, `meta` unlabelled in one inline row, `field` a labelled
+   * row. Defaults to the first column as title and the rest as fields.
+   */
+  card?: CardRole;
+  /** Used instead of `render` on the phone card. */
+  renderCard?: (value: unknown, item: T) => ReactNode;
 };
 
 type DataTableProps<T> = {
@@ -131,36 +142,77 @@ function RowCard<T>({
   onRowClick,
   dragHandle,
 }: RowCardProps<T>) {
-  const [titleColumn, ...detailColumns] = columns;
+  const hasTitle = columns.some(c => c.card === 'title');
+  const roleOf = (column: Column<T>, i: number): CardRole =>
+    column.card ?? (i === 0 && !hasTitle ? 'title' : 'field');
+  const byRole = (role: CardRole) => columns.filter((c, i) => roleOf(c, i) === role);
+  const cell = (column: Column<T>) =>
+    column.renderCard
+      ? column.renderCard(item[column.key as keyof T], item)
+      : renderCell(column, item);
+
+  const media = byRole('media');
+  const title = byRole('title');
+  const body = byRole('body');
+  const meta = byRole('meta');
+  const fields = byRole('field');
 
   return (
     <div
-      className={`space-y-3 rounded-lg border bg-card p-4 ${rowClassName ? rowClassName(item) : ''} ${onRowClick ? 'cursor-pointer hover:bg-muted/30' : ''}`}
+      className={`overflow-hidden rounded-xl border bg-card ${rowClassName ? rowClassName(item) : ''} ${onRowClick ? 'cursor-pointer hover:bg-muted/30' : ''}`}
       onClick={() => onRowClick?.(item)}
     >
-      <div className='flex items-start gap-2'>
-        {dragHandle}
-        {showRowNumbers && (
-          <span className='pt-0.5 text-sm text-muted-foreground tabular-nums'>{index + 1}.</span>
-        )}
-        <div className='min-w-0 flex-1 font-medium'>
-          {titleColumn && renderCell(titleColumn, item)}
+      {media.map(column => (
+        <div key={column.key} className='border-b bg-muted'>
+          {cell(column)}
         </div>
+      ))}
+
+      <div className='space-y-3 p-4'>
+        <div className='flex items-start gap-2'>
+          {dragHandle}
+          {showRowNumbers && (
+            <span className='pt-0.5 text-sm text-muted-foreground tabular-nums'>{index + 1}.</span>
+          )}
+          <div className='min-w-0 flex-1 space-y-1'>
+            {title.map(column => (
+              <div key={column.key} className='font-medium'>
+                {cell(column)}
+              </div>
+            ))}
+            {body.map(column => (
+              <div key={column.key} className='text-sm text-muted-foreground'>
+                {cell(column)}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {meta.length > 0 && (
+          <div className='flex flex-wrap items-center gap-x-3 gap-y-2'>
+            {meta.map(column => (
+              <div key={column.key}>{cell(column)}</div>
+            ))}
+          </div>
+        )}
+
+        {fields.length > 0 && (
+          <dl className='grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-2 text-sm'>
+            {fields.map(column => (
+              <div key={column.key} className='contents'>
+                <dt className='text-muted-foreground'>{column.name}</dt>
+                <dd className='min-w-0'>{cell(column)}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
       </div>
 
-      {detailColumns.length > 0 && (
-        <dl className='grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-2 text-sm'>
-          {detailColumns.map(column => (
-            <div key={column.key} className='contents'>
-              <dt className='text-muted-foreground'>{column.name}</dt>
-              <dd className='min-w-0'>{renderCell(column, item)}</dd>
-            </div>
-          ))}
-        </dl>
-      )}
-
       {renderActions && (
-        <div className='flex justify-end border-t pt-3' onClick={e => e.stopPropagation()}>
+        <div
+          className='flex justify-end border-t bg-muted/20 px-3 py-2'
+          onClick={e => e.stopPropagation()}
+        >
           {renderActions(item)}
         </div>
       )}

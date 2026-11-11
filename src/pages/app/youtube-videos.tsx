@@ -133,6 +133,7 @@ export default function YouTubeVideos() {
     {
       key: 'published_at',
       name: 'Status',
+      card: 'meta',
       width: 'w-[90px]',
       render: value => <ContentStatus published={value !== null} />,
     },

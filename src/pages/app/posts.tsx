@@ -116,6 +116,20 @@ export default function Posts() {
     {
       key: 'image_url',
       name: 'Preview',
+      card: 'media',
+      renderCard: value =>
+        value ? (
+          <RemoteImage
+            src={value as string}
+            alt='Post preview'
+            fit='contain'
+            containerClassName='aspect-video w-full'
+          />
+        ) : (
+          <div className='flex aspect-video w-full items-center justify-center'>
+            <FileImage className='h-8 w-8 text-muted-foreground' />
+          </div>
+        ),
       width: 'w-[120px]',
       render: value =>
         value ? (
@@ -153,6 +167,7 @@ export default function Posts() {
     {
       key: 'title',
       name: 'Title',
+      card: 'title',
       width: 'w-[50%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden font-medium'>
@@ -163,12 +178,14 @@ export default function Posts() {
     {
       key: 'orientation',
       name: 'Orientation',
+      card: 'meta',
       width: 'w-[120px]',
       render: (_value, item) => <OrientationBadge orientation={(item as Post).orientation} />,
     },
     {
       key: 'published_at',
       name: 'Status',
+      card: 'meta',
       width: 'w-[90px]',
       render: (value, item) => (
         <ContentStatus

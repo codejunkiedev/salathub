@@ -122,6 +122,7 @@ export default function Events() {
     {
       key: 'description',
       name: 'Description',
+      card: 'body',
       width: 'w-[26%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden'>{value as string}</div>
@@ -150,6 +151,7 @@ export default function Events() {
     {
       key: 'published_at',
       name: 'Status',
+      card: 'meta',
       width: 'w-[90px]',
       render: (value, item) => (
         <ContentStatus

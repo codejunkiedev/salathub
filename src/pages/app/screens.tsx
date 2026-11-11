@@ -134,6 +134,7 @@ export default function Screens() {
     {
       key: 'orientation',
       name: 'Orientation',
+      card: 'meta',
       width: 'w-[12%]',
       render: value => <OrientationBadge orientation={value as DisplayScreen['orientation']} />,
     },
