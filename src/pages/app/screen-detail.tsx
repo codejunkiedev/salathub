@@ -179,7 +179,7 @@ export default function ScreenDetail() {
 
   if (loading) {
     return (
-      <div className='container mx-auto py-8 space-y-6'>
+      <div className='container mx-auto py-2 md:py-8 space-y-6'>
         <div className='animate-pulse bg-muted rounded-lg h-12 w-48' />
         <div className='animate-pulse bg-muted rounded-lg h-32' />
         <div className='animate-pulse bg-muted rounded-lg h-64' />
@@ -189,14 +189,14 @@ export default function ScreenDetail() {
 
   if (!screen) {
     return (
-      <div className='container mx-auto py-8 space-y-6'>
+      <div className='container mx-auto py-2 md:py-8 space-y-6'>
         <ErrorAlert message='Screen not found' onClose={() => {}} />
       </div>
     );
   }
 
   return (
-    <div className='container mx-auto py-8 space-y-6'>
+    <div className='container mx-auto py-2 md:py-8 space-y-6'>
       <div className='flex items-center gap-4'>
         <Link to={AppRoutes.Screens}>
           <Button variant='ghost' size='sm'>

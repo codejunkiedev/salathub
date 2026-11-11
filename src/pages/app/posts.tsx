@@ -182,7 +182,7 @@ export default function Posts() {
   ];
 
   return (
-    <div className='container mx-auto py-8 space-y-6'>
+    <div className='container mx-auto py-2 md:py-8 space-y-6'>
       <PageHeader title='Posts' description='Manage your masjid posts' onAddClick={handleAddNew} />
 
       <ErrorAlert message={error} onClose={() => setError(null)} />

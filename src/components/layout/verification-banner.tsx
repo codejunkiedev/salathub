@@ -53,8 +53,10 @@ export default function VerificationBanner() {
           : 'border-amber-400/60 bg-amber-50 text-amber-900 dark:bg-amber-950/40 dark:text-amber-200'
       )}
     >
-      <Icon className='h-4 w-4 shrink-0' />
-      <p className='flex-1'>{message}</p>
+      <div className='flex flex-1 items-start gap-3 sm:items-center'>
+        <Icon className='mt-0.5 h-4 w-4 shrink-0 sm:mt-0' />
+        <p>{message}</p>
+      </div>
       <Link
         to={AppRoutes.SettingsVerification}
         className={buttonVariants({ variant: 'outline', size: 'sm', className: 'shrink-0' })}

@@ -139,7 +139,7 @@ export default function YouTubeVideos() {
   ];
 
   return (
-    <div className='container mx-auto py-8 space-y-6'>
+    <div className='container mx-auto py-2 md:py-8 space-y-6'>
       <PageHeader
         title='YouTube Videos'
         description='Manage YouTube video slides for your screens'

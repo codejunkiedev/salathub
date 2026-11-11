@@ -133,7 +133,7 @@ export default function Announcements() {
   ];
 
   return (
-    <div className='container mx-auto py-8 space-y-6'>
+    <div className='container mx-auto py-2 md:py-8 space-y-6'>
       <PageHeader
         title='Announcements'
         description='Manage your masjid announcements'

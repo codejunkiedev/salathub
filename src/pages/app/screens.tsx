@@ -175,7 +175,7 @@ export default function Screens() {
   ];
 
   return (
-    <div className='container mx-auto py-8 space-y-6'>
+    <div className='container mx-auto py-2 md:py-8 space-y-6'>
       <PageHeader
         title='Display Screens'
         description='Create and manage display screens for different areas of your masjid'

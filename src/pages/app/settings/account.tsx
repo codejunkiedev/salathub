@@ -128,7 +128,7 @@ export default function Account() {
   };
 
   return (
-    <div className='container mx-auto py-8 space-y-6'>
+    <div className='container mx-auto py-2 md:py-8 space-y-6'>
       <div className='flex items-center gap-4'>
         <Link to={AppRoutes.Settings}>
           <Button variant='ghost' size='sm'>

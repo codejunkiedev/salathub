@@ -11,7 +11,7 @@ export default function Home() {
 
   if (needsOnboarding) {
     return (
-      <div className='container mx-auto py-8 space-y-6'>
+      <div className='container mx-auto py-2 md:py-8 space-y-6'>
         <WelcomeHeader
           title='Welcome to SalatHub'
           subtitle='Set up your masjid profile to get started'
@@ -80,7 +80,7 @@ export default function Home() {
   ];
 
   return (
-    <div className='container mx-auto py-8 space-y-8'>
+    <div className='container mx-auto py-2 md:py-8 space-y-8'>
       <WelcomeHeader
         title='Welcome to SalatHub'
         subtitle="Manage all your masjid's digital needs in one place"
