@@ -7,7 +7,7 @@ One React SPA, two runtime surfaces behind separate authentication realms:
 | Surface              | Users                 | Sign-in                          | Session                                             |
 | -------------------- | --------------------- | -------------------------------- | --------------------------------------------------- |
 | Console (`/admin/*`) | Admins, moderators    | Email + password (Supabase Auth) | Supabase session + `auth` store                     |
-| Display (`/`)        | Screens in the masjid | A per-screen code                | No Supabase session; code held in a persisted store |
+| Display (`/display`) | Screens in the masjid | A per-screen code                | No Supabase session; code held in a persisted store |
 
 The realms are independent, so one device can hold both at once. Each masjid is a tenant: a user belongs to exactly one masjid with a role of `admin` or `moderator`, enforced in the UI and again by Row-Level Security.
 

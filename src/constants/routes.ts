@@ -6,6 +6,7 @@ export enum AuthRoutes {
 }
 
 export enum PublicRoutes {
+  Landing = '/',
   PrivacyPolicy = '/privacy',
   TermsConditions = '/terms',
   Masjid = '/masjid/:id',
@@ -19,7 +20,7 @@ export enum PlatformRoutes {
 }
 
 export enum AppRoutes {
-  Display = '/',
+  Display = '/display',
   DisplayLogout = '/logout',
   Home = '/admin',
   ResetPassword = '/admin/reset-password',

@@ -1,5 +1,6 @@
 import { registerSW } from 'virtual:pwa-register';
-import { AppRoutes, AuthRoutes } from '@/constants/routes';
+import { AppRoutes, AuthRoutes, PublicRoutes } from '@/constants/routes';
+import { useDisplayStore } from '@/store';
 import { Sentry } from './sentry';
 
 const DISPLAY_PATHS = new Set<string>([
@@ -9,6 +10,8 @@ const DISPLAY_PATHS = new Set<string>([
 ]);
 
 function isDisplayPath(pathname: string): boolean {
+  // A signed-in screen opening the root is about to be sent on to the display.
+  if (pathname === PublicRoutes.Landing) return useDisplayStore.getState().loggedIn;
   return DISPLAY_PATHS.has(pathname);
 }
 

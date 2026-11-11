@@ -41,6 +41,7 @@ import {
   PrivacyPolicy,
   TermsConditions,
   MasjidFollow,
+  Landing,
   PlatformQueue,
   PlatformMasjids,
   PlatformMasjidDetail,
@@ -64,7 +65,11 @@ export default function Navigation() {
   // A platform admin who runs no masjid has nothing in the masjid console.
   const platformOnly = isPlatformAdmin && !masjidId;
   const home = platformOnly ? PlatformRoutes.Queue : AppRoutes.Home;
-  const route = isLoggedInWithEmail ? home : AppRoutes.Display;
+  const route = isLoggedInWithEmail
+    ? home
+    : isLoggedInWithCode
+      ? AppRoutes.Display
+      : PublicRoutes.Landing;
 
   useEffect(() => {
     const checkUser = async () => {
@@ -264,6 +269,12 @@ export default function Navigation() {
               }
             />
           </Route>
+
+          {/* Screens that still open the root (bookmarks, installed PWAs) go on to the display */}
+          <Route
+            path={PublicRoutes.Landing}
+            element={isLoggedInWithCode ? <Navigate to={AppRoutes.Display} replace /> : <Landing />}
+          />
 
           {/* Display routes - require authentication */}
           <Route

@@ -4,7 +4,7 @@ What a screen actually does once it is signed in. How it _fetches_ is in [Archit
 
 ## Slide assembly
 
-Route `/` (`pages/app/display.tsx`), a full-screen Swiper with an 800 ms crossfade.
+Route `/display` (`pages/app/display.tsx`), a full-screen Swiper with an 800 ms crossfade.
 
 **Order:** prayer times (when `show_prayer_times`) → weather (when `show_weather` and a forecast exists) → follow QR (when `show_follow_qr` and the masjid is listed) → each visible `screen_content` item in `display_order`.
 

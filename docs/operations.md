@@ -85,7 +85,7 @@ The rewrite deliberately catches `/admin/*` too, which is why `index.html` carri
 
 ## Offline, service worker and caches
 
-The service worker registers only on `/`, `/logout` and `/login-with-code`, and is proactively unregistered elsewhere so the console stays fresh.
+The service worker registers only on `/display`, `/logout`, `/login-with-code`, and on `/` for a signed-in screen, and is proactively unregistered elsewhere so the console stays fresh.
 
 Workbox precaches build assets and adds five runtime rules:
 

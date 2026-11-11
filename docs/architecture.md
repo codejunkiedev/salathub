@@ -4,10 +4,10 @@ How the app is composed, how it is secured, and how the two runtime surfaces get
 
 ## Two realms
 
-| Realm   | Routes         | Sign-in         | Store                                                    |
-| ------- | -------------- | --------------- | -------------------------------------------------------- |
-| Console | `/admin/*`     | Supabase Auth   | `auth` → `{ masjidId, role }`                            |
-| Display | `/`, `/logout` | Per-screen code | `display` → `{ loggedIn, masjidProfile, displayScreen }` |
+| Realm   | Routes                | Sign-in         | Store                                                    |
+| ------- | --------------------- | --------------- | -------------------------------------------------------- |
+| Console | `/admin/*`            | Supabase Auth   | `auth` → `{ masjidId, role }`                            |
+| Display | `/display`, `/logout` | Per-screen code | `display` → `{ loggedIn, masjidProfile, displayScreen }` |
 
 Tracked independently, so one device can hold both. A user belongs to exactly one masjid — `masjid_members` is `UNIQUE(user_id)` — with role `admin` or `moderator`.
 
@@ -15,9 +15,9 @@ A masjid owns any number of screens, each with its own code, orientation, theme,
 
 ## Routes and guards
 
-**Routes** (`constants/routes.ts`, three enums). Public `/privacy`, `/terms`. Auth `/login`, `/register`, `/forgot-password`, `/login-with-code`. Console `/admin` plus `announcements`, `events`, `posts`, `youtube-videos`, `ayat-and-hadith` (+ `/new`, `/:id/edit`), `prayer-timings`, `screens` (+ `/:id`, `/:id/customize-theme`), `settings` (+ `/profile`, `/account`), `moderators`, `support`, `reset-password`.
+**Routes** (`constants/routes.ts`). Public `/privacy`, `/terms`, `/masjid/:id`, and the landing page `/`, which sends a signed-in screen on to `/display`. Auth `/login`, `/register`, `/forgot-password`, `/login-with-code`. Console `/admin` plus `announcements`, `events`, `posts`, `youtube-videos`, `ayat-and-hadith` (+ `/new`, `/:id/edit`), `prayer-timings`, `screens` (+ `/:id`, `/:id/customize-theme`), `settings` (+ `/profile`, `/account`), `moderators`, `support`, `reset-password`.
 
-**Guards** (`navigation/index.tsx`). Every `/admin/*` route needs a session. `RequireAdmin` additionally wraps Screens, Screen Detail, the custom-theme editor, Prayer Timings, Settings, Settings Profile, Moderators and Support, redirecting moderators to `/admin`. Content pages are open to moderators. Auth routes redirect away when a session exists; the catch-all lands on `/admin` or `/` depending on session. All 28 pages are `React.lazy` behind one Suspense fallback.
+**Guards** (`navigation/index.tsx`). Every `/admin/*` route needs a session. `RequireAdmin` additionally wraps Screens, Screen Detail, the custom-theme editor, Prayer Timings, Settings, Settings Profile, Moderators and Support, redirecting moderators to `/admin`. Content pages are open to moderators. Auth routes redirect away when a session exists; the catch-all lands on `/admin`, `/display` or `/` depending on session. All 28 pages are `React.lazy` behind one Suspense fallback.
 
 Three routes render outside `AppLayout`, with no sidebar or header: the two designer routes and the custom-theme editor.
 
