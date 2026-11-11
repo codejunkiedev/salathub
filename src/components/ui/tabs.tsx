@@ -9,7 +9,8 @@ const Tabs = TabsPrimitive.Root;
 
 /**
  * Container for tab triggers. Renders a sliding indicator that smoothly
- * animates between the active triggers.
+ * animates between the active triggers. This is the app's one segmented
+ * control: style it here, and only pass `w-full` from call sites.
  */
 const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
@@ -67,7 +68,7 @@ const TabsList = React.forwardRef<
     <TabsPrimitive.List
       ref={setRef}
       className={cn(
-        'relative inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground',
+        'relative inline-flex h-9 items-center justify-center rounded-lg border bg-muted p-1 text-muted-foreground',
         className
       )}
       {...props}
@@ -75,7 +76,7 @@ const TabsList = React.forwardRef<
       <span
         aria-hidden
         className={cn(
-          'absolute rounded-sm bg-background shadow-sm transition-all duration-300 ease-out',
+          'absolute rounded-md bg-background shadow-sm transition-all duration-300 ease-out',
           indicator.visible ? 'opacity-100' : 'opacity-0'
         )}
         style={{
@@ -102,7 +103,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      'relative z-10 inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-foreground',
+      'relative z-10 inline-flex h-full flex-1 items-center justify-center whitespace-nowrap rounded-md px-3 text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-foreground',
       className
     )}
     {...props}

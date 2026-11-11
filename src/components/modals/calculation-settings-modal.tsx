@@ -136,7 +136,7 @@ export function CalculationSettingsModal({
         </DialogHeader>
 
         <Tabs defaultValue='prayer' className='w-full'>
-          <TabsList className='grid w-full grid-cols-2'>
+          <TabsList className='w-full'>
             <TabsTrigger value='prayer'>Prayer</TabsTrigger>
             <TabsTrigger value='hijri'>Hijri</TabsTrigger>
           </TabsList>

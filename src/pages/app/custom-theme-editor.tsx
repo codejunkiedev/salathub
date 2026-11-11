@@ -235,7 +235,7 @@ export default function CustomThemeEditor() {
               value={previewLanguage}
               onValueChange={v => setPreviewLanguage(v as DisplayLanguage)}
             >
-              <TabsList className='grid w-full max-w-md grid-cols-3'>
+              <TabsList className='w-full max-w-md'>
                 {PREVIEW_LANGUAGES.map(l => (
                   <TabsTrigger key={l.value} value={l.value}>
                     {l.label}

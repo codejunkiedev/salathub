@@ -177,9 +177,9 @@ export default function Events() {
         addButtonDisabled={isTimezoneLoading}
         actions={
           <Tabs value={scope} onValueChange={v => setScope(v as EventScope)}>
-            <TabsList className='h-9'>
+            <TabsList>
               {SCOPES.map(option => (
-                <TabsTrigger key={option.value} value={option.value} className='px-3'>
+                <TabsTrigger key={option.value} value={option.value}>
                   {option.label}
                 </TabsTrigger>
               ))}

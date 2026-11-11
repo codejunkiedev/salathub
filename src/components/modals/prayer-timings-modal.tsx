@@ -206,7 +206,7 @@ export function PrayerTimingsModal({
 
         <form onSubmit={handleSubmit(onFormSubmit)} className='space-y-4 py-2'>
           <Tabs defaultValue='starts' className='w-full'>
-            <TabsList className='grid w-full grid-cols-3'>
+            <TabsList className='w-full'>
               {CATEGORIES.map(cat => (
                 <TabsTrigger key={cat.key} value={cat.key}>
                   {cat.label}
