@@ -1,7 +1,7 @@
 import { SupabaseBuckets, SupabaseTables, type MasjidProfile } from '@/types';
 import type { MasjidProfileData } from '../../zod';
 import {
-  getCurrentUser,
+  getSessionUser,
   getMasjidMembership,
   uploadFile,
   fetchByColumn,
@@ -22,7 +22,7 @@ export async function getMasjidProfile(): Promise<MasjidProfile | null> {
     return await fetchById<MasjidProfile>(SupabaseTables.MasjidProfiles, masjid_id);
   } catch {
     // Fallback for users who haven't been added to masjid_members yet (e.g. during registration)
-    const user = await getCurrentUser();
+    const user = await getSessionUser();
     if (!user) throw new Error('User not authenticated');
 
     const profiles = await fetchByColumn<MasjidProfile>(
@@ -46,7 +46,7 @@ export async function upsertMasjidProfile(
   logoFile: File | null,
   shouldRemoveLogo: boolean = false
 ) {
-  const user = await getCurrentUser();
+  const user = await getSessionUser();
   if (!user) throw new Error('User not authenticated');
 
   // The profile lookup moved ahead of the upload: logos are now stored under a

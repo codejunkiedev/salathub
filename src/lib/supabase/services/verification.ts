@@ -6,7 +6,7 @@ import {
   type VerificationDocumentKind,
 } from '@/types';
 import supabase from '../index';
-import { getCurrentUser, getMasjidMembership } from '../helpers';
+import { getSessionUser, getMasjidMembership } from '../helpers';
 import { captureSupabaseError } from '@/lib/sentry';
 
 export const VERIFICATION_FILE_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
@@ -55,7 +55,7 @@ export async function uploadVerificationDocument(
     throw new Error('Files can be up to 10 MB');
   }
 
-  const [{ masjid_id }, user] = await Promise.all([getMasjidMembership(), getCurrentUser()]);
+  const [{ masjid_id }, user] = await Promise.all([getMasjidMembership(), getSessionUser()]);
   if (!user) throw new Error('User not authenticated');
 
   const path = `${masjid_id}/${crypto.randomUUID()}.${EXTENSIONS[file.type]}`;

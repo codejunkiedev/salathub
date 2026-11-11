@@ -59,11 +59,28 @@ export async function getCurrentUser() {
 }
 
 /**
+ * The signed-in user from the local session, without a round trip to the auth
+ * server. Fine for scoping data calls: the database verifies the token itself
+ * and RLS rejects anything the user doesn't own. Use getCurrentUser when the
+ * user's details (such as a just-changed email) must be current.
+ */
+export async function getSessionUser() {
+  const { data, error } = await supabase.auth.getSession();
+
+  if (error) {
+    console.error('Error getting session user:', error);
+    return null;
+  }
+
+  return data.session?.user ?? null;
+}
+
+/**
  * Gets the masjid membership for the current authenticated user
  * @returns The masjid_id and role for the current user
  */
 export async function getMasjidMembership(): Promise<{ masjid_id: string; role: MemberRole }> {
-  const user = await getCurrentUser();
+  const user = await getSessionUser();
   if (!user) throw new Error('User not authenticated');
 
   const { data, error } = await supabase
@@ -81,7 +98,7 @@ export async function getMasjidMembership(): Promise<{ masjid_id: string; role: 
  * Called on login to track moderator activity.
  */
 export async function updateLastActive(): Promise<void> {
-  const user = await getCurrentUser();
+  const user = await getSessionUser();
   if (!user) return;
 
   await supabase

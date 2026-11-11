@@ -8,7 +8,7 @@ import {
 } from '@/types';
 import type { ScreenData } from '../../zod';
 import {
-  getCurrentUser,
+  getSessionUser,
   getMasjidMembership,
   fetchByColumn,
   updateRecord,
@@ -71,7 +71,7 @@ export async function recordScreenHeartbeat(code: string): Promise<void> {
 }
 
 export async function createScreen(data: ScreenData): Promise<DisplayScreen> {
-  const user = await getCurrentUser();
+  const user = await getSessionUser();
   if (!user) throw new Error('User not authenticated');
   const { masjid_id } = await getMasjidMembership();
 

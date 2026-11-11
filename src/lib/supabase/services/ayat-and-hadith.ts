@@ -11,7 +11,7 @@ import {
 } from '@/types';
 import {
   fetchById,
-  getCurrentUser,
+  getSessionUser,
   getMasjidMembership,
   updateRecord,
   insertRecord,
@@ -49,7 +49,7 @@ export interface UpsertAyatAndHadithInput {
 }
 
 export async function upsertAyatAndHadith(input: UpsertAyatAndHadithInput): Promise<AyatAndHadith> {
-  const user = await getCurrentUser();
+  const user = await getSessionUser();
   if (!user) throw new Error('User not authenticated');
   const { masjid_id } = await getMasjidMembership();
 

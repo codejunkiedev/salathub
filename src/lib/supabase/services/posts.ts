@@ -1,7 +1,7 @@
 import { SupabaseBuckets, SupabaseTables, type Post } from '@/types';
 import type { PostData } from '../../zod';
 import {
-  getCurrentUser,
+  getSessionUser,
   getMasjidMembership,
   updateRecord,
   insertRecord,
@@ -27,7 +27,7 @@ export async function upsertPost(
   imageFile: File | null,
   publish = true
 ) {
-  const user = await getCurrentUser();
+  const user = await getSessionUser();
   if (!user) throw new Error('User not authenticated');
   const { masjid_id } = await getMasjidMembership();
 

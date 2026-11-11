@@ -1,7 +1,7 @@
 import { SupabaseTables, type Settings, type SolarAdjustments } from '@/types';
 import { HijriCalculationMethod, CalculationMethod, JuristicSchool } from '@/constants';
 import {
-  getCurrentUser,
+  getSessionUser,
   getMasjidMembership,
   insertRecord,
   fetchByColumn,
@@ -31,7 +31,7 @@ export async function getSettings(masjidId?: string): Promise<Settings | null> {
 }
 
 export async function createDefaultSettings(): Promise<Settings> {
-  const user = await getCurrentUser();
+  const user = await getSessionUser();
   if (!user) throw new Error('User not authenticated');
   const { masjid_id } = await getMasjidMembership();
 

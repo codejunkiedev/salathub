@@ -1,7 +1,7 @@
 import { SupabaseTables, type PrayerTimes } from '@/types';
 import type { PrayerAdjustmentsFormData } from '../../zod';
 import {
-  getCurrentUser,
+  getSessionUser,
   getMasjidMembership,
   fetchByColumn,
   updateRecord,
@@ -32,7 +32,7 @@ export async function getOrCreatePrayerAdjustments(): Promise<PrayerTimes | null
   const existing = await getPrayerAdjustments();
   if (existing) return existing;
 
-  const user = await getCurrentUser();
+  const user = await getSessionUser();
   if (!user) return null;
   const { masjid_id } = await getMasjidMembership();
 
@@ -58,7 +58,7 @@ export async function getOrCreatePrayerAdjustments(): Promise<PrayerTimes | null
 export async function savePrayerAdjustments(
   settings: PrayerAdjustmentsFormData
 ): Promise<PrayerTimes> {
-  const user = await getCurrentUser();
+  const user = await getSessionUser();
   if (!user) throw new Error('User not authenticated');
   const { masjid_id } = await getMasjidMembership();
 

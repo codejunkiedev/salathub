@@ -1,7 +1,7 @@
 import { SupabaseTables, type Announcement } from '@/types';
 import type { AnnouncementData } from '../../zod';
 import {
-  getCurrentUser,
+  getSessionUser,
   getMasjidMembership,
   updateRecord,
   insertRecord,
@@ -25,7 +25,7 @@ export async function upsertAnnouncement(
   announcement: AnnouncementData & { id?: string },
   publish = true
 ) {
-  const user = await getCurrentUser();
+  const user = await getSessionUser();
   if (!user) throw new Error('User not authenticated');
   const { masjid_id } = await getMasjidMembership();
 
