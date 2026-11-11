@@ -35,13 +35,13 @@ export function PageHeader({
   return (
     <Card>
       <CardHeader>
-        <div className='flex justify-between items-center'>
+        <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
           <div className='space-y-1'>
             <CardTitle>{title}</CardTitle>
             <CardDescription>{description}</CardDescription>
           </div>
           {isRightContent && (
-            <div className='flex gap-2'>
+            <div className='flex flex-wrap gap-2'>
               {actions}
               {showSettingsButton && onSettingsClick && (
                 <Button onClick={onSettingsClick}>

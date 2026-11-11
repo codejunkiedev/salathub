@@ -86,21 +86,17 @@ export default function Home() {
         subtitle="Manage all your masjid's digital needs in one place"
       />
 
-      <div className='overflow-x-auto pb-4'>
-        <div className='flex md:grid md:grid-cols-3 gap-6' style={{ minWidth: 'min-content' }}>
-          {modules.map((module, index) => (
-            <div key={module.path} className='w-[320px] md:w-auto flex-shrink-0'>
-              <ModuleCard
-                title={module.title}
-                description={module.description}
-                icon={module.icon}
-                path={module.path}
-                color={module.color}
-                key={index}
-              />
-            </div>
-          ))}
-        </div>
+      <div className='grid gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-3'>
+        {modules.map(module => (
+          <ModuleCard
+            key={module.path}
+            title={module.title}
+            description={module.description}
+            icon={module.icon}
+            path={module.path}
+            color={module.color}
+          />
+        ))}
       </div>
 
       <div className='mt-12'>
