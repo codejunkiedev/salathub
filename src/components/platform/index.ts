@@ -4,3 +4,4 @@ export * from './labels';
 export * from './masjid-cell';
 export * from './billing-status-badge';
 export * from './billing-grant-dialog';
+export * from './tax-exemption-review';

@@ -416,6 +416,10 @@ verify_jwt = false
 [functions.billing-jobs]
 verify_jwt = false
 
+# Checks the caller is a platform admin itself.
+[functions.tax-exemptions]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

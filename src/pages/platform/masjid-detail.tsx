@@ -32,11 +32,13 @@ import {
   REPORT_RESOLUTION_LABELS,
   REPORT_TARGET_LABELS,
   ReasonDialog,
+  TaxExemptionReview,
   VerificationStatusBadge,
 } from '@/components/platform';
 import {
   extendMasjidTrial,
   getMasjidMembers,
+  getMasjidTaxExemptions,
   getPlatformMasjidBilling,
   grantMasjidPro,
   getMasjidDocuments,
@@ -53,6 +55,7 @@ import { PlatformRoutes } from '@/constants';
 import type {
   BillingGrant,
   MasjidBilling,
+  TaxExemptionCertificate,
   MasjidProfile,
   MasjidReport,
   MasjidVerification,
@@ -150,6 +153,7 @@ export default function PlatformMasjidDetail() {
   const [busy, setBusy] = useState<ReviewAction | null>(null);
   const [billing, setBilling] = useState<MasjidBilling | null>(null);
   const [grants, setGrants] = useState<BillingGrant[]>([]);
+  const [certificates, setCertificates] = useState<TaxExemptionCertificate[]>([]);
   const [grantDialog, setGrantDialog] = useState<'pro' | 'trial_extension' | null>(null);
   const [isGranting, setIsGranting] = useState(false);
 
@@ -158,11 +162,12 @@ export default function PlatformMasjidDetail() {
 
     const load = async () => {
       try {
-        const [masjid, docs, masjidReports, masjidBilling] = await Promise.all([
+        const [masjid, docs, masjidReports, masjidBilling, masjidCertificates] = await Promise.all([
           getPlatformMasjid(id),
           getMasjidDocuments(id),
           getMasjidReports({ masjidId: id }),
           getPlatformMasjidBilling(id),
+          getMasjidTaxExemptions(id),
         ]);
         const withUrls = await Promise.all(
           docs.map(async doc => ({
@@ -177,6 +182,7 @@ export default function PlatformMasjidDetail() {
         setReports(masjidReports);
         setBilling(masjidBilling.billing);
         setGrants(masjidBilling.grants);
+        setCertificates(masjidCertificates);
         if (!masjid) setError('Masjid not found');
       } catch (err) {
         console.error(err);
@@ -509,6 +515,19 @@ export default function PlatformMasjidDetail() {
               ) : (
                 <p className='text-sm text-muted-foreground'>No billing record.</p>
               )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Tax exemption</CardTitle>
+              <CardDescription>
+                Nonprofit sales tax certificates. Approving one makes the masjid's Stripe customer
+                tax exempt while its billing address is in that state.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <TaxExemptionReview certificates={certificates} onChange={reload} />
             </CardContent>
           </Card>
 
