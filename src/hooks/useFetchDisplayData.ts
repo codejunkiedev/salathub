@@ -26,7 +26,11 @@ type ReturnType = {
   errorMessage: ErrorMessage | null;
   orderedContent: DisplayContentItem[];
   userSettings: Settings | null;
+  showBadge: boolean;
 };
+
+// Realtime can miss changes while a socket is down, so recheck on a timer too.
+const RECHECK_INTERVAL_MS = 5 * 60 * 1000;
 
 const buildOrderedContent = (
   screenContentRows: DisplayDataCache['screenContent'],
@@ -70,7 +74,9 @@ export function useFetchDisplayData(): ReturnType {
     screenId: string;
     userSettings: Settings | null;
     orderedContent: DisplayContentItem[];
+    showBadge: boolean;
   } | null>(null);
+  const [recheckKey, setRecheckKey] = useState(0);
   const [settledScreenId, setSettledScreenId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<ErrorMessage | null>(null);
 
@@ -90,6 +96,12 @@ export function useFetchDisplayData(): ReturnType {
     subscriptions
   );
 
+  useEffect(() => {
+    if (!screenId) return;
+    const interval = window.setInterval(() => setRecheckKey(k => k + 1), RECHECK_INTERVAL_MS);
+    return () => window.clearInterval(interval);
+  }, [screenId]);
+
   const cached = useMemo(() => (screenId ? readDisplayCache(screenId) : null), [screenId]);
   const cachedContent = useMemo(
     () => (cached ? buildOrderedContent(cached.screenContent, cached.contentItems) : []),
@@ -99,13 +111,14 @@ export function useFetchDisplayData(): ReturnType {
   const current = fetched?.screenId === screenId ? fetched : null;
   const userSettings = current ? current.userSettings : (cached?.settings ?? null);
   const orderedContent = current ? current.orderedContent : cachedContent;
+  const showBadge = current ? current.showBadge : (cached?.showBadge ?? false);
   const isLoading = Boolean(screenId && code) && !cached && settledScreenId !== screenId;
 
   useEffect(() => {
     if (!screenId || !code) return;
 
     let cancelled = false;
-    const isInitialFetch = refreshKey === 0;
+    const isInitialFetch = refreshKey === 0 && recheckKey === 0;
     const hasCachedData = cached !== null;
 
     if (isInitialFetch && cached) setDisplayScreen(cached.screen);
@@ -137,6 +150,7 @@ export function useFetchDisplayData(): ReturnType {
           screenId,
           userSettings: payload.settings,
           orderedContent: buildOrderedContent(payload.screen_content, payload.content),
+          showBadge: payload.show_badge === true,
         });
 
         writeDisplayCache(screenId, {
@@ -144,6 +158,7 @@ export function useFetchDisplayData(): ReturnType {
           screen: payload.screen,
           screenContent: payload.screen_content,
           contentItems: payload.content,
+          showBadge: payload.show_badge === true,
         });
       })
       .catch(error => {
@@ -166,12 +181,13 @@ export function useFetchDisplayData(): ReturnType {
     return () => {
       cancelled = true;
     };
-  }, [screenId, code, refreshKey, cached, setDisplayScreen, setMasjidProfile, signOut]);
+  }, [screenId, code, refreshKey, recheckKey, cached, setDisplayScreen, setMasjidProfile, signOut]);
 
   return {
     isLoading,
     errorMessage,
     orderedContent,
     userSettings,
+    showBadge,
   };
 }

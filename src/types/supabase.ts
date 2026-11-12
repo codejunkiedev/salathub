@@ -447,6 +447,8 @@ export interface DisplayScreen extends Base {
   language: DisplayLanguage;
   slide_interval_seconds: number;
   prayer_alert_triggers: PrayerAlertTrigger[];
+  /** Set while the screen is over its masjid's plan limit; it then shows only a notice. */
+  paused_at?: string | null;
 }
 
 export interface ScreenContent {

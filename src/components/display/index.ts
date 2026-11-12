@@ -2,6 +2,8 @@ import { lazy } from 'react';
 
 export * from './error-display';
 export * from './logout';
+export * from './paused-display';
+export * from './powered-by-badge';
 
 export const PrayerTimingDisplay = lazy(() =>
   import('./prayer-timings').then(m => ({ default: m.PrayerTimingDisplay }))

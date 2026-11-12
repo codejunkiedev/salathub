@@ -18,6 +18,8 @@ export type DisplayDataCache = {
   screen: DisplayScreen;
   screenContent: ScreenContent[];
   contentItems: Record<string, CachedContentRecord>;
+  /** Missing in caches written before the badge existed. */
+  showBadge?: boolean;
 };
 
 const cacheKey = (screenId: string) => `${DISPLAY_CACHE_PREFIX}:${screenId}`;

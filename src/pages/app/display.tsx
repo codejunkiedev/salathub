@@ -17,6 +17,8 @@ import Loading from '../loading-page';
 import { LoadingStep } from '@/constants/loading';
 import {
   ErrorDisplay,
+  PausedDisplay,
+  PoweredByBadge,
   PrayerTimingDisplay,
   AnnouncementsDisplay,
   PostsDisplay,
@@ -98,6 +100,7 @@ export default function Display() {
     errorMessage,
     orderedContent: rawOrderedContent,
     userSettings,
+    showBadge,
   } = useFetchDisplayData();
 
   // YouTube embeds need a live network connection, so drop those slides when
@@ -179,6 +182,11 @@ export default function Display() {
     ...(showWeather ? [isWeatherLoading] : []),
   ];
   const pending = loads.filter(Boolean).length;
+
+  // Only a successful fetch changes paused_at, so losing the connection never pauses a screen.
+  if (displayScreen?.paused_at) {
+    return <PausedDisplay orientation={displayScreen.orientation} />;
+  }
 
   if (pending > 0) {
     const done = (loads.length - pending) / loads.length;
@@ -338,6 +346,7 @@ export default function Display() {
           </SwiperSlide>
         )} */}
       </Swiper>
+      {showBadge && <PoweredByBadge orientation={displayScreen?.orientation} />}
     </div>
   );
 }
