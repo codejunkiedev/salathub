@@ -24,6 +24,9 @@ import {
 } from '@/components/ui';
 import { ErrorAlert, PageHeader } from '@/components/common';
 import {
+  BillingGrantDialog,
+  BillingStatusBadge,
+  billingDate,
   DOCUMENT_KIND_LABELS,
   REPORT_REASON_LABELS,
   REPORT_RESOLUTION_LABELS,
@@ -32,7 +35,10 @@ import {
   VerificationStatusBadge,
 } from '@/components/platform';
 import {
+  extendMasjidTrial,
   getMasjidMembers,
+  getPlatformMasjidBilling,
+  grantMasjidPro,
   getMasjidDocuments,
   getMasjidReports,
   getPlatformMasjid,
@@ -45,6 +51,8 @@ import {
 import { useTrigger } from '@/hooks';
 import { PlatformRoutes } from '@/constants';
 import type {
+  BillingGrant,
+  MasjidBilling,
   MasjidProfile,
   MasjidReport,
   MasjidVerification,
@@ -140,16 +148,21 @@ export default function PlatformMasjidDetail() {
   const [error, setError] = useState<string | null>(null);
   const [dialog, setDialog] = useState<'reject' | 'suspend' | null>(null);
   const [busy, setBusy] = useState<ReviewAction | null>(null);
+  const [billing, setBilling] = useState<MasjidBilling | null>(null);
+  const [grants, setGrants] = useState<BillingGrant[]>([]);
+  const [grantDialog, setGrantDialog] = useState<'pro' | 'trial_extension' | null>(null);
+  const [isGranting, setIsGranting] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
 
     const load = async () => {
       try {
-        const [masjid, docs, masjidReports] = await Promise.all([
+        const [masjid, docs, masjidReports, masjidBilling] = await Promise.all([
           getPlatformMasjid(id),
           getMasjidDocuments(id),
           getMasjidReports({ masjidId: id }),
+          getPlatformMasjidBilling(id),
         ]);
         const withUrls = await Promise.all(
           docs.map(async doc => ({
@@ -162,6 +175,8 @@ export default function PlatformMasjidDetail() {
         setVerification(masjid?.verification ?? null);
         setDocuments(withUrls);
         setReports(masjidReports);
+        setBilling(masjidBilling.billing);
+        setGrants(masjidBilling.grants);
         if (!masjid) setError('Masjid not found');
       } catch (err) {
         console.error(err);
@@ -208,6 +223,25 @@ export default function PlatformMasjidDetail() {
       toast.error(err instanceof Error ? err.message : 'Action failed');
     } finally {
       setBusy(null);
+    }
+  };
+
+  const handleGrant = async (value: Date | number, reason: string) => {
+    try {
+      setIsGranting(true);
+      if (value instanceof Date) {
+        await grantMasjidPro(id, value, reason);
+        toast.success(`Free Pro until ${format(value, 'd MMM yyyy')}`);
+      } else {
+        await extendMasjidTrial(id, value, reason);
+        toast.success(`Trial extended by ${value} ${value === 1 ? 'day' : 'days'}`);
+      }
+      setGrantDialog(null);
+      reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to update the plan');
+    } finally {
+      setIsGranting(false);
     }
   };
 
@@ -415,6 +449,71 @@ export default function PlatformMasjidDetail() {
 
           <Card>
             <CardHeader>
+              <CardTitle>Billing</CardTitle>
+              <CardDescription>
+                Free Pro and trial extensions take effect straight away and are logged below.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className='space-y-4'>
+              {billing ? (
+                <>
+                  <dl className='space-y-2'>
+                    <Detail label='Plan'>
+                      <BillingStatusBadge billing={billing} />
+                    </Detail>
+                    {billingDate(billing) && (
+                      <Detail label={billingDate(billing)!.label}>
+                        {billingDate(billing)!.date}
+                      </Detail>
+                    )}
+                    {billing.plan === 'pro' && billing.extra_screens > 0 && (
+                      <Detail label='Extra screens'>{billing.extra_screens}</Detail>
+                    )}
+                    <Detail label='Currency'>{billing.currency.toUpperCase()}</Detail>
+                  </dl>
+                  <div className='flex flex-wrap gap-2'>
+                    {!['active', 'cancelled', 'payment_failed'].includes(billing.status) && (
+                      <Button variant='outline' onClick={() => setGrantDialog('pro')}>
+                        Give free Pro
+                      </Button>
+                    )}
+                    {(billing.status === 'trial' || billing.status === 'none') && (
+                      <Button variant='outline' onClick={() => setGrantDialog('trial_extension')}>
+                        Extend trial
+                      </Button>
+                    )}
+                  </div>
+                  {['active', 'cancelled', 'payment_failed'].includes(billing.status) && (
+                    <p className='text-sm text-muted-foreground'>
+                      The masjid pays for Pro, so change its subscription in Stripe.
+                    </p>
+                  )}
+                  {grants.length > 0 && (
+                    <ul className='space-y-3 border-t pt-4 text-sm'>
+                      {grants.map(grant => (
+                        <li key={grant.id} className='space-y-0.5'>
+                          <p className='font-medium'>
+                            {grant.kind === 'pro' ? 'Free Pro' : 'Trial'} until{' '}
+                            {format(new Date(grant.ends_at), 'd MMM yyyy')}
+                          </p>
+                          <p className='text-muted-foreground'>{grant.reason}</p>
+                          <p className='text-xs text-muted-foreground'>
+                            {grant.granted_by_email ?? 'Automatic'} ·{' '}
+                            {format(new Date(grant.created_at), 'd MMM yyyy, h:mm a')}
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </>
+              ) : (
+                <p className='text-sm text-muted-foreground'>No billing record.</p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle>Masjid</CardTitle>
             </CardHeader>
             <CardContent>
@@ -481,6 +580,12 @@ export default function PlatformMasjidDetail() {
         </div>
       </div>
 
+      <BillingGrantDialog
+        kind={grantDialog}
+        isSaving={isGranting}
+        onConfirm={handleGrant}
+        onClose={() => setGrantDialog(null)}
+      />
       <ReasonDialog
         isOpen={dialog === 'reject'}
         title='Reject verification'

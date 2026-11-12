@@ -54,14 +54,14 @@ Logos upload to `masjid-logos/<masjid_id>/<timestamp>` so storage RLS can scope 
 
 ## Billing
 
-`/admin/settings/billing`, admin-only. Shows the plan, status, trial-end or renewal date and screens in use against the plan. **Upgrade to Pro** opens Stripe Checkout and **Manage billing** opens the Stripe billing portal, both through the `billing` function. Back from checkout, the page polls until the webhook has made the masjid Pro. A banner (`trial-banner.tsx`) counts down the trial for admins; `billing-jobs` emails them 7 days and 1 day before it ends.
+`/admin/settings/billing`, admin-only. Shows the plan, status, trial-end or renewal date and screens in use against the plan. **Upgrade to Pro** opens Stripe Checkout and **Manage billing** opens the Stripe billing portal, both through the `billing` function. Back from checkout, the page polls until the webhook has made the masjid Pro. A banner (`trial-banner.tsx`) counts down the trial for admins; `billing-jobs` emails them 7 days and 1 day before it ends, and 30 and 7 days before free Pro from our team ends.
 
 ## Platform area
 
 `/platform`, for the SalatHub team only: users in `platform_admins`, added by hand with `INSERT INTO platform_admins (user_id) VALUES ('<auth user id>');`. Masjid users are sent back to the console. A platform admin with no masjid lands here after signing in; one who also runs a masjid gets a Platform link in the sidebar.
 
 - **Review queue**: pending submissions, longest waiting first.
-- **Masjids**: every masjid with its verification and app status. A masjid's page shows its documents, its admins' names and emails, its reports, and the approve, reject, suspend and restore actions.
+- **Masjids**: every masjid with its verification, app status and plan. A masjid's page shows its documents, its admins' names and emails, its reports, the approve, reject, suspend and restore actions, and a Billing card to give free Pro until a date or extend a trial, with every change logged.
 - **Reports**: what app users reported, with the reported item, and a Resolve button.
 
 Actions go through the `review-masjid` Edge Function, which checks `platform_admins`, makes the change as the caller so the decision records who made it, and emails the masjid's admins on approval or rejection. A failed email doesn't undo the decision; the reviewer is told.

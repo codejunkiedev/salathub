@@ -10,7 +10,7 @@ export async function getMasjidBilling(): Promise<MasjidBilling | null> {
   const { data, error } = await supabase
     .from(SupabaseTables.MasjidBilling)
     .select(
-      'masjid_id, plan, status, currency, extra_screens, trial_ends_at, renews_at, grace_ends_at, stripe_customer_id'
+      'masjid_id, plan, status, currency, extra_screens, trial_ends_at, renews_at, grace_ends_at, granted_until, stripe_customer_id'
     )
     .eq('masjid_id', masjid_id)
     .maybeSingle();

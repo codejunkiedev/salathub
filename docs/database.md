@@ -1,6 +1,6 @@
 # Database
 
-Twenty-two tables in `public`. [`supabase/migrations/`](../supabase/migrations/) is authoritative — 76 files, applied in order, with several columns added and later dropped, so read the latest migration touching a table rather than the one that created it.
+Twenty-three tables in `public`. [`supabase/migrations/`](../supabase/migrations/) is authoritative — 77 files, applied in order, with several columns added and later dropped, so read the latest migration touching a table rather than the one that created it.
 
 ## Tables
 
@@ -29,6 +29,7 @@ Twenty-two tables in `public`. [`supabase/migrations/`](../supabase/migrations/)
 | `plan_rules`                                                  | What Free and Pro allow: screens included, announcement limit, feature keys. The one definition the console, screens and plan limits read |
 | `masjid_billing`                                              | One row per masjid: plan, status, currency, extra screens, trial/renewal/grace dates, Stripe ids. Masjid admins and platform admins read; only the billing functions write |
 | `stripe_events`                                               | Stripe webhook events already handled, so a redelivery is skipped. No client role can reach it |
+| `masjid_billing_grants`                                       | Free Pro grants and trial extensions by our team, with who (`granted_by_email`), when and why. Platform admins read; written only by the functions below |
 
 On `prayer_times` and `settings`, `user_id` is nullable and `ON DELETE SET NULL` — it records who last saved the row, not who owns it, so deleting an account does not delete a masjid's prayer configuration. Both are keyed `UNIQUE(masjid_id)`; the earlier per-user keying is gone.
 
@@ -50,7 +51,8 @@ Beyond the two RLS helpers and the display read functions covered in [Architectu
 - `search_masjids_nearby()` / `search_masjids_by_name()` / `get_masjids_public()` — the directory reads, granted to `service_role` alone. See [Architecture](./architecture.md#how-the-mobile-app-reads-data).
 - `compute_masjid_in_app()` — a `BEFORE` trigger setting `in_app`: listed, verified or in grace, and not suspended. **Every app path reads `in_app`, never `listed`.** `sync_masjid_in_app()` re-runs it when a masjid's verification changes.
 - `submit_masjid_verification()` (masjid admin), `decide_masjid_verification()`, `set_masjid_suspension()` and `resolve_masjid_report()` (platform admin) — the only writes to verification state. `submit_masjid_report()` is `service_role` only.
-- `create_masjid_billing()` starts each new masjid on a 30-day Pro trial; `billing_currency_for_timezone()` picks PKR, CAD or USD from its timezone until it has a Stripe customer. `expire_masjid_billing()` moves expired trials and grace periods to Free, every 5 minutes (`expire-masjid-billing`). Hourly, `billing-jobs` sends the 7-day and 1-day trial reminders, recorded in `trial_reminder_7d_at` / `trial_reminder_1d_at`.
+- `create_masjid_billing()` starts each new masjid on a 30-day Pro trial; `billing_currency_for_timezone()` picks PKR, CAD or USD from its timezone until it has a Stripe customer. `expire_masjid_billing()` moves expired trials and grace periods to Free, every 5 minutes (`expire-masjid-billing`). Hourly, `billing-jobs` sends the 7-day and 1-day trial reminders and the 30-day and 7-day reminders before free Pro ends, each recorded in its `*_reminder_*_at` column.
+- `grant_masjid_pro()` (status `granted` until a date) and `extend_masjid_trial()` — platform admin only, each logged in `masjid_billing_grants`. Masjids that existed at launch were granted Pro until the end of 31 March 2027 in their own timezone.
 - Cron, both hourly: `expire-verification-grace`, and `verification-jobs`, which deletes documents 90 days after a decision and sends each masjid in grace one warning email (`grace_warned_at`).
 
 Every `SECURITY DEFINER` function now pins `search_path`.

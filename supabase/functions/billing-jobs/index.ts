@@ -4,22 +4,68 @@
  *   POST /billing-jobs
  *   header: x-jobs-secret: $BILLING_JOBS_SECRET
  *
- * Run by pg_cron. Emails a masjid's admins 7 days and 1 day before its Pro
- * trial ends, once each.
+ * Run by pg_cron. Emails a masjid's admins before its Pro ends, once each:
+ * 7 days and 1 day before a trial ends, 30 days and 7 days before free Pro
+ * from our team ends.
  */
 import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { sendEmail } from '../_shared/email.ts';
+import { sendEmail, type Email } from '../_shared/email.ts';
 import { adminEmails, getMasjidMembers } from '../_shared/masjid-admins.ts';
-import { trialReminderEmail } from '../_shared/billing-emails.ts';
+import { grantEndingEmail, trialReminderEmail } from '../_shared/billing-emails.ts';
 
 const BATCH_SIZE = 50;
 const SOFT_DEADLINE_MS = 50_000;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const REMINDERS = [
-  { daysLeft: 7, column: 'trial_reminder_7d_at', after: 1, upTo: 7 },
-  { daysLeft: 1, column: 'trial_reminder_1d_at', after: 0, upTo: 1 },
-] as const;
+type Reminder = {
+  label: string;
+  status: 'trial' | 'granted';
+  endColumn: 'trial_ends_at' | 'granted_until';
+  sentColumn: string;
+  /** Sent once the end is within upTo days, unless it is already within `after` days. */
+  after: number;
+  upTo: number;
+  email: (to: string[], name: string, endsAt: string, timeZone: string | null) => Email;
+};
+
+const REMINDERS: Reminder[] = [
+  {
+    label: '7-day trial',
+    status: 'trial',
+    endColumn: 'trial_ends_at',
+    sentColumn: 'trial_reminder_7d_at',
+    after: 1,
+    upTo: 7,
+    email: (to, name, endsAt, tz) => trialReminderEmail(to, name, endsAt, tz, 7),
+  },
+  {
+    label: '1-day trial',
+    status: 'trial',
+    endColumn: 'trial_ends_at',
+    sentColumn: 'trial_reminder_1d_at',
+    after: 0,
+    upTo: 1,
+    email: (to, name, endsAt, tz) => trialReminderEmail(to, name, endsAt, tz, 1),
+  },
+  {
+    label: '30-day grant',
+    status: 'granted',
+    endColumn: 'granted_until',
+    sentColumn: 'grant_reminder_30d_at',
+    after: 7,
+    upTo: 30,
+    email: (to, name, endsAt, tz) => grantEndingEmail(to, name, endsAt, tz, 30),
+  },
+  {
+    label: '7-day grant',
+    status: 'granted',
+    endColumn: 'granted_until',
+    sentColumn: 'grant_reminder_7d_at',
+    after: 0,
+    upTo: 7,
+    email: (to, name, endsAt, tz) => grantEndingEmail(to, name, endsAt, tz, 7),
+  },
+];
 
 const json = (body: unknown, status = 200): Response =>
   new Response(JSON.stringify(body), {
@@ -27,27 +73,26 @@ const json = (body: unknown, status = 200): Response =>
     headers: { 'Content-Type': 'application/json' },
   });
 
-const sendTrialReminders = async (
+const sendReminders = async (
   admin: SupabaseClient,
-  reminder: (typeof REMINDERS)[number],
+  reminder: Reminder,
   startedAt: number
 ): Promise<{ sent: number; failed: number }> => {
   const now = Date.now();
   const { data, error } = await admin
     .from('masjid_billing')
-    .select('masjid_id, trial_ends_at, masjid_profiles(name)')
-    .eq('status', 'trial')
-    .gt('trial_ends_at', new Date(now + reminder.after * DAY_MS).toISOString())
-    .lte('trial_ends_at', new Date(now + reminder.upTo * DAY_MS).toISOString())
-    .is(reminder.column, null)
+    .select(`masjid_id, ${reminder.endColumn}, masjid_profiles(name, timezone)`)
+    .eq('status', reminder.status)
+    .gt(reminder.endColumn, new Date(now + reminder.after * DAY_MS).toISOString())
+    .lte(reminder.endColumn, new Date(now + reminder.upTo * DAY_MS).toISOString())
+    .is(reminder.sentColumn, null)
     .limit(BATCH_SIZE);
   if (error) throw error;
 
-  const due = (data ?? []) as unknown as {
+  const due = (data ?? []) as unknown as (Record<string, string> & {
     masjid_id: string;
-    trial_ends_at: string;
-    masjid_profiles: { name: string } | null;
-  }[];
+    masjid_profiles: { name: string; timezone: string | null } | null;
+  })[];
 
   const result = { sent: 0, failed: 0 };
   for (const row of due) {
@@ -55,23 +100,23 @@ const sendTrialReminders = async (
     try {
       const to = adminEmails(await getMasjidMembers(admin, row.masjid_id));
       await sendEmail(
-        trialReminderEmail(
+        reminder.email(
           to,
           row.masjid_profiles?.name ?? 'Your masjid',
-          row.trial_ends_at,
-          reminder.daysLeft
+          row[reminder.endColumn],
+          row.masjid_profiles?.timezone ?? null
         )
       );
 
       const { error: markError } = await admin
         .from('masjid_billing')
-        .update({ [reminder.column]: new Date().toISOString() })
+        .update({ [reminder.sentColumn]: new Date().toISOString() })
         .eq('masjid_id', row.masjid_id);
       if (markError) throw markError;
       result.sent += 1;
     } catch (e) {
       result.failed += 1;
-      console.error(`${reminder.daysLeft}-day trial reminder failed for ${row.masjid_id}`, e);
+      console.error(`${reminder.label} reminder failed for ${row.masjid_id}`, e);
     }
   }
   return result;
@@ -92,12 +137,12 @@ Deno.serve(async req => {
 
   for (const reminder of REMINDERS) {
     try {
-      const result = await sendTrialReminders(admin, reminder, startedAt);
+      const result = await sendReminders(admin, reminder, startedAt);
       summary.sent += result.sent;
       summary.failed += result.failed;
     } catch (error) {
       summary.failed += 1;
-      console.error(`billing-jobs ${reminder.daysLeft}-day reminders failed`, error);
+      console.error(`billing-jobs ${reminder.label} reminders failed`, error);
     }
   }
 
