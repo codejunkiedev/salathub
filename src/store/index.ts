@@ -4,6 +4,7 @@ import type { DisplayStore } from '@/types';
 
 export { useAuthStore } from './auth-store';
 export { useVerificationStore } from './verification-store';
+export { useBillingStore } from './billing-store';
 
 enum StorageKeys {
   Display = 'display',

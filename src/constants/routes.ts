@@ -37,6 +37,7 @@ export enum AppRoutes {
   SettingsProfile = '/admin/settings/profile',
   SettingsAlkhairiaApp = '/admin/settings/alkhairia-app',
   SettingsVerification = '/admin/settings/verification',
+  SettingsBilling = '/admin/settings/billing',
 
   SettingsAccount = '/admin/settings/account',
   Moderators = '/admin/moderators',

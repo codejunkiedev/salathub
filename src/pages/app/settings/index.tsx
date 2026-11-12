@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { UserRound, Shield, Smartphone, BadgeCheck } from 'lucide-react';
+import { UserRound, Shield, Smartphone, BadgeCheck, CreditCard } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui';
 import { AppRoutes } from '@/constants';
 import { PageHeader } from '@/components/common';
@@ -20,6 +20,14 @@ const settingsModules = [
     icon: BadgeCheck,
     route: AppRoutes.SettingsVerification,
     color: 'text-sky-600',
+    requiresMasjid: true,
+  },
+  {
+    title: 'Billing',
+    description: "See the masjid's plan, upgrade to Pro and manage payments",
+    icon: CreditCard,
+    route: AppRoutes.SettingsBilling,
+    color: 'text-violet-600',
     requiresMasjid: true,
   },
   {

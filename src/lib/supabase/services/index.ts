@@ -14,3 +14,4 @@ export * from './notifications';
 export * from './publishing';
 export * from './verification';
 export * from './platform';
+export * from './billing';

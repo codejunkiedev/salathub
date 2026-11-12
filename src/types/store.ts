@@ -1,4 +1,10 @@
-import type { DisplayScreen, MasjidProfile, MasjidVerification, MemberRole } from './supabase';
+import type {
+  DisplayScreen,
+  MasjidBilling,
+  MasjidProfile,
+  MasjidVerification,
+  MemberRole,
+} from './supabase';
 
 export type DisplayStore = {
   loggedIn: boolean;
@@ -24,4 +30,11 @@ export type VerificationStore = {
   /** The masjid the loaded status belongs to, so a different account reloads it. */
   loadedFor: string | null;
   setVerification: (masjidId: string, verification: MasjidVerification | null) => void;
+};
+
+export type BillingStore = {
+  billing: MasjidBilling | null;
+  /** The masjid the loaded billing belongs to, so a different account reloads it. */
+  loadedFor: string | null;
+  setBilling: (masjidId: string, billing: MasjidBilling | null) => void;
 };

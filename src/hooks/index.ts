@@ -22,5 +22,6 @@ export * from './usePrayerAlert';
 export * from './useImageValidation';
 export * from './usePublishToggle';
 export * from './useMasjidVerification';
+export * from './useMasjidBilling';
 export * from './useContentNotificationStatus';
 export * from './useMediaQuery';
