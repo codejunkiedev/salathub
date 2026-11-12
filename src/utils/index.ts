@@ -19,3 +19,4 @@ export * from './password-strength';
 export * from './ayat-hadith';
 export * from './audio';
 export * from './content-notifications';
+export * from './billing';

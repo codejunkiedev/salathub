@@ -33,6 +33,7 @@ import {
   SettingsProfile,
   SettingsAlkhairiaApp,
   SettingsVerification,
+  SettingsBilling,
   SettingsAccount,
   PrayerTimings,
   Display,
@@ -302,6 +303,14 @@ export default function Navigation() {
               element={
                 <RequireAdmin>
                   <SettingsVerification />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path={AppRoutes.SettingsBilling}
+              element={
+                <RequireAdmin>
+                  <SettingsBilling />
                 </RequireAdmin>
               }
             />

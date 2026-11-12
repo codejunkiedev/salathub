@@ -52,6 +52,10 @@ Logos upload to `masjid-logos/<masjid_id>/<timestamp>` so storage RLS can scope 
 
 `/admin/settings/verification`, admin-only. A new masjid lands here (`?setup=1`, with "Submit later") right after saving its first profile. Admins upload proof of existence and a photo (required) and a representation letter (optional) to the private `verification-documents` bucket, then submit for review. Files are locked while a review is pending. A banner across the console (`verification-banner.tsx`) asks admins to act until the masjid submits, and again after a rejection or suspension. Listing in the Alkhairia app can only be switched on once the masjid is verified. See [Database](./database.md) for the status rules.
 
+## Billing
+
+`/admin/settings/billing`, admin-only. Shows the plan, status, trial-end or renewal date and screens in use against the plan. **Upgrade to Pro** opens Stripe Checkout and **Manage billing** opens the Stripe billing portal, both through the `billing` function. Back from checkout, the page polls until the webhook has made the masjid Pro. A banner (`trial-banner.tsx`) counts down the trial for admins; `billing-jobs` emails them 7 days and 1 day before it ends.
+
 ## Platform area
 
 `/platform`, for the SalatHub team only: users in `platform_admins`, added by hand with `INSERT INTO platform_admins (user_id) VALUES ('<auth user id>');`. Masjid users are sent back to the console. A platform admin with no masjid lands here after signing in; one who also runs a masjid gets a Platform link in the sidebar.

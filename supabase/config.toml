@@ -412,6 +412,10 @@ verify_jwt = false
 [functions.stripe-webhook]
 verify_jwt = false
 
+# Called by pg_cron, authenticated by BILLING_JOBS_SECRET.
+[functions.billing-jobs]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

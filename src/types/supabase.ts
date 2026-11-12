@@ -20,6 +20,8 @@ export enum SupabaseTables {
   MasjidVerifications = 'masjid_verifications',
   VerificationDocuments = 'verification_documents',
   MasjidReports = 'masjid_reports',
+  MasjidBilling = 'masjid_billing',
+  PlanRules = 'plan_rules',
 }
 
 export enum SupabaseBuckets {
@@ -60,6 +62,31 @@ export interface MasjidVerification {
   grace_until: string | null;
   suspended_at: string | null;
   suspension_reason: string | null;
+}
+
+export type BillingPlan = 'free' | 'pro';
+
+/** none is Free. cancelled stays Pro until renews_at; payment_failed until grace_ends_at. */
+export type BillingStatus = 'none' | 'trial' | 'active' | 'payment_failed' | 'cancelled';
+
+export interface MasjidBilling {
+  masjid_id: string;
+  plan: BillingPlan;
+  status: BillingStatus;
+  currency: 'usd' | 'cad' | 'pkr';
+  extra_screens: number;
+  trial_ends_at: string | null;
+  renews_at: string | null;
+  grace_ends_at: string | null;
+  stripe_customer_id: string | null;
+}
+
+export interface PlanRules {
+  plan: BillingPlan;
+  included_screens: number;
+  extra_screens_allowed: boolean;
+  max_active_announcements: number | null;
+  features: string[];
 }
 
 /** existence: registration, charity letter or utility bill. representation: letter naming the applicant. */
