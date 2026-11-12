@@ -28,6 +28,7 @@ import {
   toZonedWallClock,
 } from '@/utils';
 import { toast } from 'sonner';
+import { showSaveError } from '@/lib/save-error';
 
 interface EventModalProps {
   isOpen: boolean;
@@ -158,7 +159,7 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData, timeZone }
     } catch (error) {
       console.error('Error saving event:', error);
       setError('Failed to save event. Please try again.');
-      toast.error(`Failed to ${isEdit ? 'update' : 'create'} event, please try again.`);
+      showSaveError(error, `Failed to ${isEdit ? 'update' : 'create'} event, please try again.`);
     } finally {
       setIsSubmitting(false);
     }

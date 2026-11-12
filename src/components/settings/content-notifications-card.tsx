@@ -3,6 +3,9 @@ import { toast } from 'sonner';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Switch } from '@/components/ui';
 import { getContentNotificationStatus, setContentNotificationSwitches } from '@/lib/supabase';
 import type { AppContentType, ContentNotificationStatus } from '@/types';
+import { ProBadge } from '@/components/common';
+import { usePlan } from '@/hooks';
+import { showSaveError } from '@/lib/save-error';
 
 const TYPES: { type: AppContentType; label: string }[] = [
   { type: 'announcements', label: 'Announcements' },
@@ -13,6 +16,9 @@ const TYPES: { type: AppContentType; label: string }[] = [
 export function ContentNotificationsCard() {
   const [status, setStatus] = useState<ContentNotificationStatus | null>(null);
   const [saving, setSaving] = useState<AppContentType | null>(null);
+  // Free notifies about announcements only; events and posts are part of Pro.
+  const eventsAndPosts = usePlan().hasFeature('event_post_notifications');
+  const locked = (type: AppContentType) => type !== 'announcements' && !eventsAndPosts;
 
   useEffect(() => {
     getContentNotificationStatus()
@@ -36,7 +42,7 @@ export function ContentNotificationsCard() {
       setStatus(next);
     } catch (error) {
       console.error('Error saving content notification settings:', error);
-      toast.error('Failed to save app notification settings');
+      showSaveError(error, 'Failed to save app notification settings');
     } finally {
       setSaving(null);
     }
@@ -56,14 +62,18 @@ export function ContentNotificationsCard() {
         {TYPES.map(({ type, label }) => (
           // Positioned so the hidden input Radix pairs with the Switch stays contained here.
           <div key={type} className='relative flex items-center justify-between gap-4'>
-            <label htmlFor={`notify-${type}`} className='text-sm font-medium'>
+            <label
+              htmlFor={`notify-${type}`}
+              className='flex items-center gap-2 text-sm font-medium'
+            >
               {label}
+              {locked(type) && <ProBadge />}
             </label>
             <Switch
               id={`notify-${type}`}
-              checked={status?.[type] ?? false}
+              checked={!locked(type) && (status?.[type] ?? false)}
               onCheckedChange={checked => toggle(type, checked)}
-              disabled={!status || saving !== null}
+              disabled={!status || saving !== null || locked(type)}
             />
           </div>
         ))}

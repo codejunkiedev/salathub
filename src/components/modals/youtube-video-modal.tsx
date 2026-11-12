@@ -20,6 +20,7 @@ import type { YouTubeVideo } from '@/types';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import { showSaveError } from '@/lib/save-error';
 
 function extractVideoId(url: string): string | null {
   const patterns = [
@@ -93,7 +94,10 @@ export function YouTubeVideoModal({
     } catch (error) {
       console.error('Error saving YouTube video:', error);
       setError('Failed to save YouTube video. Please try again.');
-      toast.error(`Failed to ${isEdit ? 'update' : 'create'} YouTube video, please try again.`);
+      showSaveError(
+        error,
+        `Failed to ${isEdit ? 'update' : 'create'} YouTube video, please try again.`
+      );
     } finally {
       setIsSubmitting(false);
     }

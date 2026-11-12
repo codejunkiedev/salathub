@@ -1,6 +1,6 @@
 # Database
 
-Twenty-four tables in `public`. [`supabase/migrations/`](../supabase/migrations/) is authoritative — 79 files, applied in order, with several columns added and later dropped, so read the latest migration touching a table rather than the one that created it.
+Twenty-four tables in `public`. [`supabase/migrations/`](../supabase/migrations/) is authoritative — 80 files, applied in order, with several columns added and later dropped, so read the latest migration touching a table rather than the one that created it.
 
 ## Tables
 
@@ -54,6 +54,7 @@ Beyond the two RLS helpers and the display read functions covered in [Architectu
 - `submit_masjid_verification()` (masjid admin), `decide_masjid_verification()`, `set_masjid_suspension()` and `resolve_masjid_report()` (platform admin) — the only writes to verification state. `submit_masjid_report()` is `service_role` only.
 - `create_masjid_billing()` starts each new masjid on a 30-day Pro trial; `billing_currency_for_timezone()` picks PKR, CAD or USD from its timezone until it has a Stripe customer. `expire_masjid_billing()` moves expired trials and grace periods to Free, every 5 minutes (`expire-masjid-billing`). Hourly, `billing-jobs` sends the 7-day and 1-day trial reminders and the 30-day and 7-day reminders before free Pro ends, each recorded in its `*_reminder_*_at` column.
 - `grant_masjid_pro()` (status `granted` until a date) and `extend_masjid_trial()` — platform admin only, each logged in `masjid_billing_grants`. Masjids that existed at launch were granted Pro until the end of 31 March 2027 in their own timezone.
+- Plan limits (PB-87), all raising SQLSTATE `SH402` with a message the console shows: `masjid_plan_rules()` / `masjid_has_feature()` / `masjid_screen_limit()` read the plan; triggers refuse a screen over the limit, a Pro theme or weather on Free, new events/posts/YouTube videos, a 4th published announcement, new moderators and switching event/post notifications on. `sync_masjid_screen_pauses()` pauses screens over the limit (most recently picked `live_priority` first, then oldest) whenever the plan, extra screens or screens change. `get_user_masjid_id()` / `get_user_role()` see no masjid for a moderator on a plan without moderators; `get_my_membership()` tells the console why. `get_display_payload` and `get_masjid_feed` leave out what the plan doesn't include.
 - Cron, both hourly: `expire-verification-grace`, and `verification-jobs`, which deletes documents 90 days after a decision and sends each masjid in grace one warning email (`grace_warned_at`).
 
 Every `SECURITY DEFINER` function now pins `search_path`.

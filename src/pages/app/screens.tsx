@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
-import { getScreens, deleteScreen, type DisplayScreenWithHeartbeat } from '@/lib/supabase';
+import {
+  getScreens,
+  deleteScreen,
+  keepScreenLive,
+  type DisplayScreenWithHeartbeat,
+} from '@/lib/supabase';
 import type { DisplayScreen } from '@/types';
 import { Badge, Button } from '@/components/ui';
 import { TableSkeleton } from '@/components/skeletons';
@@ -11,12 +16,14 @@ import {
   ActionButtons,
   DataTable,
   OrientationBadge,
+  ProFeatureNotice,
   type Column,
 } from '@/components/common';
 import { Monitor, Copy, Check } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { formatDistanceToNow } from 'date-fns';
-import { useTrigger } from '@/hooks';
+import { usePlan, useTrigger } from '@/hooks';
+import { showSaveError } from '@/lib/save-error';
 import { toast } from 'sonner';
 
 export default function Screens() {
@@ -31,6 +38,8 @@ export default function Screens() {
 
   const [trigger, forceUpdate] = useTrigger();
   const navigate = useNavigate();
+  const { plan, screenLimit } = usePlan();
+  const [keepingLive, setKeepingLive] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,6 +58,22 @@ export default function Screens() {
 
     fetchData();
   }, [trigger]);
+
+  const atLimit = screenLimit !== null && !loading && screens.length >= screenLimit;
+  const pausedCount = screens.filter(screen => screen.paused_at).length;
+
+  const handleKeepLive = async (screen: DisplayScreen) => {
+    try {
+      setKeepingLive(screen.id);
+      await keepScreenLive(screen.id);
+      toast.success(`${screen.name} is live`);
+      forceUpdate();
+    } catch (err) {
+      showSaveError(err, 'Failed to change which screens are live');
+    } finally {
+      setKeepingLive(null);
+    }
+  };
 
   const handleAddNew = () => {
     setIsModalOpen(true);
@@ -103,7 +128,19 @@ export default function Screens() {
       key: 'name',
       name: 'Name',
       width: 'w-[22%]',
-      render: value => <span className='font-medium'>{value as string}</span>,
+      render: (value, item) => (
+        <span className='flex flex-wrap items-center gap-2'>
+          <span className='font-medium'>{value as string}</span>
+          {item.paused_at && (
+            <Badge
+              variant='outline'
+              className='border-amber-400 text-amber-700 dark:text-amber-300'
+            >
+              Paused
+            </Badge>
+          )}
+        </span>
+      ),
     },
     {
       key: 'code',
@@ -182,7 +219,34 @@ export default function Screens() {
         description='Create and manage display screens for different areas of your masjid'
         onAddClick={handleAddNew}
         addButtonText='Add Screen'
+        addButtonDisabled={atLimit}
       />
+
+      {atLimit && pausedCount === 0 && (
+        <ProFeatureNotice>
+          {plan === 'free' ? (
+            <p>The Free plan includes 1 screen. Upgrade to Pro for up to 5, and more if needed.</p>
+          ) : (
+            <p>
+              The masjid's plan has {screenLimit} screens and all are in use. Add more screens from
+              Manage billing on the Billing page.
+            </p>
+          )}
+        </ProFeatureNotice>
+      )}
+
+      {pausedCount > 0 && (
+        <ProFeatureNotice>
+          <p className='font-medium'>
+            {pausedCount === 1 ? '1 screen is paused' : `${pausedCount} screens are paused`}
+          </p>
+          <p>
+            The masjid has more screens than its plan includes ({screenLimit}), so the rest show
+            "This screen isn't active". Nothing is lost. Choose Keep live on a paused screen to swap
+            it in, or upgrade to bring them all back.
+          </p>
+        </ProFeatureNotice>
+      )}
 
       <ErrorAlert message={error} onClose={() => setError(null)} />
 
@@ -202,13 +266,29 @@ export default function Screens() {
           data={screens}
           keyField='id'
           showRowNumbers={true}
-          actionsWidth='w-[8%]'
+          actionsWidth={pausedCount > 0 ? 'w-[18%]' : 'w-[8%]'}
           onRowClick={item => navigate(`/admin/screens/${item.id}`)}
           renderActions={item => (
-            <ActionButtons
-              onGoto={() => navigate(`/admin/screens/${item.id}`)}
-              onDelete={() => handleDeleteClick(item)}
-            />
+            <div className='flex items-center justify-end gap-1'>
+              {item.paused_at && (
+                <Button
+                  variant='outline'
+                  size='sm'
+                  loading={keepingLive === item.id}
+                  disabled={keepingLive !== null}
+                  onClick={e => {
+                    e.stopPropagation();
+                    void handleKeepLive(item);
+                  }}
+                >
+                  Keep live
+                </Button>
+              )}
+              <ActionButtons
+                onGoto={() => navigate(`/admin/screens/${item.id}`)}
+                onDelete={() => handleDeleteClick(item)}
+              />
+            </div>
           )}
         />
       )}

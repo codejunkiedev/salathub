@@ -60,6 +60,19 @@ Deno.serve(async req => {
       });
     }
 
+    const { data: allowed } = await supabaseAdmin.rpc('masjid_has_feature', {
+      p_masjid_id: membership.masjid_id,
+      p_feature: 'moderators',
+    });
+    if (!allowed) {
+      return new Response(
+        JSON.stringify({
+          error: 'Moderators are part of Pro. Upgrade on the Billing page to add them.',
+        }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Create the auth user
     const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
       email,

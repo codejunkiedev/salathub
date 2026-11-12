@@ -89,3 +89,7 @@ Table `display_screens`, service `services/screens.ts`, managed at `/admin/scree
 **Last seen.** Displays stamp `screen_heartbeats` through an RPC every 15 minutes, and the screens list renders the relative time, or "Never". There is **no threshold and no online/offline computation anywhere** — treat it as last-seen, not status.
 
 Deleting a screen is a hard delete.
+
+## Plan limits
+
+`usePlan()` says what the masjid's plan includes. Locked features show a `ProBadge` (linking admins to Billing) or a `ProFeatureNotice`: Events, Posts, YouTube Videos, Moderators and Notify Followers in the sidebar and on their pages, Pro themes and weather on screens, the Ayat & Hadith Design panel, and event/post app notifications. The Screens page shows the screen limit, marks paused screens and lets the admin choose which stay live. Writes the plan refuses fail with a `PlanLimitError`; `showSaveError` toasts its message with a link to Billing. A moderator of a Free masjid sees `MemberBlocked` instead of the console. The database enforces every limit, so these only keep the console honest.

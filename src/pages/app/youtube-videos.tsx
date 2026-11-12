@@ -15,13 +15,15 @@ import {
   DataTable,
   ContentStatus,
   type Column,
+  ProFeatureNotice,
 } from '@/components/common';
 import { Video, Repeat } from 'lucide-react';
-import { useTrigger, usePublishToggle } from '@/hooks';
+import { useTrigger, usePublishToggle, usePlan } from '@/hooks';
 import { Badge } from '@/components/ui';
 import { toast } from 'sonner';
 
 export default function YouTubeVideos() {
+  const isLocked = !usePlan().hasFeature('youtube');
   const [videos, setVideos] = useState<YouTubeVideo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -145,7 +147,15 @@ export default function YouTubeVideos() {
         title='YouTube Videos'
         description='Manage YouTube video slides for your screens'
         onAddClick={handleAddNew}
+        addButtonDisabled={isLocked}
       />
+
+      {isLocked && (
+        <ProFeatureNotice>
+          <p className='font-medium'>YouTube videos are part of Pro.</p>
+          <p>Existing videos are kept, but screens don't show them until the masjid upgrades.</p>
+        </ProFeatureNotice>
+      )}
 
       <ErrorAlert message={error} onClose={() => setError(null)} />
 

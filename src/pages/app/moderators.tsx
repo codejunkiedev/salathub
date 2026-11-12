@@ -18,7 +18,14 @@ import {
   type UpdateModeratorData,
 } from '@/lib/zod';
 import { TableSkeleton } from '@/components/skeletons';
-import { PageHeader, ErrorAlert, EmptyState, DataTable, type Column } from '@/components/common';
+import {
+  PageHeader,
+  ErrorAlert,
+  EmptyState,
+  DataTable,
+  type Column,
+  ProFeatureNotice,
+} from '@/components/common';
 import {
   Dialog,
   DialogContent,
@@ -31,11 +38,12 @@ import {
   Label,
 } from '@/components/ui';
 import { Users, Trash2, KeyRound, Pencil, Eye, EyeOff } from 'lucide-react';
-import { useTrigger } from '@/hooks';
+import { useTrigger, usePlan } from '@/hooks';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function Moderators() {
+  const isLocked = !usePlan().hasFeature('moderators');
   const [moderators, setModerators] = useState<ModeratorWithEmail[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -261,7 +269,15 @@ export default function Moderators() {
         description='Manage moderators who can help manage your masjid content'
         addButtonText='Add Moderator'
         onAddClick={handleAddNew}
+        addButtonDisabled={isLocked}
       />
+
+      {isLocked && (
+        <ProFeatureNotice>
+          <p className='font-medium'>Moderators are part of Pro.</p>
+          <p>Existing moderators are kept but can't sign in until the masjid upgrades.</p>
+        </ProFeatureNotice>
+      )}
 
       <ErrorAlert message={error} onClose={() => setError(null)} />
 

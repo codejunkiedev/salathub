@@ -13,3 +13,5 @@ export * from './save-content-buttons';
 export * from './notify-followers-note';
 export * from './auth-header';
 export * from './desktop-only';
+export * from './member-blocked';
+export * from './pro-badge';

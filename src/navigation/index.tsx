@@ -3,7 +3,7 @@ import { useEffect, useState, Suspense } from 'react';
 import {
   checkIsPlatformAdmin,
   getCurrentSession,
-  getMasjidMembership,
+  getMyMembership,
   updateLastActive,
 } from '@/lib/supabase';
 import { subscribeToAuthChanges } from '@/lib/supabase';
@@ -11,7 +11,7 @@ import { identifySentryUser, clearSentryUser } from '@/lib/sentry';
 import { AppRoutes, AuthRoutes, LoadingStep, PlatformRoutes, PublicRoutes } from '@/constants';
 import type { Session } from '@supabase/supabase-js';
 import { AppLayout, PlatformLayout } from '@/components/layout';
-import { DesktopOnly } from '@/components/common';
+import { DesktopOnly, MemberBlocked } from '@/components/common';
 import {
   Announcements,
   AyatAndHadith,
@@ -78,6 +78,7 @@ export default function Navigation() {
   const [isLoggedInWithEmail, setIsLoggedInWithEmail] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [bootProgress, setBootProgress] = useState<number>(LoadingStep.Session);
+  const [memberBlocked, setMemberBlocked] = useState(false);
 
   const { loggedIn: isLoggedInWithCode } = useDisplayStore();
   const { setAuth, setPlatformAdmin, clearAuth, masjidId, isPlatformAdmin } = useAuthStore();
@@ -95,9 +96,14 @@ export default function Navigation() {
     const loadAccount = async (session: Session) => {
       const [platformAdmin, membership] = await Promise.all([
         checkIsPlatformAdmin(),
-        getMasjidMembership().catch(() => null),
+        getMyMembership().catch(() => null),
       ]);
       setPlatformAdmin(platformAdmin);
+      setMemberBlocked(!!membership?.blocked);
+      if (membership?.blocked) {
+        setAuth(null, membership.role);
+        return null;
+      }
       if (membership) {
         setAuth(membership.masjid_id, membership.role);
         identifySentryUser(session, membership.masjid_id, membership.role);
@@ -163,6 +169,8 @@ export default function Navigation() {
       />
     );
   }
+
+  if (isLoggedInWithEmail && memberBlocked) return <MemberBlocked />;
 
   return (
     <BrowserRouter>

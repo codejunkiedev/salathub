@@ -22,7 +22,14 @@ import {
   Label,
   Textarea,
 } from '@/components/ui';
-import { DataTable, EmptyState, ErrorAlert, PageHeader, type Column } from '@/components/common';
+import {
+  DataTable,
+  EmptyState,
+  ErrorAlert,
+  PageHeader,
+  type Column,
+  ProFeatureNotice,
+} from '@/components/common';
 import { TableSkeleton } from '@/components/skeletons';
 import {
   NOTIFICATION_BODY_MAX,
@@ -39,7 +46,7 @@ import {
 } from '@/lib/supabase';
 import { AppRoutes } from '@/constants';
 import { useAuthStore } from '@/store';
-import { useTrigger } from '@/hooks';
+import { useTrigger, usePlan } from '@/hooks';
 import type { MasjidNotification } from '@/types';
 
 const DAILY_LIMIT = 3;
@@ -83,6 +90,7 @@ function CharCount({ value, max }: { value: string; max: number }) {
 }
 
 export default function NotifyFollowers() {
+  const isLocked = !usePlan().hasFeature('follower_messages');
   const isAdmin = useAuthStore(s => s.role) === 'admin';
   const [history, setHistory] = useState<MasjidNotification[]>([]);
   const [followers, setFollowers] = useState<number | null>(null);
@@ -151,7 +159,7 @@ export default function NotifyFollowers() {
     return () => clearTimeout(timer);
   }, [nextSlotTime]);
 
-  const canSend = !loading && inApp === true && remaining > 0;
+  const canSend = !loading && !isLocked && inApp === true && remaining > 0;
 
   const confirmSend = async () => {
     if (!pending) return;
@@ -220,6 +228,13 @@ export default function NotifyFollowers() {
         description='Send a short message straight to the phones that follow the masjid in the Alkhairia app'
         showAddButton={false}
       />
+
+      {isLocked && (
+        <ProFeatureNotice>
+          <p className='font-medium'>Messages to followers are part of Pro.</p>
+          <p>On Free, followers are still notified about prayer time changes and announcements.</p>
+        </ProFeatureNotice>
+      )}
 
       <ErrorAlert message={error} onClose={() => setError(null)} />
 

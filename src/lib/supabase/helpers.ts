@@ -79,18 +79,28 @@ export async function getSessionUser() {
  * Gets the masjid membership for the current authenticated user
  * @returns The masjid_id and role for the current user
  */
+/**
+ * The signed-in user's membership. blocked is set when they can't use the
+ * console right now, such as a moderator of a masjid on the Free plan.
+ */
+export async function getMyMembership(): Promise<{
+  masjid_id: string;
+  role: MemberRole;
+  blocked: 'moderators_need_pro' | null;
+} | null> {
+  const { data, error } = await supabase.rpc('get_my_membership');
+  if (error) throw error;
+  const row = (data as { masjid_id: string; role: MemberRole; blocked: string | null }[])?.[0];
+  return row ? { ...row, blocked: row.blocked as 'moderators_need_pro' | null } : null;
+}
+
 export async function getMasjidMembership(): Promise<{ masjid_id: string; role: MemberRole }> {
   const user = await getSessionUser();
   if (!user) throw new Error('User not authenticated');
 
-  const { data, error } = await supabase
-    .from('masjid_members')
-    .select('masjid_id, role')
-    .eq('user_id', user.id)
-    .single();
-
-  if (error || !data) throw new Error('No masjid membership found');
-  return data as { masjid_id: string; role: MemberRole };
+  const membership = await getMyMembership();
+  if (!membership || membership.blocked) throw new Error('No masjid membership found');
+  return { masjid_id: membership.masjid_id, role: membership.role };
 }
 
 /**
@@ -112,7 +122,19 @@ export async function updateLastActive(): Promise<void> {
  * @param error The PostgrestError to handle
  * @param customMessage Optional custom error message
  */
+/** A write the masjid's plan doesn't allow. The message says what to do. */
+export class PlanLimitError extends Error {}
+
+/** SQLSTATE raised by the plan-limit triggers (PB-87). */
+const PLAN_LIMIT_CODE = 'SH402';
+
+export const isPlanLimitError = (error: unknown): boolean =>
+  error instanceof PlanLimitError ||
+  (!!error && typeof error === 'object' && (error as { code?: string }).code === PLAN_LIMIT_CODE);
+
 export function handleSupabaseError(error: PostgrestError, customMessage?: string): Error {
+  if (error.code === PLAN_LIMIT_CODE) return new PlanLimitError(error.message);
+
   console.error(customMessage || 'Supabase error:', error);
 
   // PGRST116 = no rows returned for `.single()` — typically a normal flow,

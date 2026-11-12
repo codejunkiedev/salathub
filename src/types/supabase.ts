@@ -469,6 +469,8 @@ export interface DisplayScreen extends Base {
   prayer_alert_triggers: PrayerAlertTrigger[];
   /** Set while the screen is over its masjid's plan limit; it then shows only a notice. */
   paused_at?: string | null;
+  /** When an admin last picked this screen to stay live over a lower plan limit. */
+  live_priority?: string | null;
 }
 
 export interface ScreenContent {
