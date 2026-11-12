@@ -152,6 +152,9 @@ Deno.serve(async req => {
     ],
     subscription_data: { metadata: { masjid_id: masjidId } },
     metadata: { masjid_id: masjidId },
+    // We sell and collect tax ourselves (PB-94), so not through Stripe Managed Payments,
+    // which the account has on by default and which rejects custom_text.
+    managed_payments: { enabled: false },
     consent_collection: { terms_of_service: 'required' },
     custom_text: {
       terms_of_service_acceptance: {
