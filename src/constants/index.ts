@@ -6,3 +6,4 @@ export * from './slide-design';
 export * from './custom-theme';
 export * from './seo';
 export * from './loading';
+export * from './us-states';

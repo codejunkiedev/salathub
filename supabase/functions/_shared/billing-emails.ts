@@ -58,3 +58,20 @@ export const grantEndingEmail = (
     ],
     billingLink()
   );
+
+export const exemptionExpiringEmail = (
+  to: string[],
+  masjidName: string,
+  state: string,
+  expiresAt: string,
+  timeZone: string | null
+): Email =>
+  composeEmail(
+    to,
+    `${masjidName}: tax-exemption certificate expires in 30 days`,
+    [
+      `Assalamu alaikum. ${masjidName}'s ${state} sales tax exemption certificate expires on ${formatDate(expiresAt, timeZone)}.`,
+      'After that date, sales tax is added to SalatHub charges again until a new certificate is approved. Upload the new certificate on the Billing page of the console.',
+    ],
+    billingLink()
+  );

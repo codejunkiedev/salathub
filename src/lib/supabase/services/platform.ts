@@ -9,6 +9,7 @@ import {
   type MemberRole,
   type PlatformMasjid,
   type ReportTarget,
+  type TaxExemptionCertificate,
   type VerificationDocument,
 } from '@/types';
 import supabase from '../index';
@@ -241,4 +242,56 @@ export async function extendMasjidTrial(masjidId: string, days: number, reason: 
     p_reason: reason,
   });
   if (error) throw new Error(error.message || 'Failed to extend the trial');
+}
+
+export type PendingTaxExemption = TaxExemptionCertificate & {
+  masjid: Pick<MasjidProfile, 'id' | 'name' | 'area' | 'logo_url'> | null;
+};
+
+/** Certificates waiting for a decision, longest waiting first. */
+export async function getPendingTaxExemptions(): Promise<PendingTaxExemption[]> {
+  const { data, error } = await supabase
+    .from(SupabaseTables.TaxExemptionCertificates)
+    .select('*, masjid:masjid_profiles(id, name, area, logo_url)')
+    .eq('status', 'pending')
+    .order('created_at');
+
+  if (error) throw error;
+  return (data ?? []) as unknown as PendingTaxExemption[];
+}
+
+export async function getMasjidTaxExemptions(masjidId: string): Promise<TaxExemptionCertificate[]> {
+  const { data, error } = await supabase
+    .from(SupabaseTables.TaxExemptionCertificates)
+    .select('*')
+    .eq('masjid_id', masjidId)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data ?? [];
+}
+
+/** stripe: whether the masjid's Stripe customer is now exempt, or why it couldn't be updated. */
+export async function decideTaxExemption(
+  certificateId: string,
+  decision: { approve: true; expiresAt: Date | null } | { approve: false; reason: string }
+): Promise<{ stripe: 'exempt' | 'none' | 'no_customer' | 'failed' }> {
+  const body = decision.approve
+    ? {
+        action: 'approve',
+        certificate_id: certificateId,
+        expires_at: decision.expiresAt?.toISOString() ?? null,
+      }
+    : { action: 'reject', certificate_id: certificateId, reason: decision.reason };
+
+  const { data, error } = await supabase.functions.invoke('tax-exemptions', { body });
+  if (error) {
+    if ('context' in error && error.context instanceof Response) {
+      const detail = await error.context.json().catch(() => null);
+      if (detail?.error) throw new Error(detail.error);
+    }
+    captureSupabaseError(error, { source: 'supabase.functions', operation: 'tax_exemptions' });
+    throw new Error(error.message || 'Request failed');
+  }
+  return data as { stripe: 'exempt' | 'none' | 'no_customer' | 'failed' };
 }

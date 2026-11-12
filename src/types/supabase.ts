@@ -23,6 +23,7 @@ export enum SupabaseTables {
   MasjidBilling = 'masjid_billing',
   PlanRules = 'plan_rules',
   MasjidBillingGrants = 'masjid_billing_grants',
+  TaxExemptionCertificates = 'tax_exemption_certificates',
 }
 
 export enum SupabaseBuckets {
@@ -32,6 +33,7 @@ export enum SupabaseBuckets {
   AyatHadithSlides = 'ayat-hadith-slides',
   UserBackgrounds = 'user-backgrounds',
   VerificationDocuments = 'verification-documents',
+  TaxExemptionCertificates = 'tax-exemption-certificates',
 }
 
 export enum SupabaseFolders {
@@ -85,6 +87,24 @@ export interface MasjidBilling {
   grace_ends_at: string | null;
   granted_until: string | null;
   stripe_customer_id: string | null;
+}
+
+export type TaxExemptionStatus = 'pending' | 'approved' | 'rejected';
+
+export interface TaxExemptionCertificate {
+  id: string;
+  masjid_id: string;
+  /** Two-letter US state code. */
+  state: string;
+  storage_path: string;
+  file_name: string;
+  content_type: string;
+  size_bytes: number;
+  status: TaxExemptionStatus;
+  rejection_reason: string | null;
+  expires_at: string | null;
+  decided_at: string | null;
+  created_at: string;
 }
 
 /** A free Pro grant or trial extension by our team. granted_by is null for the launch grant. */

@@ -1,6 +1,12 @@
-import { SupabaseTables, type MasjidBilling, type PlanRules } from '@/types';
+import {
+  SupabaseBuckets,
+  SupabaseTables,
+  type MasjidBilling,
+  type PlanRules,
+  type TaxExemptionCertificate,
+} from '@/types';
 import supabase from '../index';
-import { getMasjidMembership } from '../helpers';
+import { getMasjidMembership, getSessionUser } from '../helpers';
 import { captureSupabaseError } from '@/lib/sentry';
 
 /** Null for a moderator, who can't read billing. */
@@ -51,4 +57,91 @@ export async function getBillingUrl(action: 'checkout' | 'portal'): Promise<stri
   }
   if (!data?.url) throw new Error(data?.error ?? 'No billing link returned');
   return data.url;
+}
+
+export const TAX_EXEMPTION_FILE_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
+export const TAX_EXEMPTION_MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+const EXTENSIONS: Record<string, string> = {
+  'application/pdf': 'pdf',
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+};
+
+/** Newest first. Admins only; empty for anyone else. */
+export async function getTaxExemptionCertificates(): Promise<TaxExemptionCertificate[]> {
+  const { masjid_id } = await getMasjidMembership();
+
+  const { data, error } = await supabase
+    .from(SupabaseTables.TaxExemptionCertificates)
+    .select('*')
+    .eq('masjid_id', masjid_id)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function uploadTaxExemptionCertificate(
+  state: string,
+  file: File
+): Promise<TaxExemptionCertificate> {
+  if (!TAX_EXEMPTION_FILE_TYPES.includes(file.type)) {
+    throw new Error('Upload a PDF, JPG or PNG file');
+  }
+  if (file.size > TAX_EXEMPTION_MAX_FILE_SIZE) {
+    throw new Error('Files can be up to 10 MB');
+  }
+
+  const [{ masjid_id }, user] = await Promise.all([getMasjidMembership(), getSessionUser()]);
+  if (!user) throw new Error('User not authenticated');
+
+  const path = `${masjid_id}/${crypto.randomUUID()}.${EXTENSIONS[file.type]}`;
+  const bucket = supabase.storage.from(SupabaseBuckets.TaxExemptionCertificates);
+
+  const { error: uploadError } = await bucket.upload(path, file, {
+    contentType: file.type,
+    upsert: false,
+  });
+  if (uploadError) {
+    captureSupabaseError(uploadError, {
+      source: 'supabase.storage',
+      operation: 'upload_tax_exemption_certificate',
+      extra: { size: file.size, type: file.type },
+    });
+    throw uploadError;
+  }
+
+  const { data, error } = await supabase
+    .from(SupabaseTables.TaxExemptionCertificates)
+    .insert({
+      masjid_id,
+      state,
+      storage_path: path,
+      file_name: file.name,
+      content_type: file.type,
+      size_bytes: file.size,
+      uploaded_by: user.id,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    await bucket.remove([path]);
+    throw error;
+  }
+  return data as TaxExemptionCertificate;
+}
+
+/** A short-lived link, since the bucket is private. */
+export async function getTaxExemptionCertificateUrl(
+  certificate: Pick<TaxExemptionCertificate, 'storage_path'>,
+  expiresInSeconds = 60
+): Promise<string> {
+  const { data, error } = await supabase.storage
+    .from(SupabaseBuckets.TaxExemptionCertificates)
+    .createSignedUrl(certificate.storage_path, expiresInSeconds);
+
+  if (error) throw error;
+  return data.signedUrl;
 }

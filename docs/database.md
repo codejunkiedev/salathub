@@ -1,6 +1,6 @@
 # Database
 
-Twenty-three tables in `public`. [`supabase/migrations/`](../supabase/migrations/) is authoritative — 78 files, applied in order, with several columns added and later dropped, so read the latest migration touching a table rather than the one that created it.
+Twenty-four tables in `public`. [`supabase/migrations/`](../supabase/migrations/) is authoritative — 79 files, applied in order, with several columns added and later dropped, so read the latest migration touching a table rather than the one that created it.
 
 ## Tables
 
@@ -30,6 +30,7 @@ Twenty-three tables in `public`. [`supabase/migrations/`](../supabase/migrations
 | `masjid_billing`                                              | One row per masjid: plan, status, currency, extra screens, trial/renewal/grace dates, Stripe ids. Masjid admins and platform admins read; only the billing functions write |
 | `stripe_events`                                               | Stripe webhook events already handled, so a redelivery is skipped. No client role can reach it |
 | `masjid_billing_grants`                                       | Free Pro grants and trial extensions by our team, with who (`granted_by_email`), when and why. Platform admins read; written only by the functions below |
+| `tax_exemption_certificates`                                  | Nonprofit sales tax certificates per US state: status, rejection reason, expiry. Masjid admins add and read their own; platform admins decide through `tax-exemptions` |
 
 On `prayer_times` and `settings`, `user_id` is nullable and `ON DELETE SET NULL` — it records who last saved the row, not who owns it, so deleting an account does not delete a masjid's prayer configuration. Both are keyed `UNIQUE(masjid_id)`; the earlier per-user keying is gone.
 
@@ -69,6 +70,6 @@ Every `SECURITY DEFINER` function now pins `search_path`.
 
 Update and delete carry a legacy fallback matching on object ownership, because objects predating the scoping rule use older path shapes; the `WITH CHECK` still demands the new prefix, so touching an old object migrates it.
 
-`verification-documents` is private: only the masjid's admins and platform admins can read it, and admins can add or remove files only before submitting or after a rejection.
+`verification-documents` is private: only the masjid's admins and platform admins can read it, and admins can add or remove files only before submitting or after a rejection. `tax-exemption-certificates` is private the same way; admins can add files but only remove one that never got its table row.
 
 Public **listing** now requires authentication, but public **downloads** still bypass RLS entirely, which is why displays render every image without a key.

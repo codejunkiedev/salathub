@@ -11,6 +11,7 @@
  */
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getStripe, PRO_PRICE_LOOKUP_KEY } from '../_shared/stripe.ts';
+import { syncTaxExemption } from '../_shared/tax-exemption.ts';
 
 const MAX_SCREENS = 99;
 const BILLING_PATH = '/admin/settings/billing';
@@ -126,6 +127,9 @@ Deno.serve(async req => {
     }
   }
   if (!customerId) throw new Error('Could not set up a billing account');
+
+  // An approved exemption certificate must apply to the very first charge.
+  await syncTaxExemption(admin, stripe, masjidId, customerId);
 
   const { data: prices } = await stripe.prices.list({
     lookup_keys: [PRO_PRICE_LOOKUP_KEY],

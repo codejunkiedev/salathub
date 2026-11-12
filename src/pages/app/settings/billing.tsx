@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Button, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { PageHeader } from '@/components/common';
+import { TaxExemptionCard } from '@/components/settings';
 import { countMasjidScreens, getBillingUrl, getPlanRules } from '@/lib/supabase';
 import { useMasjidBilling } from '@/hooks';
 import { AppRoutes } from '@/constants';
@@ -288,6 +289,8 @@ export default function Billing() {
               the number of screens or cancel.
             </p>
           )}
+
+          {billing.currency === 'usd' && <TaxExemptionCard />}
         </>
       )}
     </div>

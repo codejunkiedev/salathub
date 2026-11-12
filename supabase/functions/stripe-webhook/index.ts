@@ -10,6 +10,7 @@
  */
 import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { billingFromSubscription, getStripe, Stripe } from '../_shared/stripe.ts';
+import { syncTaxExemption } from '../_shared/tax-exemption.ts';
 
 const HANDLED = new Set([
   'checkout.session.completed',
@@ -18,6 +19,7 @@ const HANDLED = new Set([
   'customer.subscription.deleted',
   'invoice.paid',
   'invoice.payment_failed',
+  'customer.updated',
 ]);
 
 const idOf = (value: string | { id: string } | null | undefined): string | null =>
@@ -28,6 +30,8 @@ const subscriptionIdOf = (event: Stripe.Event): string | null => {
   switch (event.type) {
     case 'checkout.session.completed':
       return idOf((object as unknown as Stripe.Checkout.Session).subscription);
+    case 'customer.updated':
+      return null;
     case 'invoice.paid':
     case 'invoice.payment_failed': {
       const invoice = object as unknown as Stripe.Invoice;
@@ -86,6 +90,20 @@ Deno.serve(async req => {
     } else {
       await applySubscription(admin, masjidId, subscription);
     }
+  }
+
+  // A new or changed billing address can move the masjid in or out of a state its
+  // tax-exemption certificate covers.
+  if (event.type === 'customer.updated' || event.type === 'checkout.session.completed') {
+    const customer =
+      event.type === 'customer.updated' ? (event.data.object as Stripe.Customer) : null;
+    const session =
+      event.type === 'checkout.session.completed'
+        ? (event.data.object as Stripe.Checkout.Session)
+        : null;
+    const masjidId = customer?.metadata?.masjid_id ?? session?.client_reference_id ?? null;
+    const customerId = customer?.id ?? idOf(session?.customer);
+    if (masjidId && customerId) await syncTaxExemption(admin, stripe, masjidId, customerId);
   }
 
   const { error } = await admin.from('stripe_events').insert({ id: event.id, type: event.type });
