@@ -25,6 +25,9 @@ import { toast } from 'sonner';
 import { Copy } from 'lucide-react';
 import { Link } from 'react-router';
 import { AppRoutes } from '@/constants';
+import { showSaveError } from '@/lib/save-error';
+import { usePlan } from '@/hooks';
+import { ProBadge } from '@/components/common';
 
 type ScreenModalProps = {
   isOpen: boolean;
@@ -74,7 +77,11 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
   });
 
   const showPrayerTimes = useWatch({ control, name: 'show_prayer_times' });
-  const showWeather = useWatch({ control, name: 'show_weather' });
+  // Weather is part of Pro: on Free it can be switched off but not on, and a
+  // new screen starts without it (the database does the same).
+  const weatherAllowed = usePlan().hasFeature('weather');
+  const showWeather =
+    useWatch({ control, name: 'show_weather' }) && (weatherAllowed || !!initialData);
   const showFollowQr = useWatch({ control, name: 'show_follow_qr' });
   const orientation = useWatch({ control, name: 'orientation' });
   const language = useWatch({ control, name: 'language' });
@@ -142,7 +149,7 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
     } catch (err) {
       console.error('Error saving screen:', err);
       setError('Failed to save screen. Please try again.');
-      toast.error(`Failed to ${isEdit ? 'update' : 'create'} screen, please try again.`);
+      showSaveError(err, `Failed to ${isEdit ? 'update' : 'create'} screen, please try again.`);
     } finally {
       setIsSubmitting(false);
     }
@@ -270,11 +277,13 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
                 <Checkbox
                   id='show_weather'
                   checked={showWeather}
+                  disabled={!weatherAllowed && !showWeather}
                   onCheckedChange={checked => setValue('show_weather', !!checked)}
                 />
                 <label htmlFor='show_weather' className='text-sm cursor-pointer'>
                   Show Weather
                 </label>
+                {!weatherAllowed && <ProBadge />}
               </div>
             </div>
           </div>

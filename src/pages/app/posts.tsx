@@ -17,15 +17,17 @@ import {
   OrientationBadge,
   ContentStatus,
   type Column,
+  ProFeatureNotice,
 } from '@/components/common';
 import { FileImage } from 'lucide-react';
-import { useTrigger, usePublishToggle } from '@/hooks';
+import { useTrigger, usePublishToggle, usePlan } from '@/hooks';
 import { Popover, PopoverContent, PopoverTrigger, RemoteImage } from '@/components/ui';
 import { toast } from 'sonner';
 
 const POST_ORIENTATIONS = ['landscape', 'portrait'] as const;
 
 export default function Posts() {
+  const isLocked = !usePlan().hasFeature('posts');
   const [posts, setPosts] = useState<Post[]>([]);
   const [onScreenIds, setOnScreenIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -200,7 +202,22 @@ export default function Posts() {
 
   return (
     <div className='container mx-auto pb-2 md:pb-8 space-y-6'>
-      <PageHeader title='Posts' description='Manage your masjid posts' onAddClick={handleAddNew} />
+      <PageHeader
+        title='Posts'
+        description='Manage your masjid posts'
+        onAddClick={handleAddNew}
+        addButtonDisabled={isLocked}
+      />
+
+      {isLocked && (
+        <ProFeatureNotice>
+          <p className='font-medium'>Posts are part of Pro.</p>
+          <p>
+            Existing posts are kept, but screens and the Alkhairia app don't show them until the
+            masjid upgrades.
+          </p>
+        </ProFeatureNotice>
+      )}
 
       <ErrorAlert message={error} onClose={() => setError(null)} />
 

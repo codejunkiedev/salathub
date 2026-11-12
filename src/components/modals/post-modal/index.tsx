@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { ImageSourcePicker } from './image-source-picker';
 import { PredesignedStep } from './predesigned-step';
 import { UploadForm } from './upload-form';
+import { showSaveError } from '@/lib/save-error';
 
 type PostModalProps = {
   isOpen: boolean;
@@ -164,9 +165,9 @@ export function PostModal({
       setError(null);
       onSuccess(isEdit ? undefined : saved);
       onClose();
-    } catch {
+    } catch (error) {
       setError('Failed to save post. Please try again.');
-      toast.error(`Failed to ${isEdit ? 'update' : 'create'} post, please try again.`);
+      showSaveError(error, `Failed to ${isEdit ? 'update' : 'create'} post, please try again.`);
     } finally {
       setIsSubmitting(false);
     }

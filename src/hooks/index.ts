@@ -23,5 +23,6 @@ export * from './useImageValidation';
 export * from './usePublishToggle';
 export * from './useMasjidVerification';
 export * from './useMasjidBilling';
+export * from './usePlan';
 export * from './useContentNotificationStatus';
 export * from './useMediaQuery';

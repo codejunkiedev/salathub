@@ -15,12 +15,14 @@ import {
   DataTable,
   ContentStatus,
   type Column,
+  ProFeatureNotice,
 } from '@/components/common';
 import { Bell } from 'lucide-react';
-import { useTrigger, usePublishToggle } from '@/hooks';
+import { useTrigger, usePublishToggle, usePlan } from '@/hooks';
 import { toast } from 'sonner';
 
 export default function Announcements() {
+  const maxActive = usePlan().rules?.max_active_announcements ?? null;
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [onScreenIds, setOnScreenIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -141,6 +143,16 @@ export default function Announcements() {
         description='Manage your masjid announcements'
         onAddClick={handleAddNew}
       />
+
+      {maxActive !== null && !loading && (
+        <ProFeatureNotice>
+          <p>
+            The Free plan allows {maxActive} published announcements:{' '}
+            {announcements.filter(a => a.published_at).length} of {maxActive} in use. Drafts don't
+            count. Pro has no limit.
+          </p>
+        </ProFeatureNotice>
+      )}
 
       <ErrorAlert message={error} onClose={() => setError(null)} />
 

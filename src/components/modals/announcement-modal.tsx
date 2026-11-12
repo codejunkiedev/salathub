@@ -18,6 +18,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Label } from '@/components/ui';
 import { toast } from 'sonner';
+import { showSaveError } from '@/lib/save-error';
 
 const toFormValues = (announcement?: Announcement): AnnouncementData => ({
   title: announcement?.title ?? '',
@@ -81,7 +82,10 @@ export function AnnouncementModal({
     } catch (error) {
       console.error('Error saving announcement:', error);
       setError('Failed to save announcement. Please try again.');
-      toast.error(`Failed to ${isEdit ? 'update' : 'create'} announcement, please try again.`);
+      showSaveError(
+        error,
+        `Failed to ${isEdit ? 'update' : 'create'} announcement, please try again.`
+      );
     } finally {
       setIsSubmitting(false);
     }

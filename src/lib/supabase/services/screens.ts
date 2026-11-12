@@ -318,3 +318,14 @@ export async function bulkUpdateScreenAssignments(
     if (insertError) throw insertError;
   }
 }
+
+/**
+ * Makes a paused screen one of the masjid's live screens. When the plan allows
+ * fewer screens than the masjid has, the most recently picked stay live, then
+ * the oldest; the database pauses the rest.
+ */
+export async function keepScreenLive(id: string): Promise<void> {
+  await updateRecord<DisplayScreen>(SupabaseTables.DisplayScreens, id, {
+    live_priority: new Date().toISOString(),
+  });
+}

@@ -4,8 +4,8 @@
  *   POST /notify-followers  { title, body }
  *   header: Authorization: Bearer <member's access token>
  *
- * Any admin or moderator can send, up to DAILY_LIMIT messages per masjid in a
- * rolling 24 hours.
+ * Any admin or moderator of a Pro masjid can send, up to DAILY_LIMIT messages
+ * per masjid in a rolling 24 hours.
  */
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendPushMessages } from '../_shared/expo-push.ts';
@@ -68,6 +68,17 @@ Deno.serve(async req => {
   }
 
   const masjidId = membership.masjid_id as string;
+
+  const { data: allowed } = await admin.rpc('masjid_has_feature', {
+    p_masjid_id: masjidId,
+    p_feature: 'follower_messages',
+  });
+  if (!allowed) {
+    return json(
+      { error: 'Messages to followers are part of Pro. Upgrade on the Billing page.' },
+      403
+    );
+  }
 
   const { data: profile, error: profileError } = await admin
     .from('masjid_profiles')

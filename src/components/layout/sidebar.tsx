@@ -18,6 +18,8 @@ import {
   Smartphone,
 } from 'lucide-react';
 import { AppRoutes, PlatformRoutes } from '@/constants';
+import { ProBadge } from '@/components/common';
+import { usePlan } from '@/hooks';
 import { Button } from '@/components/ui';
 import { cn } from '@/utils';
 import { useSidebarState } from '@/hooks';
@@ -54,6 +56,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
 
   const isAdmin = role === 'admin';
   const needsOnboarding = !masjidId;
+  const { hasFeature } = usePlan();
 
   const contentNavItems = needsOnboarding
     ? []
@@ -65,16 +68,19 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
         },
         {
           label: 'Events',
+          feature: 'events',
           path: AppRoutes.Events,
           icon: <Tickets size={20} />,
         },
         {
           label: 'Posts',
+          feature: 'posts',
           path: AppRoutes.Posts,
           icon: <Images size={20} />,
         },
         {
           label: 'YouTube Videos',
+          feature: 'youtube',
           path: AppRoutes.YouTubeVideos,
           icon: <Video size={20} />,
         },
@@ -85,6 +91,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
         },
         {
           label: 'Notify Followers',
+          feature: 'follower_messages',
           path: AppRoutes.NotifyFollowers,
           icon: <Send size={20} />,
         },
@@ -126,6 +133,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
           },
           {
             label: 'Moderators',
+            feature: 'moderators',
             path: AppRoutes.Moderators,
             icon: <Users size={20} />,
           },
@@ -136,7 +144,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
           },
         ];
 
-  const allNavItems = [
+  const allNavItems: { label: string; path: string; icon: React.ReactNode; feature?: string }[] = [
     {
       label: 'Home',
       path: AppRoutes.Home,
@@ -248,6 +256,9 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                       )}
                     >
                       <span className='font-medium whitespace-nowrap'>{item.label}</span>
+                      {item.feature && !hasFeature(item.feature) && (
+                        <ProBadge link={false} className='ml-2 align-middle' />
+                      )}
                     </div>
                   </NavLink>
                 </li>

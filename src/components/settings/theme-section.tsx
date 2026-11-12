@@ -8,6 +8,9 @@ import { updateScreenTheme } from '@/lib/supabase';
 import type { DisplayScreen } from '@/types';
 import { Theme } from '@/types';
 import { AppRoutes } from '@/constants';
+import { ProBadge } from '@/components/common';
+import { usePlan } from '@/hooks';
+import { showSaveError } from '@/lib/save-error';
 
 interface ThemeSectionProps {
   screen: DisplayScreen;
@@ -20,6 +23,8 @@ interface ThemeSectionProps {
  */
 export function ThemeSection({ screen, onScreenChange }: ThemeSectionProps) {
   const navigate = useNavigate();
+  // Free has the standard theme only; screens on another keep it saved but show the standard one.
+  const allThemes = usePlan().hasFeature('all_themes');
   const [isSaving, setIsSaving] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<Theme>(screen.theme);
 
@@ -59,7 +64,7 @@ export function ThemeSection({ screen, onScreenChange }: ThemeSectionProps) {
     } catch (error) {
       console.error('Error updating theme:', error);
       setSelectedTheme(previous);
-      toast.error('Failed to update theme');
+      showSaveError(error, 'Failed to update theme');
     } finally {
       setIsSaving(false);
     }
@@ -81,6 +86,7 @@ export function ThemeSection({ screen, onScreenChange }: ThemeSectionProps) {
               const themeKey = theme as Theme;
               const themeName = themeLabels[themeKey];
               const previewSrc = themeImageMap[themeKey];
+              const locked = !allThemes && themeKey !== Theme.Theme1;
               return (
                 <button
                   key={themeKey}
@@ -89,10 +95,11 @@ export function ThemeSection({ screen, onScreenChange }: ThemeSectionProps) {
                     selectedTheme === themeKey
                       ? 'border-primary ring-2 ring-primary/20'
                       : 'border-border',
-                    isSaving && 'opacity-50 pointer-events-none'
+                    isSaving && 'opacity-50 pointer-events-none',
+                    locked && 'relative opacity-60'
                   )}
-                  onClick={() => handleThemeSelect(themeKey)}
-                  disabled={isSaving}
+                  onClick={() => !locked && handleThemeSelect(themeKey)}
+                  disabled={isSaving || locked}
                   type='button'
                   aria-label={`Select ${themeName}`}
                 >
@@ -107,8 +114,9 @@ export function ThemeSection({ screen, onScreenChange }: ThemeSectionProps) {
                       Custom
                     </div>
                   )}
-                  <div className='mt-2 text-center text-xs font-medium text-foreground truncate sm:w-32 capitalize'>
+                  <div className='mt-2 flex items-center justify-center gap-1 text-center text-xs font-medium text-foreground truncate sm:w-32 capitalize'>
                     {themeName}
+                    {locked && <ProBadge link={false} />}
                   </div>
                 </button>
               );
@@ -124,7 +132,15 @@ export function ThemeSection({ screen, onScreenChange }: ThemeSectionProps) {
             </div>
           )}
 
-          {selectedTheme === Theme.Theme4 && (
+          {!allThemes && (
+            <p className='text-xs text-muted-foreground'>
+              The Free plan includes Theme 1; the others are part of Pro.{' '}
+              {selectedTheme !== Theme.Theme1 &&
+                'This screen shows Theme 1 until the masjid upgrades, then its saved theme comes back.'}
+            </p>
+          )}
+
+          {allThemes && selectedTheme === Theme.Theme4 && (
             <div className='flex flex-col gap-4 rounded-lg border bg-muted/40 p-4 sm:flex-row sm:items-center sm:justify-between'>
               <div>
                 <p className='text-sm font-medium text-foreground'>Custom theme</p>

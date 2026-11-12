@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { getContentNotificationStatus, setPublished } from '@/lib/supabase';
 import { contentNotificationLine } from '@/utils';
 import type { AppContentType, AppShown, Publishable, Removable, ScreenContentType } from '@/types';
+import { showSaveError } from '@/lib/save-error';
 
 type ToggleItem = Publishable & { id: string } & Partial<AppShown & Removable> & {
     show_in_app?: boolean;
@@ -34,7 +35,7 @@ export function usePublishToggle(contentType: ScreenContentType, onChange: () =>
         onChange();
       } catch (err) {
         console.error('Error changing publish state:', err);
-        toast.error(`Failed to ${publish ? 'publish' : 'unpublish'}, please try again.`);
+        showSaveError(err, `Failed to ${publish ? 'publish' : 'unpublish'}, please try again.`);
       }
     },
     [contentType, onChange]

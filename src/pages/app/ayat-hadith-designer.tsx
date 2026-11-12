@@ -7,8 +7,8 @@ import {
   DesignPanel,
   type ContentState,
 } from '@/components/ayat-hadith-designer';
-import { SaveContentButtons } from '@/components/common';
-import { useCanvasSnapshot } from '@/hooks';
+import { ProBadge, ProFeatureNotice, SaveContentButtons } from '@/components/common';
+import { useCanvasSnapshot, usePlan } from '@/hooks';
 import { ScreenAssignmentModal } from '@/components/modals';
 import { AppRoutes, DEFAULT_STYLE, QURAN_TRANSLATIONS } from '@/constants';
 import { getAyatAndHadithById, upsertAyatAndHadith } from '@/lib/supabase';
@@ -73,6 +73,9 @@ function makeInitialContentState(initial?: AyatAndHadith | null): ContentState {
 }
 
 export default function AyatHadithDesigner() {
+  // On Free the slide uses the default design; the Design panel and moving
+  // layers on the canvas are part of Pro.
+  const designAllowed = usePlan().hasFeature('ayat_hadith_designer');
   const navigate = useNavigate();
   const params = useParams<{ id?: string }>();
   const [searchParams] = useSearchParams();
@@ -272,7 +275,9 @@ export default function AyatHadithDesigner() {
             showReference={content.showReference}
             selected={selectedLayer}
             onSelectedChange={selectLayer}
-            onPositionsChange={positions => setStyle(prev => ({ ...prev, positions }))}
+            onPositionsChange={positions =>
+              designAllowed && setStyle(prev => ({ ...prev, positions }))
+            }
             snapshotMode={snapshotMode}
           />
         </div>
@@ -280,7 +285,10 @@ export default function AyatHadithDesigner() {
           <Tabs value={activeTab} onValueChange={v => setActiveTab(v as 'content' | 'design')}>
             <TabsList className='w-full'>
               <TabsTrigger value='content'>Content</TabsTrigger>
-              <TabsTrigger value='design'>Design</TabsTrigger>
+              <TabsTrigger value='design' className='gap-1.5'>
+                Design
+                {!designAllowed && <ProBadge link={false} />}
+              </TabsTrigger>
             </TabsList>
             <TabsContent value='content' className='pt-4'>
               <ContentPanel
@@ -291,16 +299,26 @@ export default function AyatHadithDesigner() {
               />
             </TabsContent>
             <TabsContent value='design' className='pt-4'>
-              <DesignPanel
-                style={style}
-                onChange={setStyle}
-                showUrdu={content.showUrdu}
-                showEnglish={content.showEnglish}
-                showReference={content.showReference}
-                selected={selectedLayer}
-                onSelectedChange={selectLayer}
-                orientation={orientation}
-              />
+              {!designAllowed ? (
+                <ProFeatureNotice>
+                  <p className='font-medium'>The designer is part of Pro.</p>
+                  <p>
+                    On Free, pick any verse or hadith in Content and it uses the standard design.
+                    Upgrade to change fonts, colours, backgrounds and layout.
+                  </p>
+                </ProFeatureNotice>
+              ) : (
+                <DesignPanel
+                  style={style}
+                  onChange={setStyle}
+                  showUrdu={content.showUrdu}
+                  showEnglish={content.showEnglish}
+                  showReference={content.showReference}
+                  selected={selectedLayer}
+                  onSelectedChange={selectLayer}
+                  orientation={orientation}
+                />
+              )}
             </TabsContent>
           </Tabs>
         </div>

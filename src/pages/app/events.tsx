@@ -11,9 +11,10 @@ import {
   DataTable,
   ContentStatus,
   type Column,
+  ProFeatureNotice,
 } from '@/components/common';
 import { Calendar, Clock, MapPin } from 'lucide-react';
-import { useTrigger, useMasjidTimezone, usePublishToggle } from '@/hooks';
+import { useTrigger, useMasjidTimezone, usePublishToggle, usePlan } from '@/hooks';
 import { describeTimeZone, formatZoned, formatZonedDateTime } from '@/utils';
 import { Skeleton, Tabs, TabsList, TabsTrigger } from '@/components/ui';
 import { toast } from 'sonner';
@@ -25,6 +26,7 @@ const SCOPES: { value: EventScope; label: string }[] = [
 ];
 
 export default function Events() {
+  const isLocked = !usePlan().hasFeature('events');
   const [events, setEvents] = useState<Event[]>([]);
   const [onScreenIds, setOnScreenIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -174,7 +176,7 @@ export default function Events() {
             : `Manage your masjid events and programs. Times are in ${describeTimeZone(timeZone)}.`
         }
         onAddClick={handleAddNew}
-        addButtonDisabled={isTimezoneLoading}
+        addButtonDisabled={isTimezoneLoading || isLocked}
         actions={
           <Tabs value={scope} onValueChange={v => setScope(v as EventScope)}>
             <TabsList>
@@ -187,6 +189,16 @@ export default function Events() {
           </Tabs>
         }
       />
+
+      {isLocked && (
+        <ProFeatureNotice>
+          <p className='font-medium'>Events are part of Pro.</p>
+          <p>
+            Existing events are kept, but screens and the Alkhairia app don't show them until the
+            masjid upgrades.
+          </p>
+        </ProFeatureNotice>
+      )}
 
       <ErrorAlert message={error} onClose={() => setError(null)} />
 
