@@ -41,6 +41,8 @@ export type DisplayPayload = DisplaySession &
     screen_content: ScreenContent[];
     /** Content rows the playlist points at, keyed by id. */
     content: Record<string, DisplayContentRecord>;
+    /** The masjid's plan shows the "Powered by SalatHub" badge. */
+    show_badge: boolean;
   };
 
 /**

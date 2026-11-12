@@ -51,7 +51,7 @@ Everything arrives through `SECURITY DEFINER` functions keyed by the screen's lo
 | `record_screen_heartbeat(p_code)`     | Stamps `screen_heartbeats.last_seen_at`                                                                                                                                          |
 | `verify_screen_code(p_code)`          | A bare existence check for the TV shell; not called by this web bundle                                                                                                           |
 
-Inside `get_display_payload` every content branch re-checks `masjid_id` against the screen's own and filters `archived = false`, with events additionally filtered by `ends_at >= now()`. The re-check is necessary because `screen_content.content_id` deliberately carries no foreign key. A null payload means the screen row is gone, and the display signs itself out.
+Inside `get_display_payload` every content branch re-checks `masjid_id` against the screen's own and filters `archived = false`, with events additionally filtered by `ends_at >= now()`. The re-check is necessary because `screen_content.content_id` deliberately carries no foreign key. A null payload means the screen row is gone, and the display signs itself out. The payload also carries `show_badge` (the masjid's plan shows "Powered by SalatHub") and the screen's `paused_at`; a paused screen shows only "This screen isn't active". Only a successful fetch changes either, so a dropped connection never pauses a screen, and the display rechecks every 5 minutes besides the realtime signal. A plan change bumps the masjid's revision.
 
 ## How the mobile app reads data
 

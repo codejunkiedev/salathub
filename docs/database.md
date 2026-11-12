@@ -1,6 +1,6 @@
 # Database
 
-Twenty-three tables in `public`. [`supabase/migrations/`](../supabase/migrations/) is authoritative — 77 files, applied in order, with several columns added and later dropped, so read the latest migration touching a table rather than the one that created it.
+Twenty-three tables in `public`. [`supabase/migrations/`](../supabase/migrations/) is authoritative — 78 files, applied in order, with several columns added and later dropped, so read the latest migration touching a table rather than the one that created it.
 
 ## Tables
 
@@ -8,7 +8,7 @@ Twenty-three tables in `public`. [`supabase/migrations/`](../supabase/migrations
 | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `masjid_profiles`                                             | Tenant root. Name (+ `name_ur`/`name_ar`), area (+ `area_ur`/`area_ar`), logo, coordinates, contact number/email/website, a **required** IANA `timezone`, `listed` (the admin's opt-in) and `in_app` (what the app reads) |
 | `masjid_members`                                              | Membership + `role`. `UNIQUE(user_id)` — a user belongs to one masjid                                                                                                                                                     |
-| `display_screens`                                             | Per-screen code, orientation, theme, `custom_theme` JSON, language, slide interval, prayer/weather toggles, prayer-alert triggers and sound                                                                               |
+| `display_screens`                                             | Per-screen code, orientation, theme, `custom_theme` JSON, language, slide interval, prayer/weather toggles, prayer-alert triggers and sound, and `paused_at` (over the plan's limit; only server-side code changes it)                                                                               |
 | `screen_content`                                              | Polymorphic playlist join with per-screen `display_order`. `content_id` has no FK by design; `get_display_payload` re-checks tenancy and drops drafts                                                                     |
 | `announcements`, `posts`, `youtube_videos`, `ayat_and_hadith` | Content items, soft-deleted via `archived`. Null `published_at` is a draft                                                                                                                                                |
 | `events`                                                      | As above, plus `date_time`/`end_time` as `timestamptz` and `ends_at`, a stored generated column backing the upcoming/past split                                                                                           |
