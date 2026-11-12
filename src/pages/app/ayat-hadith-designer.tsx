@@ -303,8 +303,8 @@ export default function AyatHadithDesigner() {
                 <ProFeatureNotice>
                   <p className='font-medium'>The designer is part of Pro.</p>
                   <p>
-                    On Free, pick any verse or hadith in Content and it uses the standard design.
-                    Upgrade to change fonts, colours, backgrounds and layout.
+                    On Free, slides use the standard design. Upgrade to change fonts, colours,
+                    backgrounds and layout.
                   </p>
                 </ProFeatureNotice>
               ) : (
