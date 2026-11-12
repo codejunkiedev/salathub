@@ -251,13 +251,13 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                     </span>
                     <div
                       className={cn(
-                        'transition-all duration-300 overflow-hidden',
-                        collapsed && !isMobile ? 'w-0 opacity-0' : 'w-auto opacity-100'
+                        'flex min-w-0 items-center gap-2 transition-all duration-300 overflow-hidden',
+                        collapsed && !isMobile ? 'w-0 opacity-0' : 'flex-1 opacity-100'
                       )}
                     >
-                      <span className='font-medium whitespace-nowrap'>{item.label}</span>
+                      <span className='font-medium whitespace-nowrap truncate'>{item.label}</span>
                       {item.feature && !hasFeature(item.feature) && (
-                        <ProBadge link={false} className='ml-2 align-middle' />
+                        <ProBadge link={false} className='ml-auto shrink-0' />
                       )}
                     </div>
                   </NavLink>
