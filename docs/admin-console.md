@@ -54,7 +54,7 @@ Logos upload to `masjid-logos/<masjid_id>/<timestamp>` so storage RLS can scope 
 
 ## Billing
 
-`/admin/settings/billing`, admin-only. Shows the plan, status, trial-end or renewal date and screens in use against the plan. **Upgrade to Pro** opens Stripe Checkout and **Manage billing** opens the Stripe billing portal, both through the `billing` function. Back from checkout, the page polls until the webhook has made the masjid Pro. A banner (`trial-banner.tsx`) counts down the trial for admins; `billing-jobs` emails them 7 days and 1 day before it ends, and 30 and 7 days before free Pro from our team ends.
+`/admin/settings/billing`, admin-only. Shows the plan, status, trial-end or renewal date and screens in use against the plan. **Upgrade to Pro** opens Stripe Checkout and **Manage billing** opens the Stripe billing portal, both through the `billing` function. Checkout requires a billing address and has Stripe Tax add sales tax only where the company is registered (registrations live in Stripe); the subscription keeps automatic tax on for renewals and extra screens. Back from checkout, the page polls until the webhook has made the masjid Pro. A banner (`trial-banner.tsx`) counts down the trial for admins; `billing-jobs` emails them 7 days and 1 day before it ends, and 30 and 7 days before free Pro from our team ends.
 
 ## Platform area
 

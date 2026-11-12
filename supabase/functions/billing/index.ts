@@ -155,6 +155,11 @@ Deno.serve(async req => {
     // We sell and collect tax ourselves (PB-94), so not through Stripe Managed Payments,
     // which the account has on by default and which rejects custom_text.
     managed_payments: { enabled: false },
+    // Stripe Tax charges tax only where the company is registered, from the billing
+    // address. The subscription keeps it on, so renewals and extra screens are taxed too.
+    automatic_tax: { enabled: true },
+    billing_address_collection: 'required',
+    customer_update: { address: 'auto', name: 'auto' },
     consent_collection: { terms_of_service: 'required' },
     custom_text: {
       terms_of_service_acceptance: {
