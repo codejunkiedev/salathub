@@ -14,6 +14,7 @@ New to the codebase? Read [Architecture](./architecture.md) first — particular
 | [Content](./content.md)             | The shared content pattern, each type's fields and quirks, the post image pipeline, the Ayat & Hadith designer                      |
 | [Prayer times](./prayer-times.md)   | Starts/athan/iqamah, offsets and manual times, Jumma variants, the four solar times, timezone resolution, month caching             |
 | [Display runtime](./display.md)     | Slide assembly and rotation, prayer alerts, the four themes and the custom-theme engine, weather, internationalization              |
+| [Billing](./billing.md)             | Free and Pro plans, plan statuses, the Stripe settings the code relies on, the billing functions and webhook, testing               |
 | [Operations](./operations.md)       | Environment variables, scripts, build config, deployment, TV-box hardware, service worker and caches, monitoring                    |
 | [Known issues](./known-issues.md)   | Open issues and dead code, documented rather than fixed                                                                             |
 
