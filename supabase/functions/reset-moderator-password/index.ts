@@ -104,7 +104,9 @@ Deno.serve(async req => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    const message =
+      error instanceof Error ? error.message : "Failed to reset the moderator's password";
+    return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
