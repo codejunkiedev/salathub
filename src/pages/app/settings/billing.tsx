@@ -8,6 +8,7 @@ import {
   CalendarClock,
   CircleCheck,
   CreditCard,
+  Gift,
   Sparkles,
 } from 'lucide-react';
 import { Button, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
@@ -45,6 +46,18 @@ function StatusCard({ billing }: { billing: MasjidBilling }) {
         </StatusLayout>
       );
     }
+    case 'granted':
+      return (
+        <StatusLayout
+          icon={<Gift className='h-6 w-6 text-emerald-600' />}
+          title='Pro, free from SalatHub'
+        >
+          <p>The masjid has Pro at no cost until {date(billing.granted_until)}.</p>
+          <p>
+            To keep Pro after that, upgrade before then. Upgrading starts a paid year straight away.
+          </p>
+        </StatusLayout>
+      );
     case 'active':
       return (
         <StatusLayout icon={<CircleCheck className='h-6 w-6 text-emerald-600' />} title='Pro'>
@@ -127,6 +140,7 @@ const STATUS_LABELS: Record<MasjidBilling['status'], string> = {
   active: 'Active',
   cancelled: 'Ends at the end of the year',
   payment_failed: 'Payment failed',
+  granted: 'Free from SalatHub',
 };
 
 export default function Billing() {
@@ -196,7 +210,8 @@ export default function Billing() {
   const includedScreens = planRules
     ? planRules.included_screens + (billing?.plan === 'pro' ? billing.extra_screens : 0)
     : null;
-  const canUpgrade = billing?.status === 'none' || billing?.status === 'trial';
+  const canUpgrade =
+    billing?.status === 'none' || billing?.status === 'trial' || billing?.status === 'granted';
   const canManage = !!billing?.stripe_customer_id;
 
   return (
@@ -236,6 +251,9 @@ export default function Billing() {
                 )}
                 {(billing.status === 'active' || billing.status === 'payment_failed') && (
                   <Detail label='Renews' value={date(billing.renews_at)} />
+                )}
+                {billing.status === 'granted' && (
+                  <Detail label='Free until' value={date(billing.granted_until)} />
                 )}
                 {billing.status === 'cancelled' && (
                   <Detail label='Pro ends' value={date(billing.renews_at)} />

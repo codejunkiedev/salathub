@@ -1,6 +1,8 @@
 import {
   SupabaseTables,
+  type BillingGrant,
   type FeedItemKind,
+  type MasjidBilling,
   type MasjidProfile,
   type MasjidReport,
   type MasjidVerification,
@@ -35,7 +37,9 @@ const MASJID_COLUMNS = 'id, name, area, logo_url, listed, in_app, created_at';
 export async function getPlatformMasjids(): Promise<PlatformMasjid[]> {
   const { data, error } = await supabase
     .from(SupabaseTables.MasjidProfiles)
-    .select(`${MASJID_COLUMNS}, verification:masjid_verifications(*)`)
+    .select(
+      `${MASJID_COLUMNS}, verification:masjid_verifications(*), billing:masjid_billing(plan, status, trial_ends_at, renews_at, grace_ends_at, granted_until)`
+    )
     .order('name');
 
   if (error) throw error;
@@ -202,4 +206,39 @@ export async function removeFeedItem(
   reason: string
 ): Promise<{ emailed: boolean }> {
   return invokeReview({ action: 'remove_item', target_kind: kind, target_id: id, reason });
+}
+
+export async function getPlatformMasjidBilling(
+  masjidId: string
+): Promise<{ billing: MasjidBilling | null; grants: BillingGrant[] }> {
+  const [billing, grants] = await Promise.all([
+    supabase.from(SupabaseTables.MasjidBilling).select('*').eq('masjid_id', masjidId).maybeSingle(),
+    supabase
+      .from(SupabaseTables.MasjidBillingGrants)
+      .select('*')
+      .eq('masjid_id', masjidId)
+      .order('created_at', { ascending: false }),
+  ]);
+  if (billing.error) throw billing.error;
+  if (grants.error) throw grants.error;
+  return { billing: billing.data, grants: grants.data ?? [] };
+}
+
+/** Free Pro until the end of `until`; replaces any trial or earlier grant. */
+export async function grantMasjidPro(masjidId: string, until: Date, reason: string) {
+  const { error } = await supabase.rpc('grant_masjid_pro', {
+    p_masjid_id: masjidId,
+    p_until: until.toISOString(),
+    p_reason: reason,
+  });
+  if (error) throw new Error(error.message || 'Failed to give free Pro');
+}
+
+export async function extendMasjidTrial(masjidId: string, days: number, reason: string) {
+  const { error } = await supabase.rpc('extend_masjid_trial', {
+    p_masjid_id: masjidId,
+    p_days: days,
+    p_reason: reason,
+  });
+  if (error) throw new Error(error.message || 'Failed to extend the trial');
 }

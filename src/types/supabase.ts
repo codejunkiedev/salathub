@@ -22,6 +22,7 @@ export enum SupabaseTables {
   MasjidReports = 'masjid_reports',
   MasjidBilling = 'masjid_billing',
   PlanRules = 'plan_rules',
+  MasjidBillingGrants = 'masjid_billing_grants',
 }
 
 export enum SupabaseBuckets {
@@ -66,8 +67,12 @@ export interface MasjidVerification {
 
 export type BillingPlan = 'free' | 'pro';
 
-/** none is Free. cancelled stays Pro until renews_at; payment_failed until grace_ends_at. */
-export type BillingStatus = 'none' | 'trial' | 'active' | 'payment_failed' | 'cancelled';
+/**
+ * none is Free. cancelled stays Pro until renews_at; payment_failed until grace_ends_at;
+ * granted (free Pro from our team) until granted_until.
+ */
+export type BillingStatus =
+  'none' | 'trial' | 'active' | 'payment_failed' | 'cancelled' | 'granted';
 
 export interface MasjidBilling {
   masjid_id: string;
@@ -78,7 +83,20 @@ export interface MasjidBilling {
   trial_ends_at: string | null;
   renews_at: string | null;
   grace_ends_at: string | null;
+  granted_until: string | null;
   stripe_customer_id: string | null;
+}
+
+/** A free Pro grant or trial extension by our team. granted_by is null for the launch grant. */
+export interface BillingGrant {
+  id: string;
+  masjid_id: string;
+  kind: 'pro' | 'trial_extension';
+  ends_at: string;
+  reason: string;
+  granted_by: string | null;
+  granted_by_email: string | null;
+  created_at: string;
 }
 
 export interface PlanRules {
@@ -107,7 +125,14 @@ export interface VerificationDocument {
 export type PlatformMasjid = Pick<
   MasjidProfile,
   'id' | 'name' | 'area' | 'logo_url' | 'listed' | 'in_app'
-> & { created_at: string; verification: MasjidVerification | null };
+> & {
+  created_at: string;
+  verification: MasjidVerification | null;
+  billing: Pick<
+    MasjidBilling,
+    'plan' | 'status' | 'trial_ends_at' | 'renews_at' | 'grace_ends_at' | 'granted_until'
+  > | null;
+};
 
 export type ReportTargetKind = 'masjid' | 'announcement' | 'event' | 'post';
 export type ReportReason = 'fake_masjid' | 'wrong_information' | 'inappropriate_content' | 'other';

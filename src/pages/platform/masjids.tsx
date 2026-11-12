@@ -4,7 +4,12 @@ import { format } from 'date-fns';
 import { Search } from 'lucide-react';
 import { Button, Card, CardContent, Input } from '@/components/ui';
 import { DataTable, ErrorAlert, PageHeader, type Column } from '@/components/common';
-import { MasjidCell, VerificationStatusBadge } from '@/components/platform';
+import {
+  BillingStatusBadge,
+  MasjidCell,
+  VerificationStatusBadge,
+  billingDate,
+} from '@/components/platform';
 import { getPlatformMasjids } from '@/lib/supabase';
 import { PlatformRoutes } from '@/constants';
 import type { PlatformMasjid } from '@/types';
@@ -58,25 +63,46 @@ export default function PlatformMasjids() {
     {
       key: 'name',
       name: 'Masjid',
-      width: 'w-[40%]',
+      width: 'w-[28%]',
       render: (_, item) => <MasjidCell masjid={item} />,
     },
     {
       key: 'status',
       name: 'Verification',
-      width: 'w-[20%]',
+      width: 'w-[14%]',
       render: (_, item) => <VerificationStatusBadge verification={item.verification} />,
     },
     {
       key: 'in_app',
       name: 'In the app',
-      width: 'w-[20%]',
+      width: 'w-[13%]',
       render: (_, item) => (item.in_app ? 'Yes' : item.listed ? 'Listed, hidden' : 'No'),
+    },
+    {
+      key: 'billing',
+      name: 'Plan',
+      width: 'w-[16%]',
+      render: (_, item) => <BillingStatusBadge billing={item.billing} />,
+    },
+    {
+      key: 'plan_date',
+      name: 'Plan date',
+      width: 'w-[16%]',
+      render: (_, item) => {
+        const when = billingDate(item.billing);
+        return when ? (
+          <span>
+            <span className='text-muted-foreground'>{when.label}</span> {when.date}
+          </span>
+        ) : (
+          '—'
+        );
+      },
     },
     {
       key: 'created_at',
       name: 'Joined',
-      width: 'w-[20%]',
+      width: 'w-[13%]',
       render: value => format(new Date(value as string), 'd MMM yyyy'),
     },
   ];
@@ -85,7 +111,7 @@ export default function PlatformMasjids() {
     <div className='space-y-6'>
       <PageHeader
         title='Masjids'
-        description='Every masjid on SalatHub with its verification and app status'
+        description='Every masjid on SalatHub with its verification, app status and plan'
         showAddButton={false}
       />
       <ErrorAlert message={error} onClose={() => setError(null)} />
