@@ -404,6 +404,14 @@ verify_jwt = false
 [functions.notify-content]
 verify_jwt = false
 
+# Checks the caller is the masjid's admin itself.
+[functions.billing]
+verify_jwt = false
+
+# Called by Stripe, authenticated by STRIPE_WEBHOOK_SECRET.
+[functions.stripe-webhook]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327
