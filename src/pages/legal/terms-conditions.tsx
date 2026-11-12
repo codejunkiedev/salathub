@@ -1,10 +1,13 @@
+import { Link } from 'react-router';
+import { PublicRoutes } from '@/constants/routes';
 import { LegalLayout } from './legal-layout';
 
 export default function TermsConditions() {
   return (
-    <LegalLayout title='Terms & Conditions' lastUpdated='25 November 2025'>
+    <LegalLayout title='Terms & Conditions' lastUpdated='12 November 2026'>
       <p>
-        Welcome to <strong>SalatHub</strong> ("we", "us", "our"). These Terms &amp; Conditions
+        Welcome to <strong>SalatHub</strong>, operated by Collections of Shaykh Rahmat Alam Jan LLC,
+        a New Jersey limited liability company ("we", "us", "our"). These Terms &amp; Conditions
         ("Terms") govern your access to and use of the SalatHub application and related services
         (the "Services").
       </p>
@@ -73,7 +76,73 @@ export default function TermsConditions() {
         outside your masjid.
       </p>
 
-      <h2>6. Acceptable Use</h2>
+      <h2>6. Plans, Billing and Automatic Renewal</h2>
+      <h3>Plans</h3>
+      <p>
+        SalatHub is offered per masjid on a Free plan and a paid Pro plan. What each plan includes
+        and its current price are shown on the Billing page of the console before you buy. The
+        Alkhairia app is free and is not part of any plan.
+      </p>
+      <h3>Free trial</h3>
+      <p>
+        A new masjid gets a 30-day Pro trial. No payment card is needed and you are not charged.
+        When the trial ends, the masjid moves to the Free plan unless an administrator has upgraded
+        to Pro.
+      </p>
+      <h3>Payment</h3>
+      <ul>
+        <li>
+          Pro is billed yearly in advance, in your masjid's currency (US dollars, Canadian dollars
+          or Pakistani rupees). Additional screens beyond those included in Pro are billed yearly
+          per screen.
+        </li>
+        <li>
+          Screens added part-way through a year are charged pro rata for the rest of that year.
+          Screens removed part-way through a year are credited pro rata against your next charge;
+          the credit is not paid out in cash.
+        </li>
+        <li>
+          Prices do not include sales tax. Where we are required to collect it, tax is added at
+          checkout and shown separately on your invoice.
+        </li>
+        <li>
+          Payments are processed by Stripe. We do not store your card details. Charges appear on
+          your statement as <strong>SALATHUB</strong>. Your bank may add its own fees, for example
+          for foreign-currency or international payments.
+        </li>
+      </ul>
+      <h3>Automatic renewal</h3>
+      <p>
+        <strong>
+          Your Pro subscription, including any additional screens, renews automatically each year
+          and the payment method on file is charged the then-current yearly price, plus any tax, on
+          the renewal date, until you cancel.
+        </strong>{' '}
+        We email the masjid's administrator about 30 days before each renewal with the date and
+        amount. If the price is going to change, we tell you before the renewal at which it applies.
+        Screens bought at a launch price keep that price at each renewal for as long as the
+        subscription stays active.
+      </p>
+      <h3>Cancelling</h3>
+      <p>
+        An administrator can cancel at any time from the Billing page of the console, without
+        contacting us. Cancelling stops the next renewal; Pro stays active until the end of the year
+        already paid for, and the masjid then moves to the Free plan. Refunds are covered by our{' '}
+        <Link to={PublicRoutes.RefundPolicy}>Refund Policy</Link>.
+      </p>
+      <h3>Failed payments</h3>
+      <p>
+        If a payment fails, we retry it and email the administrator. If it still hasn't been paid 14
+        days after the first failure, the masjid moves to the Free plan.
+      </p>
+      <h3>Moving to the Free plan</h3>
+      <p>
+        When a masjid moves to the Free plan, nothing is deleted. Screens above the Free limit are
+        paused, Pro-only content is hidden from screens but kept, and moderators lose access.
+        Upgrading to Pro again restores them.
+      </p>
+
+      <h2>7. Acceptable Use</h2>
       <p>You agree to use the Services only for lawful purposes and not to:</p>
       <ul>
         <li>Violate any applicable laws, regulations, or third-party rights;</li>
@@ -99,7 +168,7 @@ export default function TermsConditions() {
         </li>
       </ul>
 
-      <h2>7. Your Content</h2>
+      <h2>8. Your Content</h2>
       <p>
         You retain ownership of the Content you upload to the Services ("User Content"). By
         uploading User Content, you grant us a worldwide, non-exclusive, royalty-free licence to
@@ -121,7 +190,7 @@ export default function TermsConditions() {
         applicable law.
       </p>
 
-      <h2>8. Third-Party Content and Services</h2>
+      <h2>9. Third-Party Content and Services</h2>
       <p>
         The Services include Content and integrations provided by third parties — for example,
         Quranic verses, hadith collections, prayer-time calculations, YouTube video embeds, and map
@@ -130,7 +199,7 @@ export default function TermsConditions() {
         suitability of third-party Content for any particular purpose.
       </p>
 
-      <h2>9. Religious and Educational Content</h2>
+      <h2>10. Religious and Educational Content</h2>
       <p>
         Religious, educational, and spiritual Content available through the Services is provided for
         general guidance and reminder. It does not replace personal, tailored religious counsel from
@@ -138,7 +207,7 @@ export default function TermsConditions() {
         displays and for ensuring it reflects the values and policies of your masjid.
       </p>
 
-      <h2>10. Intellectual Property</h2>
+      <h2>11. Intellectual Property</h2>
       <p>
         All rights, title, and interest in and to the Services — including the software, design,
         trademarks, and original Content — are owned by us or our licensors and are protected by
@@ -150,14 +219,14 @@ export default function TermsConditions() {
         commercially exploit any part of the Services without our prior written consent.
       </p>
 
-      <h2>11. Feedback</h2>
+      <h2>12. Feedback</h2>
       <p>
         If you provide us with suggestions, ideas, or feedback about the Services, you grant us a
         non-exclusive, royalty-free, perpetual, irrevocable, worldwide licence to use that feedback
         for any purpose, without compensation or attribution.
       </p>
 
-      <h2>12. Service Availability and Modifications</h2>
+      <h2>13. Service Availability and Modifications</h2>
       <p>
         We strive to keep the Services available and functioning correctly, but we do not guarantee
         uninterrupted or error-free operation. We may modify, suspend, or discontinue any part of
@@ -165,7 +234,7 @@ export default function TermsConditions() {
         party for any modification, suspension, or discontinuation of the Services.
       </p>
 
-      <h2>13. Disclaimers</h2>
+      <h2>14. Disclaimers</h2>
       <p>
         The Services and all Content are provided on an <strong>"as is"</strong> and{' '}
         <strong>"as available"</strong> basis. To the fullest extent permitted by law, we disclaim
@@ -174,7 +243,7 @@ export default function TermsConditions() {
         the accuracy or reliability of any Content (including prayer times and religious material).
       </p>
 
-      <h2>14. Limitation of Liability</h2>
+      <h2>15. Limitation of Liability</h2>
       <p>To the fullest extent permitted by applicable law:</p>
       <ul>
         <li>
@@ -194,7 +263,7 @@ export default function TermsConditions() {
         above limitations apply only to the extent permitted by law.
       </p>
 
-      <h2>15. Indemnity</h2>
+      <h2>16. Indemnity</h2>
       <p>
         You agree to indemnify, defend, and hold harmless SalatHub, our affiliates, and our
         respective officers, employees, and agents from and against any claims, liabilities,
@@ -208,7 +277,7 @@ export default function TermsConditions() {
         <li>Your violation of any rights of another person or entity.</li>
       </ul>
 
-      <h2>16. Termination</h2>
+      <h2>17. Termination</h2>
       <p>
         You may stop using the Services at any time. We may suspend or terminate your access to the
         Services at any time, with or without notice, if we reasonably believe you have violated
@@ -217,7 +286,7 @@ export default function TermsConditions() {
         limitation of liability, and indemnity) will continue to apply.
       </p>
 
-      <h2>17. Changes to These Terms</h2>
+      <h2>18. Changes to These Terms</h2>
       <p>
         We may update these Terms from time to time. When we do, we will revise the "Last updated"
         date at the top of this page. For material changes, we will take reasonable steps to notify
@@ -225,7 +294,14 @@ export default function TermsConditions() {
         updated Terms.
       </p>
 
-      <h2>18. Contact Us</h2>
+      <h2>19. Governing Law</h2>
+      <p>
+        These Terms are governed by the laws of the State of New Jersey, United States, without
+        regard to its conflict-of-law rules. Nothing in these Terms removes any protection you have
+        under the consumer laws of the place where you live.
+      </p>
+
+      <h2>20. Contact Us</h2>
       <p>
         If you have any questions about these Terms, please contact us through the in-app Support
         page or by email at{' '}

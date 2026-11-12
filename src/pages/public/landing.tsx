@@ -319,6 +319,12 @@ export default function Landing() {
             >
               Terms &amp; Conditions
             </Link>
+            <Link
+              to={PublicRoutes.RefundPolicy}
+              className='underline-offset-4 hover:text-foreground hover:underline'
+            >
+              Refund Policy
+            </Link>
           </div>
         </div>
       </footer>

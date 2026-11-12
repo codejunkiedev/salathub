@@ -9,6 +9,7 @@ export enum PublicRoutes {
   Landing = '/',
   PrivacyPolicy = '/privacy',
   TermsConditions = '/terms',
+  RefundPolicy = '/refund-policy',
   Masjid = '/masjid/:id',
 }
 

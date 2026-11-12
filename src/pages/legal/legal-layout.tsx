@@ -48,6 +48,12 @@ export function LegalLayout({ title, lastUpdated, children }: LegalLayoutProps) 
             >
               Terms &amp; Conditions
             </Link>
+            <Link
+              to={PublicRoutes.RefundPolicy}
+              className='hover:text-foreground hover:underline underline-offset-4'
+            >
+              Refund Policy
+            </Link>
           </div>
           <span>&copy; {new Date().getFullYear()} SalatHub</span>
         </footer>

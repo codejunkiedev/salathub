@@ -18,6 +18,11 @@ export const PAGE_META = {
     title: 'Terms & Conditions – SalatHub',
     description: 'The terms that govern your use of SalatHub and its related services.',
   },
+  [PublicRoutes.RefundPolicy]: {
+    title: 'Refund Policy – SalatHub',
+    description:
+      'When you can get a refund for a SalatHub Pro subscription, and how to ask for one.',
+  },
   [AuthRoutes.Login]: {
     title: 'Sign in – SalatHub',
     description: 'Sign in to the SalatHub console to manage your masjid’s screens.',
@@ -36,4 +41,5 @@ export const PRERENDERED_PATHS = [
   PublicRoutes.Landing,
   PublicRoutes.PrivacyPolicy,
   PublicRoutes.TermsConditions,
+  PublicRoutes.RefundPolicy,
 ] as const;
