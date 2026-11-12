@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useLocation } from 'react-router';
+import { useLocation, useNavigationType } from 'react-router';
 import { PAGE_META, SITE_URL, type PageMeta } from '@/constants';
 
 const DEFAULT_TITLE = 'SalatHub';
@@ -50,6 +50,18 @@ export function PrerenderCleanup() {
   useEffect(() => {
     document.getElementById('prerender')?.remove();
   }, []);
+
+  return null;
+}
+
+/** Opens each newly visited page at the top; back and forward keep the browser's position. */
+export function ScrollToTop() {
+  const { pathname } = useLocation();
+  const navigationType = useNavigationType();
+
+  useEffect(() => {
+    if (navigationType !== 'POP') window.scrollTo(0, 0);
+  }, [pathname, navigationType]);
 
   return null;
 }

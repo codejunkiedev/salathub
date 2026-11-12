@@ -42,6 +42,7 @@ import {
   Support,
   PrivacyPolicy,
   TermsConditions,
+  RefundPolicy,
   MasjidFollow,
   Landing,
   PlatformQueue,
@@ -50,7 +51,7 @@ import {
   PlatformReports,
 } from '@/pages';
 import { useDisplayStore, useAuthStore } from '@/store';
-import { PageMeta, PrerenderCleanup } from './page-meta';
+import { PageMeta, PrerenderCleanup, ScrollToTop } from './page-meta';
 
 function RequireAdmin({ children }: { children: React.ReactNode }) {
   const role = useAuthStore(s => s.role);
@@ -165,12 +166,14 @@ export default function Navigation() {
   return (
     <BrowserRouter>
       <PageMeta />
+      <ScrollToTop />
       <Suspense fallback={<Loading progress={LoadingStep.Page} />}>
         <PrerenderCleanup />
         <Routes>
           {/* Public legal routes - accessible without authentication */}
           <Route path={PublicRoutes.PrivacyPolicy} element={<PrivacyPolicy />} />
           <Route path={PublicRoutes.TermsConditions} element={<TermsConditions />} />
+          <Route path={PublicRoutes.RefundPolicy} element={<RefundPolicy />} />
           <Route path={PublicRoutes.Masjid} element={<MasjidFollow />} />
 
           {/* Email auth routes - only accessible when not logged in with email */}
