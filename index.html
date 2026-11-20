@@ -176,6 +176,15 @@
       }
     </style>
 
+    <!-- zod 4 calls BigInt() when it loads; Chrome 66 WebViews on older boxes don't have it. -->
+    <script>
+      if (typeof BigInt === 'undefined') {
+        window.BigInt = function (value) {
+          return Number(value);
+        };
+      }
+    </script>
+
     <!-- Screens have no devtools: if the app never starts, show why on the splash. -->
     <script>
       (function () {

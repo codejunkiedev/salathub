@@ -54,12 +54,12 @@ An `es2015` target, Terser, and core-js polyfills via `@vitejs/plugin-legacy`. `
 
 ### The support floor
 
-The floor lives in exactly one place: the `browserslist` field in `package.json`, currently `chrome >= 75`. Neither `postcss.config.mjs` nor the `legacy()` call in `vite.config.ts` names a target — both fall back to that field. **Change the floor there and nowhere else.** The two pipelines held separate numbers once (PostCSS on `chrome >= 83`, the legacy plugin on `chrome >= 49`), and reconciling them onto a floor that was never checked against the deployed boxes is what broke the prayer display in the field.
+The floor lives in exactly one place: the `browserslist` field in `package.json`, currently `chrome >= 66`. Neither `postcss.config.mjs` nor the `legacy()` call in `vite.config.ts` names a target — both fall back to that field. **Change the floor there and nowhere else.** The two pipelines held separate numbers once (PostCSS on `chrome >= 83`, the legacy plugin on `chrome >= 49`), and reconciling them onto a floor that was never checked against the deployed boxes is what broke the prayer display in the field.
 
 Two things to know before moving it:
 
 - **`chrome >= N` carries the whole constraint.** An `android >= N` clause looks like it pins an Android OS version but does not: browserslist’s `android` track runs 2.1 → 4.4.4 and then jumps straight to the current Chrome for Android, so any `android >= N` above 4.4 resolves to that single current version and constrains nothing. Both `android >= 5` and `android >= 12` were no-ops.
-- **Chrome version, not Android version, is what matters**, and the mapping is not tight — a box’s WebView can sit far behind its OS if it never gets Play Store updates. The floor is set from the oldest box seen in the field: an X96Q reporting Android 12.1 whose Chrome is 75.
+- **Chrome version, not Android version, is what matters**, and the mapping is not tight — a box’s WebView can sit far behind its OS if it never gets Play Store updates. The floor is set from the oldest engine seen in the field: the WebView inside the TV app on an X96Q box is Chrome 66 (its Chrome browser is 75). Chrome 66 has no `BigInt`, which zod 4 calls on load, so `index.html` stubs it.
 
 Raising the floor changes what `postcss-preset-env` downlevels, and unsupported CSS fails **silently**: no build error, no console error, no Sentry event — the declaration is simply dropped and the layout quietly loses its spacing. The features the app actually depends on are therefore pinned `true` in `postcss.config.mjs` rather than left to the floor:
 
