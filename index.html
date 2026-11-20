@@ -151,6 +151,7 @@
         animation: splash-sweep 1.4s ease-in-out infinite;
       }
       .splash-step {
+        max-width: 90vw;
         min-height: 1.25rem;
         font-size: 0.8125rem;
         line-height: 1.25rem;
@@ -174,6 +175,28 @@
         }
       }
     </style>
+
+    <!-- Screens have no devtools: if the app never starts, show why on the splash. -->
+    <script>
+      (function () {
+        var last = '';
+        function record(e) {
+          var t = e.target;
+          if (t && t !== window && (t.src || t.href)) last = 'Failed to load ' + (t.src || t.href);
+          else if (e.reason) last = String(e.reason.message || e.reason);
+          else if (e.message) last = e.message + ' (' + String(e.filename).split('/').pop() + ':' + e.colno + ')';
+        }
+        window.addEventListener('error', record, true);
+        window.addEventListener('unhandledrejection', record);
+        setTimeout(function () {
+          var step = document.getElementById('splash-static-step');
+          if (!step) return;
+          var chrome = navigator.userAgent.match(/Chrome\/[\d.]+/);
+          step.textContent =
+            'Could not start: ' + (last || 'no error reported') + ' · ' + (chrome ? chrome[0] : navigator.userAgent);
+        }, 20000);
+      })();
+    </script>
 
     <!--
     Service worker recovery. Runs before any bundled module so that even if a
@@ -239,7 +262,7 @@
             <div role="progressbar" aria-label="Loading" class="splash-track">
               <div class="splash-fill" style="width: 10%"></div>
             </div>
-            <p class="splash-step" role="status">Loading SalatHub</p>
+            <p class="splash-step" id="splash-static-step" role="status">Loading SalatHub</p>
           </div>
         </div>
       </div>
