@@ -87,7 +87,7 @@
     "vite-plugin-pwa": "^2.0.0"
   },
   "browserslist": [
-    "chrome >= 83"
+    "chrome >= 75"
   ],
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
