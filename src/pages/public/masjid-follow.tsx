@@ -2,7 +2,12 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { buttonVariants } from '@/components/ui';
 import { getPublicMasjid, type PublicMasjid } from '@/lib/supabase';
-import { ALKHAIRIA_PLAY_STORE_URL, masjidAppUrl } from '@/helpers';
+import {
+  ALKHAIRIA_APP_STORE_URL,
+  ALKHAIRIA_PLAY_STORE_URL,
+  devicePlatform,
+  masjidAppUrl,
+} from '@/helpers';
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -18,7 +23,13 @@ export default function MasjidFollow() {
   const [masjid, setMasjid] = useState<PublicMasjid | null>(null);
   const [status, setStatus] = useState<Status>(validId ? 'loading' : 'unavailable');
 
-  const isAndroid = /android/i.test(navigator.userAgent);
+  const platform = devicePlatform();
+  const iosAppLive = !!ALKHAIRIA_APP_STORE_URL;
+  // The custom scheme only works where the app can be installed; on iOS that
+  // waits for the App Store release.
+  const canOpenApp = platform === 'android' || (platform === 'ios' && iosAppLive);
+  const showPlayStore = platform !== 'ios';
+  const showAppStore = platform !== 'android';
 
   useEffect(() => {
     if (!validId) return;
@@ -75,7 +86,7 @@ export default function MasjidFollow() {
             </p>
 
             <div className='space-y-3'>
-              {isAndroid && (
+              {canOpenApp && (
                 <a
                   href={masjidAppUrl(masjid.id)}
                   className={buttonVariants({ className: 'w-full' })}
@@ -83,18 +94,31 @@ export default function MasjidFollow() {
                   Open in Alkhairia
                 </a>
               )}
-              <a
-                href={ALKHAIRIA_PLAY_STORE_URL}
-                className={buttonVariants({
-                  variant: isAndroid ? 'outline' : 'default',
-                  className: 'w-full',
-                })}
-              >
-                Get Alkhairia on Google Play
-              </a>
-              {!isAndroid && (
-                <p className='text-xs text-muted-foreground'>
-                  Alkhairia is available on Android for now.
+              {showPlayStore && (
+                <a
+                  href={ALKHAIRIA_PLAY_STORE_URL}
+                  className={buttonVariants({
+                    variant: canOpenApp ? 'outline' : 'default',
+                    className: 'w-full',
+                  })}
+                >
+                  Get Alkhairia on Google Play
+                </a>
+              )}
+              {showAppStore && ALKHAIRIA_APP_STORE_URL && (
+                <a
+                  href={ALKHAIRIA_APP_STORE_URL}
+                  className={buttonVariants({
+                    variant: canOpenApp || showPlayStore ? 'outline' : 'default',
+                    className: 'w-full',
+                  })}
+                >
+                  Download Alkhairia on the App Store
+                </a>
+              )}
+              {platform === 'ios' && !iosAppLive && (
+                <p className='text-sm text-muted-foreground'>
+                  Alkhairia is coming soon to the App Store.
                 </p>
               )}
             </div>
