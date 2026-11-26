@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
+import { StoreBadges } from '@/components/common/store-badges';
 import { buttonVariants } from '@/components/ui';
 import { getPublicMasjid, type PublicMasjid } from '@/lib/supabase';
-import {
-  ALKHAIRIA_APP_STORE_URL,
-  ALKHAIRIA_PLAY_STORE_URL,
-  devicePlatform,
-  masjidAppUrl,
-} from '@/helpers';
+import { ALKHAIRIA_APP_STORE_URL, devicePlatform, masjidAppUrl } from '@/helpers';
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -28,8 +24,6 @@ export default function MasjidFollow() {
   // The custom scheme only works where the app can be installed; on iOS that
   // waits for the App Store release.
   const canOpenApp = platform === 'android' || (platform === 'ios' && iosAppLive);
-  const showPlayStore = platform !== 'ios';
-  const showAppStore = platform !== 'android';
 
   useEffect(() => {
     if (!validId) return;
@@ -94,28 +88,8 @@ export default function MasjidFollow() {
                   Open in Alkhairia
                 </a>
               )}
-              {showPlayStore && (
-                <a
-                  href={ALKHAIRIA_PLAY_STORE_URL}
-                  className={buttonVariants({
-                    variant: canOpenApp ? 'outline' : 'default',
-                    className: 'w-full',
-                  })}
-                >
-                  Get Alkhairia on Google Play
-                </a>
-              )}
-              {showAppStore && ALKHAIRIA_APP_STORE_URL && (
-                <a
-                  href={ALKHAIRIA_APP_STORE_URL}
-                  className={buttonVariants({
-                    variant: canOpenApp || showPlayStore ? 'outline' : 'default',
-                    className: 'w-full',
-                  })}
-                >
-                  Download Alkhairia on the App Store
-                </a>
-              )}
+              <StoreBadges platform={platform} className='justify-center' />
+
               {platform === 'ios' && !iosAppLive && (
                 <p className='text-sm text-muted-foreground'>
                   Alkhairia is coming soon to the App Store.

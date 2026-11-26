@@ -10,6 +10,11 @@ export const ALKHAIRIA_PLAY_STORE_URL =
  */
 export const ALKHAIRIA_APP_STORE_URL: string | null = null;
 
+// Official store badges, served from public/ so the pre-rendered landing page
+// gets real URLs.
+export const GOOGLE_PLAY_BADGE = '/badges/google-play.png';
+export const APP_STORE_BADGE = '/badges/app-store.svg';
+
 export type DevicePlatform = 'android' | 'ios' | 'other';
 
 export const devicePlatform = (): DevicePlatform => {

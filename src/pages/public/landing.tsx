@@ -8,7 +8,6 @@ import {
   Megaphone,
   MonitorSmartphone,
   QrCode,
-  Smartphone,
   Tv,
   Users,
   Video,
@@ -18,7 +17,7 @@ import {
 import { buttonVariants } from '@/components/ui/button-variants';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { AppRoutes, AuthRoutes, PublicRoutes } from '@/constants/routes';
-import { ALKHAIRIA_APP_STORE_URL, ALKHAIRIA_PLAY_STORE_URL } from '@/helpers/follow-link';
+import { StoreBadges } from '@/components/common/store-badges';
 import { useAuthStore } from '@/store/auth-store';
 
 type Feature = { icon: LucideIcon; title: string; body: string };
@@ -241,28 +240,7 @@ export default function Landing() {
                 Worshippers follow your masjid in the Alkhairia app to see its prayer times and
                 content wherever they are.
               </p>
-              <div className='flex flex-wrap justify-center gap-3 lg:justify-start'>
-                <a
-                  href={ALKHAIRIA_PLAY_STORE_URL}
-                  target='_blank'
-                  rel='noreferrer'
-                  className={buttonVariants({ variant: 'outline' })}
-                >
-                  <Smartphone />
-                  Get Alkhairia on Google Play
-                </a>
-                {ALKHAIRIA_APP_STORE_URL && (
-                  <a
-                    href={ALKHAIRIA_APP_STORE_URL}
-                    target='_blank'
-                    rel='noreferrer'
-                    className={buttonVariants({ variant: 'outline' })}
-                  >
-                    <Smartphone />
-                    Download Alkhairia on the App Store
-                  </a>
-                )}
-              </div>
+              <StoreBadges className='justify-center lg:justify-start' />
             </div>
             <ul className='grid gap-4 sm:grid-cols-2'>
               {[

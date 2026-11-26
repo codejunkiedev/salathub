@@ -1,7 +1,8 @@
 import { QRCodeSVG } from 'qrcode.react';
 import { useTranslation } from 'react-i18next';
 import { getDir, getFontClass } from '@/i18n';
-import { ALKHAIRIA_APP_STORE_URL, masjidFollowUrl } from '@/helpers';
+import { StoreBadges } from '@/components/common/store-badges';
+import { masjidFollowUrl } from '@/helpers';
 import type { DisplayLanguage, ScreenOrientation } from '@/types';
 
 interface FollowQrDisplayProps {
@@ -66,9 +67,11 @@ export function FollowQrDisplay({
           <p className={`text-white/85 ${leading} ${isPortrait ? 'text-[4vw]' : 'text-[2.1vw]'}`}>
             {t('followQr.subtitle')}
           </p>
-          <p className={`text-white/70 ${isPortrait ? 'text-[3.2vw]' : 'text-[1.6vw]'}`}>
-            {t(ALKHAIRIA_APP_STORE_URL ? 'followQr.storeBoth' : 'followQr.store')}
-          </p>
+          <StoreBadges
+            linked={false}
+            className={isPortrait ? 'justify-center gap-[2vw]' : 'gap-[1.2vw]'}
+            badgeClassName={isPortrait ? 'h-[6vw]' : 'h-[5.5vh]'}
+          />
         </div>
 
         {/* The white margin is the code's quiet zone; scanners need it. */}

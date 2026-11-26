@@ -3,7 +3,23 @@ import { QRCodeCanvas } from 'qrcode.react';
 import { Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui';
-import { ALKHAIRIA_APP_STORE_URL, masjidFollowUrl } from '@/helpers';
+import {
+  ALKHAIRIA_APP_STORE_URL,
+  APP_STORE_BADGE,
+  GOOGLE_PLAY_BADGE,
+  masjidFollowUrl,
+} from '@/helpers';
+
+const BADGE_HEIGHT = 96;
+const BADGE_GAP = 32;
+
+const loadImage = (src: string): Promise<HTMLImageElement> =>
+  new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = src;
+  });
 
 // A4 at 150 dpi.
 const POSTER_WIDTH = 1240;
@@ -36,7 +52,7 @@ const wrapText = (context: CanvasRenderingContext2D, text: string): string[] => 
 export function FollowQrPoster({ masjidId, masjidName }: FollowQrPosterProps) {
   const qrRef = useRef<HTMLCanvasElement>(null);
 
-  const download = () => {
+  const download = async () => {
     const qr = qrRef.current;
     const poster = document.createElement('canvas');
     poster.width = POSTER_WIDTH;
@@ -78,13 +94,26 @@ export function FollowQrPoster({ masjidId, masjidName }: FollowQrPosterProps) {
     context.font = '34px sans-serif';
     context.fillText('for our prayer times and alerts when they change', centre, y);
 
-    context.fillText(
-      ALKHAIRIA_APP_STORE_URL
-        ? 'Alkhairia is available on Google Play and the App Store'
-        : 'Alkhairia is available on Google Play',
-      centre,
-      POSTER_HEIGHT - 130
-    );
+    try {
+      const badges = await Promise.all(
+        [GOOGLE_PLAY_BADGE, ALKHAIRIA_APP_STORE_URL && APP_STORE_BADGE]
+          .filter((src): src is string => !!src)
+          .map(loadImage)
+      );
+      const widths = badges.map(badge => (badge.naturalWidth / badge.naturalHeight) * BADGE_HEIGHT);
+      const rowWidth =
+        widths.reduce((sum, width) => sum + width, 0) + BADGE_GAP * (badges.length - 1);
+      let x = (POSTER_WIDTH - rowWidth) / 2;
+      const badgeY = POSTER_HEIGHT - 110 - BADGE_HEIGHT;
+      badges.forEach((badge, index) => {
+        context.drawImage(badge, x, badgeY, widths[index], BADGE_HEIGHT);
+        x += widths[index] + BADGE_GAP;
+      });
+    } catch (error) {
+      console.error('Error drawing store badges:', error);
+      toast.error('Failed to create the poster');
+      return;
+    }
 
     const link = document.createElement('a');
     link.href = poster.toDataURL('image/png');

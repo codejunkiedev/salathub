@@ -15,3 +15,4 @@ export * from './auth-header';
 export * from './desktop-only';
 export * from './member-blocked';
 export * from './pro-badge';
+export * from './store-badges';
