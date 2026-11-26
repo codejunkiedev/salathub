@@ -44,6 +44,7 @@ import {
   PrivacyPolicy,
   TermsConditions,
   RefundPolicy,
+  AppSupport,
   MasjidFollow,
   Landing,
   PlatformQueue,
@@ -183,6 +184,7 @@ export default function Navigation() {
           <Route path={PublicRoutes.PrivacyPolicy} element={<PrivacyPolicy />} />
           <Route path={PublicRoutes.TermsConditions} element={<TermsConditions />} />
           <Route path={PublicRoutes.RefundPolicy} element={<RefundPolicy />} />
+          <Route path={PublicRoutes.AppSupport} element={<AppSupport />} />
           <Route path={PublicRoutes.Masjid} element={<MasjidFollow />} />
 
           {/* Email auth routes - only accessible when not logged in with email */}

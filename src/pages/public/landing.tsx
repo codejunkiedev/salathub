@@ -316,6 +316,12 @@ export default function Landing() {
             >
               Refund Policy
             </Link>
+            <Link
+              to={PublicRoutes.AppSupport}
+              className='underline-offset-4 hover:text-foreground hover:underline'
+            >
+              Support
+            </Link>
           </div>
         </div>
       </footer>

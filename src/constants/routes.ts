@@ -10,6 +10,7 @@ export enum PublicRoutes {
   PrivacyPolicy = '/privacy',
   TermsConditions = '/terms',
   RefundPolicy = '/refund-policy',
+  AppSupport = '/support',
   Masjid = '/masjid/:id',
 }
 

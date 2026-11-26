@@ -6,7 +6,7 @@ import { AuthHeader } from '@/components/common/auth-header';
 
 type LegalLayoutProps = {
   title: string;
-  lastUpdated: string;
+  lastUpdated?: string;
   children: ReactNode;
 };
 
@@ -18,7 +18,9 @@ export function LegalLayout({ title, lastUpdated, children }: LegalLayoutProps) 
       <main className='mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12'>
         <div className='mb-8 space-y-2'>
           <h1 className='text-2xl font-bold tracking-tight sm:text-3xl'>{title}</h1>
-          <p className='text-sm text-muted-foreground'>Last updated: {lastUpdated}</p>
+          {lastUpdated && (
+            <p className='text-sm text-muted-foreground'>Last updated: {lastUpdated}</p>
+          )}
         </div>
 
         <article
@@ -53,6 +55,12 @@ export function LegalLayout({ title, lastUpdated, children }: LegalLayoutProps) 
               className='hover:text-foreground hover:underline underline-offset-4'
             >
               Refund Policy
+            </Link>
+            <Link
+              to={PublicRoutes.AppSupport}
+              className='hover:text-foreground hover:underline underline-offset-4'
+            >
+              Support
             </Link>
           </div>
           <span>&copy; {new Date().getFullYear()} SalatHub</span>

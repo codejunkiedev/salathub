@@ -23,6 +23,10 @@ export const PAGE_META = {
     description:
       'When you can get a refund for a SalatHub Pro subscription, and how to ask for one.',
   },
+  [PublicRoutes.AppSupport]: {
+    title: 'Support – Alkhairia & SalatHub',
+    description: 'Get help with the Alkhairia app and SalatHub, or contact our team.',
+  },
   [AuthRoutes.Login]: {
     title: 'Sign in – SalatHub',
     description: 'Sign in to the SalatHub console to manage your masjid’s screens.',
@@ -42,4 +46,5 @@ export const PRERENDERED_PATHS = [
   PublicRoutes.PrivacyPolicy,
   PublicRoutes.TermsConditions,
   PublicRoutes.RefundPolicy,
+  PublicRoutes.AppSupport,
 ] as const;
