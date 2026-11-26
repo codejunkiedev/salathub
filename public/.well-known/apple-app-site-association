@@ -1,0 +1,10 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["M227H6Z9QP.com.alkhairia.dhikr"],
+        "components": [{ "/": "/masjid/*" }]
+      }
+    ]
+  }
+}
