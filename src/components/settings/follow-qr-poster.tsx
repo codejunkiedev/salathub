@@ -3,7 +3,7 @@ import { QRCodeCanvas } from 'qrcode.react';
 import { Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui';
-import { masjidFollowUrl } from '@/helpers';
+import { ALKHAIRIA_APP_STORE_URL, masjidFollowUrl } from '@/helpers';
 
 // A4 at 150 dpi.
 const POSTER_WIDTH = 1240;
@@ -78,7 +78,13 @@ export function FollowQrPoster({ masjidId, masjidName }: FollowQrPosterProps) {
     context.font = '34px sans-serif';
     context.fillText('for our prayer times and alerts when they change', centre, y);
 
-    context.fillText('Alkhairia is available on Google Play', centre, POSTER_HEIGHT - 130);
+    context.fillText(
+      ALKHAIRIA_APP_STORE_URL
+        ? 'Alkhairia is available on Google Play and the App Store'
+        : 'Alkhairia is available on Google Play',
+      centre,
+      POSTER_HEIGHT - 130
+    );
 
     const link = document.createElement('a');
     link.href = poster.toDataURL('image/png');

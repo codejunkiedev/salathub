@@ -1,7 +1,7 @@
 import { QRCodeSVG } from 'qrcode.react';
 import { useTranslation } from 'react-i18next';
 import { getDir, getFontClass } from '@/i18n';
-import { masjidFollowUrl } from '@/helpers';
+import { ALKHAIRIA_APP_STORE_URL, masjidFollowUrl } from '@/helpers';
 import type { DisplayLanguage, ScreenOrientation } from '@/types';
 
 interface FollowQrDisplayProps {
@@ -67,7 +67,7 @@ export function FollowQrDisplay({
             {t('followQr.subtitle')}
           </p>
           <p className={`text-white/70 ${isPortrait ? 'text-[3.2vw]' : 'text-[1.6vw]'}`}>
-            {t('followQr.store')}
+            {t(ALKHAIRIA_APP_STORE_URL ? 'followQr.storeBoth' : 'followQr.store')}
           </p>
         </div>
 
